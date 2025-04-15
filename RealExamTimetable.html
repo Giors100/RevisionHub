@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" class="light min-h-screen">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giorgi's GCSE Revision Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Configure Tailwind CSS
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: { light: '#4f46e5', DEFAULT: '#4f46e5', dark: '#6366f1' }, // Indigo-600, Indigo-500
+                        secondary: { light: '#10b981', DEFAULT: '#10b981', dark: '#34d399' }, // Emerald-500, Emerald-400
+                        background: { light: '#f9fafb', DEFAULT: '#f9fafb', dark: '#111827' }, // gray-50, gray-900
+                        card: { light: '#ffffff', DEFAULT: '#ffffff', dark: '#1f2937' }, // white, gray-800
+                        text: { light: '#1f2937', DEFAULT: '#1f2937', dark: '#f3f4f6' }, // gray-800, gray-100
+                        muted: { light: '#6b7280', DEFAULT: '#6b7280', dark: '#9ca3af' }, // gray-500, gray-400
+                        status: {
+                            review: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
+                            progress: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+                            mastered: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+                        }
+                    },
+                    boxShadow: {
+                        'widget': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        'widget-dark': '0 4px 6px -1px rgb(255 255 255 / 0.05), 0 2px 4px -2px rgb(255 255 255 / 0.05)',
+                        'widget-hover': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+                        'widget-hover-dark': '0 10px 15px -3px rgb(255 255 255 / 0.05), 0 4px 6px -4px rgb(255 255 255 / 0.05)',
+                    },
+                    borderRadius: { 'xl': '0.75rem' },
+                    transitionTimingFunction: { 'bounce': 'cubic-bezier(0.68, -0.55, 0.27, 1.55)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Page transition styles */
+        .page { display: none; padding: 1rem; }
+        @media (min-width: 768px) { .page { padding: 1.5rem; } }
+        @media (min-width: 1024px) { .page { padding: 2rem; } }
+        .page.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Lucide Icon Placeholder Style */
+        i[data-lucide] { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; }
+
+        /* Pomodoro Timer Ring */
+        .timer-ring { stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset 1s linear; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background-color: #f1f5f9; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb { background-color: rgba(79, 70, 229, 0.5); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background-color: rgba(79, 70, 229, 0.7); }
+        .dark ::-webkit-scrollbar-track { background-color: #374151; }
+        .dark ::-webkit-scrollbar-thumb { background-color: rgba(99, 102, 241, 0.6); }
+        .dark ::-webkit-scrollbar-thumb:hover { background-color: rgba(99, 102, 241, 0.8); }
+
+        /* Mobile menu transition */
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.open { transform: translateX(0); }
+
+        /* Login Overlay */
+        #login-overlay { z-index: 100; }
+
+        /* Quiz Answer Styling */
+        .quiz-answer { background-color: #e5e7eb; border-radius: 0.375rem; padding: 0.75rem; margin-top: 0.75rem; transition: max-height 0.3s ease-out, opacity 0.3s ease-out; max-height: 0; overflow: hidden; opacity: 0; }
+        .dark .quiz-answer { background-color: #374151; }
+        .quiz-answer.visible { max-height: 500px; opacity: 1; } /* Adjust max-height if needed */
+
+        /* Ensure buttons are not overly wide on small screens */
+        #login-button, #change-password-button, #save-resource-btn, #start-pause-button, #reset-button, #save-tracker-item-btn, #save-planner-item-btn, #save-quiz-question-btn, #start-quiz-button, #reveal-answer-btn, #stop-quiz-button, #next-question-btn {
+             max-width: 320px; /* Example max-width */
+             margin-left: auto;
+             margin-right: auto;
+        }
+        /* Center align buttons within their containers if needed */
+        #login-overlay > div, #pomodoro > div { display: flex; flex-direction: column; align-items: center; }
+
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-background text-text font-sans transition-colors duration-300 dark:bg-background-dark">
+
+    <div id="login-overlay" class="fixed inset-0 bg-background dark:bg-background-dark flex items-center justify-center p-4">
+        <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 max-w-sm w-full">
+            <h2 class="text-xl font-semibold mb-4 text-center">Login</h2>
+            <p class="text-muted dark:text-muted-dark text-sm mb-1 text-center">Enter your credentials.</p>
+            <p class="text-xs text-muted dark:text-muted-dark mb-4 text-center">(Use email/password set up in Firebase)</p>
+            <div class="mb-4">
+                <label for="email-input" class="sr-only">Email</label>
+                <input type="email" id="email-input" placeholder="Email" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary">
+            </div>
+            <div class="mb-4">
+                <label for="password-input" class="sr-only">Password</label>
+                <input type="password" id="password-input" placeholder="Password" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary">
+            </div>
+            <button id="login-button" class="w-full bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95">Login</button>
+            <p id="login-error" class="text-red-500 text-sm mt-2 text-center hidden">Login failed. Check credentials or Firebase setup.</p>
+        </div>
+    </div>
+
+    <div id="app-wrapper" class="hidden flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 bg-card dark:bg-card-dark shadow-md dark:shadow-gray-700 transition-colors duration-300">
+            <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <a href="#" data-page="dashboard" class="nav-link text-xl md:text-2xl font-bold text-primary dark:text-primary-dark flex items-center space-x-2">
+                    <i data-lucide="graduation-cap" class="h-6 w-6"></i> <span>Giorgi's Hub</span>
+                </a>
+                <div class="hidden md:flex items-center space-x-1 lg:space-x-2"> <a href="#" data-page="dashboard" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Dashboard</a>
+                    <a href="#" data-page="timetable" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Timetable</a>
+                    <a href="#" data-page="resources" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Resources</a>
+                    <a href="#" data-page="pomodoro" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Pomodoro</a>
+                    <a href="#" data-page="tracker" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Tracker</a>
+                    <a href="#" data-page="planner" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Planner</a>
+                    <a href="#" data-page="quiz" class="nav-link px-2 py-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 font-medium text-sm">Quiz</a>
+                    <button id="theme-toggle" class="p-2 rounded-full text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800 transition-transform duration-200 ease-bounce active:scale-95">
+                        <i data-lucide="sun" id="theme-icon-light" class="h-5 w-5"></i> <i data-lucide="moon" id="theme-icon-dark" class="h-5 w-5 hidden"></i>
+                    </button>
+                    <button id="logout-button" title="Logout" class="p-2 rounded-full text-muted dark:text-muted-dark hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-transform duration-200 ease-bounce active:scale-95">
+                        <i data-lucide="log-out" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center">
+                     <button id="theme-toggle-mobile" class="p-2 mr-2 rounded-full text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800 transition-transform duration-200 ease-bounce active:scale-95">
+                        <i data-lucide="sun" id="theme-icon-light-mobile" class="h-5 w-5"></i> <i data-lucide="moon" id="theme-icon-dark-mobile" class="h-5 w-5 hidden"></i>
+                    </button>
+                    <button id="mobile-menu-button" class="p-2 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary transition-transform duration-200 ease-bounce active:scale-95">
+                        <span class="sr-only">Open main menu</span> <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </nav>
+            <div id="mobile-menu" class="md:hidden fixed inset-y-0 left-0 w-64 bg-card dark:bg-card-dark shadow-lg z-60 p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="#" data-page="dashboard" class="nav-link text-lg font-bold text-primary dark:text-primary-dark flex items-center space-x-2"> <i data-lucide="graduation-cap" class="h-5 w-5"></i> <span>Giorgi's Hub</span> </a>
+                    <button id="mobile-close-button" class="p-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-transform duration-200 ease-bounce active:scale-95"> <i data-lucide="x" class="h-5 w-5"></i> </button>
+                </div>
+                <nav class="flex flex-col space-y-2">
+                    <a href="#" data-page="dashboard" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Dashboard</a>
+                    <a href="#" data-page="timetable" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Timetable</a>
+                    <a href="#" data-page="resources" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Resources</a>
+                    <a href="#" data-page="pomodoro" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Pomodoro</a>
+                    <a href="#" data-page="tracker" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Tracker</a>
+                    <a href="#" data-page="planner" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Planner</a>
+                    <a href="#" data-page="quiz" class="nav-link mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-dark">Quiz</a>
+                    <hr class="my-2 border-gray-200 dark:border-gray-700">
+                    <button id="logout-button-mobile" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">Logout</button>
+                </nav>
+            </div>
+            <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-55 hidden md:hidden"></div>
+        </header>
+
+        <main class="flex-grow container mx-auto px-4 py-6 bg-background dark:bg-background-dark transition-colors duration-300">
+
+            <section id="dashboard" class="page">
+                 <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Welcome, Giorgi!</h1>
+                 <p class="text-muted dark:text-muted-dark mb-6 -mt-4">Candidate Number: 7590</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 md:col-span-2 lg:col-span-2 hover:shadow-widget-hover dark:hover:shadow-widget-hover-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="calendar-clock" class="h-5 w-5 text-primary dark:text-primary-dark"></i> <span>Upcoming Exams</span> </h2>
+                        <div id="upcoming-exams-list" class="space-y-3"> <p class="text-muted dark:text-muted-dark">Loading upcoming exams...</p> </div>
+                    </div>
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 hover:shadow-widget-hover dark:hover:shadow-widget-hover-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="timer" class="h-5 w-5 text-secondary dark:text-secondary-dark"></i> <span>Recent Study Sessions</span> </h2>
+                        <div id="pomodoro-summary" class="space-y-2"> <p class="text-muted dark:text-muted-dark">No recent sessions logged.</p> </div>
+                        <button onclick="navigateToPage('pomodoro')" class="mt-4 w-full bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 transition-transform duration-200 ease-bounce active:scale-95"> <i data-lucide="play-circle" class="h-5 w-5"></i> <span>Start Pomodoro</span> </button>
+                    </div>
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 md:col-span-1 lg:col-span-1 hover:shadow-widget-hover dark:hover:shadow-widget-hover-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="bar-chart-3" class="h-5 w-5 text-cyan-500"></i> <span>Study Time Analytics</span> </h2>
+                        <div id="pomodoro-analytics" class="space-y-2 text-sm"> <p class="text-muted dark:text-muted-dark">Loading analytics...</p> </div>
+                    </div>
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 md:col-span-1 lg:col-span-1 hover:shadow-widget-hover dark:hover:shadow-widget-hover-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="link" class="h-5 w-5 text-blue-500"></i> <span>Quick Links</span> </h2>
+                        <div class="space-y-2"> <a href="#" onclick="navigateToPage('resources', 'Computer Science')" class="block text-primary dark:text-primary-dark hover:underline">Computer Science Resources</a> <a href="#" onclick="navigateToPage('resources', 'Mathematics')" class="block text-primary dark:text-primary-dark hover:underline">Maths Notes</a> <a href="#" onclick="navigateToPage('timetable')" class="block text-primary dark:text-primary-dark hover:underline">Full Timetable</a> <a href="#" onclick="navigateToPage('planner')" class="block text-primary dark:text-primary-dark hover:underline">Revision Planner</a> </div>
+                    </div>
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 md:col-span-1 lg:col-span-1 hover:shadow-widget-hover dark:hover:shadow-widget-hover-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="quote" class="h-5 w-5 text-purple-500"></i> <span>Daily Motivation</span> </h2>
+                        <blockquote id="motivational-quote" class="text-muted dark:text-muted-dark italic border-l-4 border-purple-300 dark:border-purple-700 pl-4"> Loading quote... </blockquote>
+                    </div>
+                    <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 md:col-span-2 lg:col-span-3">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="key-round" class="h-5 w-5 text-gray-500"></i> <span>Account Settings</span> </h2>
+                        <div id="change-password-form"> <p class="text-sm text-muted dark:text-muted-dark mb-2">Change your login password.</p> <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"> <div> <label for="current-password" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Current Password:</label> <input type="password" id="current-password" class="w-full p-2 border rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600"> </div> <div> <label for="new-password" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">New Password:</label> <input type="password" id="new-password" class="w-full p-2 border rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-600"> </div> <button id="change-password-button" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 h-10 transition-transform duration-200 ease-bounce active:scale-95">Change Password</button> </div> <p id="change-password-message" class="text-sm mt-2"></p> </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="timetable" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Exam Timetable</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-0 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700"> <tr> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Date & Time</th> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Subject & Paper</th> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Duration</th> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Board/Tier</th> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Location & Seat</th> <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-muted dark:text-muted-dark uppercase tracking-wider">Countdown</th> </tr> </thead>
+                        <tbody id="timetable-body" class="divide-y divide-gray-200 dark:divide-gray-700"> <tr><td colspan="6" class="p-4 text-center text-muted dark:text-muted-dark">Loading timetable...</td></tr> </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="resources" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Revision Resources</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
+                    <h2 class="text-xl font-semibold mb-4">Manage Your Resources</h2> <p class="text-muted dark:text-muted-dark mb-4">Select a subject and add links or notes.</p>
+                    <div class="mb-4 border-b border-gray-200 dark:border-gray-700"> <nav id="subject-tabs" class="-mb-px flex space-x-4 overflow-x-auto" aria-label="Tabs"> </nav> </div>
+                    <div id="resource-content" class="mt-4 mb-6 min-h-[100px]"> <p class="text-muted dark:text-muted-dark italic">Select a subject to view or add resources.</p> </div>
+                    <div id="add-resource-form" class="mt-6 hidden pt-6 border-t dark:border-gray-700"> <h3 class="text-lg font-medium mb-3">Add New Resource</h3> <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> <div> <label for="resource-type" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Type:</label> <select id="resource-type" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="link">Link</option> <option value="note">Note</option> </select> </div> <div class="md:col-span-2"> <label for="resource-title" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Title:</label> <input type="text" id="resource-title" placeholder="Resource Title" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> </div> <div class="md:col-span-3"> <label for="resource-url" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">URL (for links):</label> <input type="url" id="resource-url" placeholder="https://example.com" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> </div> <div class="md:col-span-3 hidden"> <label for="resource-note" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Note Content:</label> <textarea id="resource-note" placeholder="Enter your note..." rows="4" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"></textarea> </div> </div> <button id="save-resource-btn" class="mt-4 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95">Add Resource</button> </div>
+                </div>
+            </section>
+
+            <section id="pomodoro" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Pomodoro Timer</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 max-w-md mx-auto text-center">
+                    <h2 class="text-xl font-semibold mb-4">Focus Session</h2>
+                    <div class="mb-6"> <label for="pomodoro-subject" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label> <select id="pomodoro-subject" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select> </div>
+                    <div class="relative w-48 h-48 mx-auto mb-6"> <svg class="w-full h-full" viewBox="0 0 100 100"> <circle class="text-gray-200 dark:text-gray-600" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/> <circle id="timer-progress-ring" class="text-primary dark:text-primary-dark timer-ring" stroke-width="10" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" transform="rotate(-90 50 50)" /> </svg> <div id="timer-display" class="absolute inset-0 flex flex-col items-center justify-center text-3xl font-bold text-text dark:text-text-dark">25:00</div> <div id="timer-status" class="absolute bottom-0 left-0 right-0 text-sm text-muted dark:text-muted-dark -mb-4">Work</div> </div>
+                    <div class="flex justify-center space-x-4"> <button id="start-pause-button" class="bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 flex items-center space-x-2 transition-transform duration-200 ease-bounce active:scale-95"> <i data-lucide="play" class="h-5 w-5"></i> <span>Start</span> </button> <button id="reset-button" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 flex items-center space-x-2 transition-transform duration-200 ease-bounce active:scale-95"> <i data-lucide="rotate-ccw" class="h-5 w-5"></i> <span>Reset</span> </button> </div>
+                    <details class="mt-6 text-left"> <summary class="cursor-pointer text-sm text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark">Timer Settings</summary> <div class="mt-2 p-4 bg-gray-50 dark:bg-gray-700 rounded-md border dark:border-gray-600 space-y-2"> <div> <label for="work-duration" class="block text-xs font-medium">Work (min):</label> <input type="number" id="work-duration" value="25" min="1" class="w-full p-1 border rounded-md text-sm bg-white dark:bg-gray-600 dark:border-gray-500"> </div> <div> <label for="short-break-duration" class="block text-xs font-medium">Short Break (min):</label> <input type="number" id="short-break-duration" value="5" min="1" class="w-full p-1 border rounded-md text-sm bg-white dark:bg-gray-600 dark:border-gray-500"> </div> <div> <label for="long-break-duration" class="block text-xs font-medium">Long Break (min):</label> <input type="number" id="long-break-duration" value="15" min="1" class="w-full p-1 border rounded-md text-sm bg-white dark:bg-gray-600 dark:border-gray-500"> </div> </div> </details>
+                </div>
+            </section>
+
+            <section id="tracker" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Feedback & Improvement Tracker</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
+                    <h2 class="text-xl font-semibold mb-4">Track Your Progress</h2> <p class="text-muted dark:text-muted-dark mb-4">Log feedback, weak areas, and action points for each subject.</p>
+                    <div class="mb-6"> <label for="tracker-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label> <select id="tracker-subject-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select> </div>
+                    <div id="tracker-items-list" class="mt-4 mb-6 min-h-[100px]"> <p class="text-muted dark:text-muted-dark italic">Select a subject to view or add items.</p> </div>
+                    <div id="add-tracker-item-form" class="mt-6 hidden pt-6 border-t dark:border-gray-700"> <h3 class="text-lg font-medium mb-3">Add New Tracker Item</h3> <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> <div class="md:col-span-3"> <label for="tracker-description" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Description:</label> <textarea id="tracker-description" placeholder="Describe the feedback, weak area, or action point..." rows="3" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"></textarea> </div> <div> <label for="tracker-status-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Status:</label> <select id="tracker-status-select" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="To Review">To Review</option> <option value="In Progress">In Progress</option> <option value="Mastered">Mastered</option> </select> </div> </div> <button id="save-tracker-item-btn" class="mt-4 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95">Add Item</button> </div>
+                </div>
+            </section>
+
+            <section id="planner" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Revision Planner</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
+                    <h2 class="text-xl font-semibold mb-4">Schedule Your Study Time</h2> <p class="text-muted dark:text-muted-dark mb-4">Plan your revision sessions.</p>
+                    <div id="add-planner-item-form" class="mb-6 pb-6 border-b dark:border-gray-700"> <h3 class="text-lg font-medium mb-3">Add New Session</h3> <div class="grid grid-cols-1 md:grid-cols-4 gap-4"> <div> <label for="planner-date" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Date:</label> <input type="date" id="planner-date" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> </div> <div> <label for="planner-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Subject:</label> <select id="planner-subject-select" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select> </div> <div class="md:col-span-2"> <label for="planner-topic" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Topic/Notes:</label> <input type="text" id="planner-topic" placeholder="e.g., Algebra Practice, Essay Plan" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> </div> </div> <button id="save-planner-item-btn" class="mt-4 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95">Schedule Session</button> </div>
+                    <h3 class="text-lg font-medium mb-3">Scheduled Sessions</h3> <div id="planner-items-list" class="mt-4 space-y-4"> <p class="text-muted dark:text-muted-dark italic">No sessions scheduled yet.</p> </div>
+                </div>
+            </section>
+
+             <section id="quiz" class="page">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Quiz Yourself</h1>
+                <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
+                    <h2 class="text-xl font-semibold mb-4">Practice Questions</h2> <p class="text-muted dark:text-muted-dark mb-4">Add questions you struggled with and quiz yourself later.</p>
+                    <div class="mb-6"> <label for="quiz-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label> <select id="quiz-subject-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select> </div>
+                    <div id="add-quiz-question-section"> <div id="add-quiz-question-form" class="mb-6 pb-6 border-b dark:border-gray-700"> <h3 class="text-lg font-medium mb-3">Add New Question</h3> <div class="space-y-4"> <div> <label for="quiz-question-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Question:</label> <textarea id="quiz-question-input" placeholder="Enter the question text..." rows="3" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"></textarea> </div> <div> <label for="quiz-answer-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Answer / Mark Scheme:</label> <textarea id="quiz-answer-input" placeholder="Enter the correct answer or mark scheme points..." rows="4" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary"></textarea> </div> </div> <button id="save-quiz-question-btn" class="mt-4 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95 disabled:opacity-50" disabled>Add Question</button> </div> <h3 class="text-lg font-medium mb-3">Saved Questions</h3> <div id="quiz-items-list" class="mt-4 mb-6 max-h-60 overflow-y-auto space-y-2 pr-2"> <p class="text-muted dark:text-muted-dark italic">Select a subject to see saved questions or start a quiz.</p> </div> <button id="start-quiz-button" class="bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95 disabled:opacity-50" disabled> <i data-lucide="play" class="inline-block h-5 w-5 mr-1"></i> Quiz Me! </button> </div>
+                    <div id="quiz-mode-interface" class="hidden mt-6 pt-6 border-t dark:border-gray-700"> <h3 class="text-lg font-medium mb-3">Quiz Mode</h3> <div id="quiz-question-display" class="p-4 border rounded-lg dark:border-gray-600 mb-4 min-h-[80px]"> <p class="text-muted dark:text-muted-dark italic">Loading question...</p> </div> <button id="reveal-answer-btn" class="mb-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95">Reveal Answer</button> <div id="quiz-answer-display" class="quiz-answer text-sm text-text dark:text-text-dark whitespace-pre-wrap"> </div> <div class="mt-6 flex justify-between items-center"> <button id="stop-quiz-button" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95 text-sm"> <i data-lucide="x-circle" class="inline-block h-4 w-4 mr-1"></i> Stop Quiz </button> <span id="quiz-progress" class="text-sm text-muted dark:text-muted-dark"></span> <button id="next-question-btn" class="bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 transition-transform duration-200 ease-bounce active:scale-95"> Next Question <i data-lucide="arrow-right" class="inline-block h-5 w-5 ml-1"></i> </button> </div> </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="bg-card dark:bg-card-dark mt-auto py-4 shadow-inner dark:shadow-gray-700 transition-colors duration-300">
+            <div class="container mx-auto px-4 text-center text-sm text-muted dark:text-muted-dark">
+                &copy; <span id="current-year"></span> Giorgi Suramlishvili Revision Hub. Keep up the great work!
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+      // Import Firebase functions
+      import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"; // Renamed import
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+      import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+      import { getFirestore, collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc, query, orderBy, limit, serverTimestamp, increment, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+      // --- Firebase Configuration ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyAt3uFOLLQXjt2p0LERjvizePMfg9S74Mk", // Replace if needed
+        authDomain: "studentpage-97bb5.firebaseapp.com",
+        projectId: "studentpage-97bb5",
+        storageBucket: "studentpage-97bb5.appspot.com",
+        messagingSenderId: "613071061381",
+        appId: "1:613071061381:web:124051538e7e0dfec344ec",
+        measurementId: "G-WC262FYLJH"
+      };
+
+      // --- Initialize Firebase ---
+      let app, analytics, auth, db;
+      try {
+          app = initializeFirebaseApp(firebaseConfig); // Use renamed import here
+          analytics = getAnalytics(app);
+          auth = getAuth(app);
+          db = getFirestore(app);
+          console.log("Firebase Initialized Successfully");
+      } catch (error) {
+          console.error("Firebase Initialization Error:", error);
+          const loginErrorEl = document.getElementById('login-error');
+          if(loginErrorEl) {
+              loginErrorEl.textContent = "Error initializing Firebase. Please check console and configuration.";
+              loginErrorEl.classList.remove('hidden');
+          }
+          throw new Error("Firebase initialization failed.");
+      }
+
+
+      // --- Global State ---
+      let currentUserId = null;
+      let isInitialized = false;
+
+      // --- DATA (Hardcoded) ---
+      const examData = [ { subject: "English Literature", paper: "Paper 1", date: "2025-05-12T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computer Systems Written", date: "2025-05-12T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Biology", paper: "Paper 1", date: "2025-05-13T13:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Geography", paper: "Paper 1", date: "2025-05-14T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Mathematics", paper: "Option H: Non-Calculator", date: "2025-05-15T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Chemistry", paper: "Paper 1", date: "2025-05-19T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Literature", paper: "Paper 2", date: "2025-05-20T08:45:00", duration: "2h 15m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computational Thinking, Algorithms & Programming", date: "2025-05-20T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Physics", paper: "Paper 1", date: "2025-05-22T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Language", paper: "Paper 1", date: "2025-05-23T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Mathematics", paper: "Option H: Calculator", date: "2025-06-04T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M2" }, { subject: "English Language", paper: "Paper 2", date: "2025-06-06T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 2", date: "2025-06-06T13:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Biology", paper: "Paper 2", date: "2025-06-09T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Listening", date: "2025-06-10T08:45:00", duration: "0h 45m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Spanish", paper: "Reading", date: "2025-06-10T09:50:00", duration: "1h 00m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Mathematics", paper: "Option H: Calculator (Duplicate?)", date: "2025-06-11T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 3", date: "2025-06-12T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Chemistry", paper: "Paper 2", date: "2025-06-13T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Physics", paper: "Paper 2", date: "2025-06-16T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Writing", date: "2025-06-17T08:45:00", duration: "1h 15m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "J3" } ];
+      const motivationalQuotes = [ "Believe you can and you're halfway there.", "The secret to getting ahead is getting started.", "Don't watch the clock; do what it does. Keep going.", "Success is not final, failure is not fatal: It is the courage to continue that counts.", "The expert in anything was once a beginner.", "Strive for progress, not perfection.", "Your limitation—it's only your imagination.", "Push yourself, because no one else is going to do it for you.", "Great things never come from comfort zones.", "The harder you work for something, the greater you'll feel when you achieve it." ];
+      const subjects = [...new Set(examData.map(exam => exam.subject))].sort();
+
+      // --- UTILS ---
+      const formatGeneralDate = (dateStringOrObject) => { const date = new Date(dateStringOrObject); const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000); return adjustedDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); }
+      const formatExamDate = (dateString) => { const date = new Date(dateString); return date.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }); };
+      const formatMinutes = (totalMinutes) => { if (!totalMinutes) return '0m'; const hours = Math.floor(totalMinutes / 60); const minutes = totalMinutes % 60; let result = ''; if (hours > 0) result += `${hours}h `; if (minutes > 0 || hours === 0) result += `${minutes}m`; return result.trim(); };
+      const formatCountdown = (dateString) => { const now = new Date(); const examDate = new Date(dateString); const diff = examDate - now; if (diff <= 0) return "Completed"; const days = Math.floor(diff / (1000 * 60 * 60 * 24)); const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); let countdownStr = ""; if (days > 0) countdownStr += `${days}d `; if (hours > 0) countdownStr += `${hours}h `; if (days === 0 && hours === 0 && minutes > 0) countdownStr += `${minutes}m`; return countdownStr.trim() || "< 1m"; };
+      const getSubjectColor = (subject) => { const colors = [ 'border-red-300 dark:border-red-700', 'border-blue-300 dark:border-blue-700', 'border-green-300 dark:border-green-700', 'border-yellow-300 dark:border-yellow-700', 'border-purple-300 dark:border-purple-700', 'border-pink-300 dark:border-pink-700', 'border-indigo-300 dark:border-indigo-700', 'border-teal-300 dark:border-teal-700', ]; const index = subjects.indexOf(subject); return colors[index % colors.length]; };
+      const shuffleArray = (array) => { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; };
+
+      // --- Firestore Refs ---
+      const getUserDocRef = (userId) => doc(db, "users", userId);
+      const getSubcollectionRef = (userId, subcollectionName) => collection(db, "users", userId, subcollectionName);
+      const getSubjectDocRef = (userId, subcollectionName, subject) => doc(db, "users", userId, subcollectionName, subject);
+      const getItemDocRef = (userId, subcollectionName, itemId) => doc(db, "users", userId, subcollectionName, itemId);
+      const getSubjectItemDocRef = (userId, subcollectionName, subject, itemId) => doc(db, "users", userId, subcollectionName, subject, "items", itemId);
+
+      // --- DOM Elements ---
+      const loginOverlay = document.getElementById('login-overlay');
+      const appWrapper = document.getElementById('app-wrapper');
+      const emailInput = document.getElementById('email-input');
+      const passwordInput = document.getElementById('password-input');
+      const loginButton = document.getElementById('login-button');
+      const loginError = document.getElementById('login-error');
+      const logoutButton = document.getElementById('logout-button');
+      const logoutButtonMobile = document.getElementById('logout-button-mobile');
+      const changePasswordForm = document.getElementById('change-password-form');
+      const currentPasswordInput = document.getElementById('current-password');
+      const newPasswordInput = document.getElementById('new-password');
+      const changePasswordButton = document.getElementById('change-password-button');
+      const changePasswordMessage = document.getElementById('change-password-message');
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+      const themeIconLight = document.getElementById('theme-icon-light');
+      const themeIconDark = document.getElementById('theme-icon-dark');
+      const themeIconLightMobile = document.getElementById('theme-icon-light-mobile');
+      const themeIconDarkMobile = document.getElementById('theme-icon-dark-mobile');
+      const htmlElement = document.documentElement;
+      const navLinks = document.querySelectorAll('.nav-link');
+      const pages = document.querySelectorAll('.page');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileCloseButton = document.getElementById('mobile-close-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileOverlay = document.getElementById('mobile-overlay');
+      const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+      const currentYearEl = document.getElementById('current-year');
+      // ... (add other element references as needed)
+
+      // --- AUTHENTICATION & State Management ---
+      onAuthStateChanged(auth, (user) => {
+          console.log("Auth state changed. User:", user ? user.uid : 'null'); // Keep for basic check
+          if (user) {
+              currentUserId = user.uid;
+              loginOverlay.classList.add('hidden');
+              appWrapper.classList.remove('hidden');
+              appWrapper.classList.add('flex');
+              if (!isInitialized) {
+                  // console.log("Initializing app post-login..."); // Remove verbose log
+                  initializePostLogin();
+                  isInitialized = true;
+              }
+          } else {
+              currentUserId = null;
+              loginOverlay.classList.remove('hidden');
+              appWrapper.classList.add('hidden');
+              appWrapper.classList.remove('flex');
+              isInitialized = false;
+              clearDynamicContent(); // Clear data when logged out
+          }
+      });
+
+      const handleLogin = async () => {
+          // console.log("Attempting login..."); // Remove verbose log
+          const email = emailInput.value;
+          const password = passwordInput.value;
+          loginError.classList.add('hidden');
+          loginButton.disabled = true;
+          loginButton.textContent = 'Logging in...';
+          try {
+              const userCredential = await signInWithEmailAndPassword(auth, email, password);
+              // console.log("Firebase signIn successful:", userCredential.user.uid); // Remove verbose log
+              // onAuthStateChanged handles UI
+          } catch (error) {
+              console.error("Login failed:", error.code, error.message);
+              loginError.textContent = `Login failed: ${error.message}`; // Show Firebase error
+              loginError.classList.remove('hidden');
+          } finally {
+              loginButton.disabled = false;
+              loginButton.textContent = 'Login';
+          }
+      };
+
+      const handleLogout = async () => {
+          // console.log("Attempting logout..."); // Remove verbose log
+          try {
+              await signOut(auth);
+              // console.log("Firebase signOut successful"); // Remove verbose log
+              // onAuthStateChanged handles UI
+          } catch (error) {
+              console.error("Logout failed:", error);
+              alert("Logout failed. Please try again.");
+          }
+      };
+
+      const handleChangePassword = async () => {
+          const currentPw = currentPasswordInput.value;
+          const newPw = newPasswordInput.value;
+          changePasswordMessage.textContent = '';
+          changePasswordMessage.className = 'text-sm mt-2';
+          if (!currentPw || !newPw) { changePasswordMessage.textContent = 'Please fill in both password fields.'; changePasswordMessage.classList.add('text-red-500'); return; }
+          if (newPw.length < 6) { changePasswordMessage.textContent = 'New password must be at least 6 characters long.'; changePasswordMessage.classList.add('text-red-500'); return; }
+          const user = auth.currentUser;
+          if (!user) { changePasswordMessage.textContent = 'Not logged in.'; changePasswordMessage.classList.add('text-red-500'); return; }
+          // console.log("Attempting re-authentication for password change..."); // Remove verbose log
+          const credential = EmailAuthProvider.credential(user.email, currentPw);
+          changePasswordButton.disabled = true;
+          changePasswordButton.textContent = 'Working...';
+          try {
+              await reauthenticateWithCredential(user, credential);
+              // console.log("Re-authentication successful."); // Remove verbose log
+              await updatePassword(user, newPw);
+              // console.log("Password update successful."); // Remove verbose log
+              changePasswordMessage.textContent = 'Password changed successfully!';
+              changePasswordMessage.classList.add('text-green-600');
+              currentPasswordInput.value = ''; newPasswordInput.value = '';
+          } catch (error) {
+              console.error("Password change failed:", error);
+              changePasswordMessage.textContent = `Error: ${error.message}`;
+              changePasswordMessage.classList.add('text-red-500');
+          } finally {
+               changePasswordButton.disabled = false; changePasswordButton.textContent = 'Change Password';
+          }
+      };
+
+      // Add event listeners for auth buttons
+      loginButton?.addEventListener('click', handleLogin);
+      passwordInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+      logoutButton?.addEventListener('click', handleLogout);
+      logoutButtonMobile?.addEventListener('click', handleLogout);
+      changePasswordButton?.addEventListener('click', handleChangePassword);
+
+      // --- THEME TOGGLE ---
+      const applyTheme = (theme) => { if (theme === 'dark') { htmlElement.classList.add('dark'); themeIconLight?.classList.add('hidden'); themeIconDark?.classList.remove('hidden'); themeIconLightMobile?.classList.add('hidden'); themeIconDarkMobile?.classList.remove('hidden'); } else { htmlElement.classList.remove('dark'); themeIconLight?.classList.remove('hidden'); themeIconDark?.classList.add('hidden'); themeIconLightMobile?.classList.remove('hidden'); themeIconDarkMobile?.classList.add('hidden'); } localStorage.setItem('theme', theme); if (typeof lucide !== 'undefined') { lucide.createIcons(); } };
+      const toggleTheme = () => { const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light'; applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); };
+      themeToggle?.addEventListener('click', toggleTheme); themeToggleMobile?.addEventListener('click', toggleTheme);
+
+      // --- NAVIGATION ---
+      const setActiveLink = (pageId) => { navLinks.forEach(link => { if (!link.closest('#mobile-menu')) { const linkPage = link.dataset.page; if (linkPage === pageId) { link.classList.remove('text-muted', 'dark:text-muted-dark'); link.classList.add('text-primary', 'dark:text-primary-dark', 'font-semibold', 'bg-gray-100', 'dark:bg-gray-700'); } else { link.classList.add('text-muted', 'dark:text-muted-dark'); link.classList.remove('text-primary', 'dark:text-primary-dark', 'font-semibold', 'bg-gray-100', 'dark:bg-gray-700'); } } }); mobileNavLinks.forEach(link => { if (link.dataset.page === pageId) { link.classList.remove('text-muted', 'dark:text-muted-dark'); link.classList.add('text-primary', 'dark:text-primary-dark', 'bg-gray-100', 'dark:bg-gray-700'); } else { link.classList.add('text-muted', 'dark:text-muted-dark'); link.classList.remove('text-primary', 'dark:text-primary-dark', 'bg-gray-100', 'dark:bg-gray-700'); } }); };
+      const showPage = (pageId) => { pages.forEach(page => { page.classList.remove('active'); }); const activePage = document.getElementById(pageId); if (activePage) { activePage.classList.add('active'); } setActiveLink(pageId); window.scrollTo(0, 0); if (typeof lucide !== 'undefined') { lucide.createIcons(); } };
+      const navigateToPage = (pageId, param = null) => { showPage(pageId); closeMobileMenu(); if (pageId === 'resources' && param) { const subjectTab = document.querySelector(`#subject-tabs button[data-subject="${param}"]`); if(subjectTab) subjectTab.click(); } }
+      navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const pageId = e.currentTarget.dataset.page; if (pageId) navigateToPage(pageId); }); });
+      const openMobileMenu = () => { mobileMenu?.classList.add('open'); mobileOverlay?.classList.remove('hidden'); }; const closeMobileMenu = () => { mobileMenu?.classList.remove('open'); mobileOverlay?.classList.add('hidden'); };
+      mobileMenuButton?.addEventListener('click', openMobileMenu); mobileCloseButton?.addEventListener('click', closeMobileMenu); mobileOverlay?.addEventListener('click', closeMobileMenu); mobileNavLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const pageId = e.currentTarget.dataset.page; if (pageId) navigateToPage(pageId); }); })
+
+      // --- Helper: Populate Subject Dropdowns ---
+      const populateSubjectDropdown = (selectElement) => { if (!selectElement) return; const currentValue = selectElement.value; selectElement.innerHTML = '<option value="">-- Select Subject --</option>'; subjects.forEach(subject => { const option = document.createElement('option'); option.value = subject; option.textContent = subject; if (subject === currentValue) option.selected = true; selectElement.appendChild(option); }); }
+
+      // --- Function to clear dynamic content on logout ---
+      const clearDynamicContent = () => {
+          document.getElementById('pomodoro-summary').innerHTML = '';
+          document.getElementById('pomodoro-analytics').innerHTML = '';
+          document.getElementById('resource-content').innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to view or add resources.</p>';
+          document.getElementById('tracker-items-list').innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to view or add items.</p>';
+          document.getElementById('planner-items-list').innerHTML = '<p class="text-muted dark:text-muted-dark italic">No sessions scheduled yet.</p>';
+          document.getElementById('quiz-items-list').innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to see saved questions or start a quiz.</p>';
+          document.getElementById('add-resource-form')?.classList.add('hidden');
+          document.getElementById('add-tracker-item-form')?.classList.add('hidden');
+          document.getElementById('quiz-mode-interface')?.classList.add('hidden');
+          document.getElementById('add-quiz-question-section')?.classList.remove('hidden');
+      };
+
+
+      // --- DASHBOARD ---
+      const loadDashboard = async () => {
+          if (!currentUserId) return;
+          const quoteElement = document.getElementById('motivational-quote');
+          const upcomingList = document.getElementById('upcoming-exams-list');
+          const pomodoroSummary = document.getElementById('pomodoro-summary');
+          const pomodoroAnalyticsContainer = document.getElementById('pomodoro-analytics');
+
+          if (quoteElement) { const randomIndex = Math.floor(Math.random() * motivationalQuotes.length); quoteElement.textContent = motivationalQuotes[randomIndex]; }
+          if (upcomingList) { const now = new Date(); const upcomingExams = examData.filter(exam => new Date(exam.date) > now).sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 5); upcomingList.innerHTML = ''; if (upcomingExams.length === 0) { upcomingList.innerHTML = '<p class="text-muted dark:text-muted-dark">No upcoming exams found.</p>'; } else { upcomingExams.forEach(exam => { const countdown = formatCountdown(exam.date); const item = document.createElement('div'); item.className = `p-3 rounded-lg border-l-4 ${getSubjectColor(exam.subject)} bg-card dark:bg-card-dark`; item.innerHTML = `<div class="flex justify-between items-center"> <div> <p class="font-semibold text-text dark:text-text-dark">${exam.subject} - ${exam.paper}</p> <p class="text-sm text-muted dark:text-muted-dark">${formatExamDate(exam.date)}</p> </div> <div class="text-right"> <span class="font-semibold text-sm ${countdown === 'Completed' ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">${countdown}</span> </div> </div>`; upcomingList.appendChild(item); }); } }
+          if (pomodoroSummary) {
+              pomodoroSummary.innerHTML = '<p class="text-muted dark:text-muted-dark text-sm">Loading recent sessions...</p>';
+              try {
+                  const logsRef = getSubcollectionRef(currentUserId, 'pomodoroLogs');
+                  const q = query(logsRef, orderBy("timestamp", "desc"), limit(3));
+                  const querySnapshot = await getDocs(q);
+                  const logs = []; querySnapshot.forEach((doc) => logs.push({ id: doc.id, ...doc.data() }));
+                  pomodoroSummary.innerHTML = '';
+                  if (logs.length > 0) { logs.forEach(log => { const logItem = document.createElement('div'); logItem.className = 'text-sm flex justify-between items-center text-muted dark:text-muted-dark'; const logDate = log.timestamp?.toDate().toLocaleDateString('en-GB', {day: '2-digit', month: 'short'}) || 'N/A'; logItem.innerHTML = `<span>${log.subject || 'General'} (${log.duration} min)</span> <span>${logDate}</span>`; pomodoroSummary.appendChild(logItem); }); }
+                  else { pomodoroSummary.innerHTML = '<p class="text-muted dark:text-muted-dark text-sm">No recent sessions logged.</p>'; }
+              } catch (error) { console.error("Error loading Pomodoro logs:", error); pomodoroSummary.innerHTML = '<p class="text-red-500 text-sm">Error loading sessions.</p>'; }
+          }
+          if (pomodoroAnalyticsContainer) {
+              pomodoroAnalyticsContainer.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Loading analytics...</p>';
+              try {
+                  const analyticsDocRef = doc(db, "users", currentUserId, "analytics", "pomodoro");
+                  const docSnap = await getDoc(analyticsDocRef);
+                  pomodoroAnalyticsContainer.innerHTML = '';
+                  if (docSnap.exists()) { const analyticsData = docSnap.data(); const sortedSubjects = Object.entries(analyticsData).sort(([, timeA], [, timeB]) => timeB - timeA); if (sortedSubjects.length > 0) { sortedSubjects.forEach(([subject, totalMinutes]) => { const item = document.createElement('div'); item.className = 'flex justify-between items-center text-muted dark:text-muted-dark'; item.innerHTML = `<span>${subject}</span> <span class="font-medium text-text dark:text-text-dark">${formatMinutes(totalMinutes)}</span>`; pomodoroAnalyticsContainer.appendChild(item); }); } else { pomodoroAnalyticsContainer.innerHTML = '<p class="text-muted dark:text-muted-dark italic">No study time recorded yet.</p>'; } }
+                  else { pomodoroAnalyticsContainer.innerHTML = '<p class="text-muted dark:text-muted-dark italic">No study time recorded yet.</p>'; }
+              } catch (error) { console.error("Error loading Pomodoro analytics:", error); pomodoroAnalyticsContainer.innerHTML = '<p class="text-red-500 text-sm">Error loading analytics.</p>'; }
+          }
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+      };
+
+      // --- TIMETABLE ---
+      const loadTimetable = () => { const timetableBody = document.getElementById('timetable-body'); if (!timetableBody) return; timetableBody.innerHTML = ''; const sortedExams = [...examData].sort((a, b) => new Date(a.date) - new Date(b.date)); sortedExams.forEach(exam => { const row = document.createElement('tr'); const countdown = formatCountdown(exam.date); const isPast = new Date(exam.date) < new Date(); row.className = isPast ? 'opacity-60' : ''; const countdownClasses = countdown === 'Completed' ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-orange-600 dark:text-orange-400 font-semibold'; row.innerHTML = `<td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-text dark:text-text-dark">${formatExamDate(exam.date)}</td> <td class="px-4 py-3 whitespace-nowrap text-sm"> <span class="font-semibold text-text dark:text-text-dark">${exam.subject}</span><br> <span class="text-xs text-muted dark:text-muted-dark">${exam.paper}</span> </td> <td class="px-4 py-3 whitespace-nowrap text-sm text-muted dark:text-muted-dark">${exam.duration}</td> <td class="px-4 py-3 whitespace-nowrap text-sm text-muted dark:text-muted-dark">${exam.board}${exam.tier ? ` (Tier ${exam.tier})` : ''}</td> <td class="px-4 py-3 whitespace-nowrap text-sm text-muted dark:text-muted-dark"> ${exam.location || 'N/A'} ${exam.seat ? `<br><span class="text-xs">Seat: ${exam.seat}</span>` : ''} </td> <td class="px-4 py-3 whitespace-nowrap text-sm ${countdownClasses}">${countdown}</td>`; timetableBody.appendChild(row); }); };
+      const updateTimetableCountdowns = () => { const timetableBody = document.getElementById('timetable-body'); if (!timetableBody || !timetableBody.rows.length) return; const sortedExams = [...examData].sort((a, b) => new Date(a.date) - new Date(b.date)); Array.from(timetableBody.rows).forEach((row, index) => { const exam = sortedExams[index]; if (!exam) return; const countdownCell = row.cells[5]; if (!countdownCell) return; const newCountdown = formatCountdown(exam.date); const countdownClasses = newCountdown === 'Completed' ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-orange-600 dark:text-orange-400 font-semibold'; if (countdownCell.textContent !== newCountdown) { countdownCell.textContent = newCountdown; countdownCell.className = `px-4 py-3 whitespace-nowrap text-sm ${countdownClasses}`; if (newCountdown === 'Completed' && !row.classList.contains('opacity-60')) { row.classList.add('opacity-60'); } } }); };
+
+      // --- RESOURCES ---
+      const loadResources = () => { const subjectTabsContainer = document.getElementById('subject-tabs'); const resourceContent = document.getElementById('resource-content'); const addResourceForm = document.getElementById('add-resource-form'); const resourceTypeSelect = document.getElementById('resource-type'); const resourceUrlInput = document.getElementById('resource-url'); const resourceNoteTextarea = document.getElementById('resource-note'); const saveResourceBtn = document.getElementById('save-resource-btn'); const resourceTitleInput = document.getElementById('resource-title'); const resourceUrlDiv = resourceUrlInput?.closest('div'); const resourceNoteDiv = resourceNoteTextarea?.closest('div'); if (!subjectTabsContainer || !resourceContent || !addResourceForm) return; subjectTabsContainer.innerHTML = ''; let activeSubject = null; subjects.forEach((subject) => { const tabButton = document.createElement('button'); tabButton.dataset.subject = subject; tabButton.className = `whitespace-nowrap py-3 px-3 border-b-2 font-medium text-sm focus:outline-none transition-colors duration-200 border-transparent text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:border-gray-300 dark:hover:border-gray-600`; tabButton.textContent = subject; tabButton.addEventListener('click', () => { subjectTabsContainer.querySelectorAll('button').forEach(btn => { btn.classList.remove('border-primary', 'dark:border-primary-dark', 'text-primary', 'dark:text-primary-dark'); btn.classList.add('border-transparent', 'text-muted', 'dark:text-muted-dark'); }); tabButton.classList.add('border-primary', 'dark:border-primary-dark', 'text-primary', 'dark:text-primary-dark'); tabButton.classList.remove('border-transparent', 'text-muted', 'dark:text-muted-dark'); activeSubject = subject; displayResourcesForSubject(subject); addResourceForm.classList.remove('hidden'); }); subjectTabsContainer.appendChild(tabButton); }); const displayResourcesForSubject = async (subject) => { if (!currentUserId) return; resourceContent.innerHTML = `<p class="text-muted dark:text-muted-dark italic">Loading resources for ${subject}...</p>`; try { const itemsRef = collection(db, "users", currentUserId, "resources", subject, "items"); const q = query(itemsRef, orderBy("title")); const querySnapshot = await getDocs(q); const subjectResources = []; querySnapshot.forEach((doc) => subjectResources.push({ id: doc.id, ...doc.data() })); resourceContent.innerHTML = ''; if (subjectResources.length === 0) { resourceContent.innerHTML = `<p class="text-muted dark:text-muted-dark italic">No resources added for ${subject} yet.</p>`; } else { const list = document.createElement('ul'); list.className = 'space-y-3'; subjectResources.forEach(res => { const item = document.createElement('li'); item.className = 'p-3 border rounded-lg dark:border-gray-700 flex justify-between items-start gap-2'; let contentHTML = ''; if (res.type === 'link') { contentHTML = `<div class="flex-grow"> <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="font-medium text-primary dark:text-primary-dark hover:underline">${res.title}</a> <span class="text-xs ml-2 text-muted dark:text-muted-dark">(Link)</span> <p class="text-xs text-muted dark:text-muted-dark break-all">${res.url}</p> </div>`; } else if (res.type === 'note') { contentHTML = `<div class="flex-grow"> <p class="font-medium text-text dark:text-text-dark">${res.title}</p> <p class="text-sm text-muted dark:text-muted-dark whitespace-pre-wrap mt-1">${res.content}</p> <span class="text-xs ml-2 text-muted dark:text-muted-dark">(Note)</span> </div>`; } item.innerHTML = `${contentHTML} <button class="flex-shrink-0 text-red-500 hover:text-red-700 text-xs p-1" onclick="handleDeleteResource('${subject}', '${res.id}')"> <i data-lucide="trash-2" class="h-4 w-4"></i> </button>`; list.appendChild(item); }); resourceContent.appendChild(list); if (typeof lucide !== 'undefined') lucide.createIcons(); } } catch (error) { console.error(`Error loading resources for ${subject}:`, error); resourceContent.innerHTML = `<p class="text-red-500 italic">Error loading resources.</p>`; } }; resourceTypeSelect?.addEventListener('change', () => { const isLink = resourceTypeSelect.value === 'link'; resourceUrlDiv?.classList.toggle('hidden', !isLink); resourceNoteDiv?.classList.toggle('hidden', isLink); }); saveResourceBtn?.addEventListener('click', async () => { if (!activeSubject || !currentUserId) { alert('Please select a subject first.'); return; } const type = resourceTypeSelect.value; const title = resourceTitleInput.value.trim(); const url = resourceUrlInput.value.trim(); const note = resourceNoteTextarea.value.trim(); if (!title) { alert('Please enter a title.'); return; } let newResourceData = { title, type, createdAt: serverTimestamp() }; if (type === 'link') { if (!url || !url.match(/^https?:\/\/.+/)) { alert('Please enter a valid URL.'); return; } newResourceData.url = url; } else { if (!note) { alert('Please enter note content.'); return; } newResourceData.content = note; } saveResourceBtn.disabled = true; saveResourceBtn.textContent = 'Saving...'; try { const itemsRef = collection(db, "users", currentUserId, "resources", activeSubject, "items"); await addDoc(itemsRef, newResourceData); displayResourcesForSubject(activeSubject); resourceTitleInput.value = ''; resourceUrlInput.value = ''; resourceNoteTextarea.value = ''; resourceTypeSelect.value = 'link'; resourceUrlDiv?.classList.remove('hidden'); resourceNoteDiv?.classList.add('hidden'); } catch (error) { console.error("Error saving resource:", error); alert("Failed to save resource. Please try again."); } finally { saveResourceBtn.disabled = false; saveResourceBtn.textContent = 'Add Resource'; } }); const isLinkInitially = resourceTypeSelect?.value === 'link'; resourceUrlDiv?.classList.toggle('hidden', !isLinkInitially); resourceNoteDiv?.classList.toggle('hidden', isLinkInitially); };
+      window.handleDeleteResource = async (subject, resourceDocId) => { if (!currentUserId || !subject || !resourceDocId) return; if (!confirm('Are you sure you want to delete this resource?')) return; try { const docRef = doc(db, "users", currentUserId, "resources", subject, "items", resourceDocId); await deleteDoc(docRef); const activeTab = document.querySelector('#subject-tabs button.border-primary'); if (activeTab && activeTab.dataset.subject === subject) { activeTab.click(); } } catch (error) { console.error("Error deleting resource:", error); alert("Failed to delete resource."); } };
+
+      // --- POMODORO TIMER ---
+      const timerDisplay = document.getElementById('timer-display'); const timerStatus = document.getElementById('timer-status'); const startPauseButton = document.getElementById('start-pause-button'); const resetButton = document.getElementById('reset-button'); const pomodoroSubjectSelect = document.getElementById('pomodoro-subject'); const workDurationInput = document.getElementById('work-duration'); const shortBreakDurationInput = document.getElementById('short-break-duration'); const longBreakDurationInput = document.getElementById('long-break-duration'); const progressRing = document.getElementById('timer-progress-ring'); const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r')) : 0; if (progressRing) { progressRing.style.strokeDasharray = `${ringCircumference} ${ringCircumference}`; }
+      let timerInterval = null; let totalSeconds = 0; let currentSeconds = 0; let timerState = 'stopped'; let timerMode = 'work'; let pomodoroCycle = 0; let selectedSubject = '';
+      const updateTimerDisplay = () => { if (!timerDisplay || !progressRing) return; const minutes = Math.floor(currentSeconds / 60); const seconds = currentSeconds % 60; timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; const progress = totalSeconds > 0 ? (totalSeconds - currentSeconds) / totalSeconds : 0; const offset = ringCircumference * (1 - progress); progressRing.style.strokeDashoffset = Math.max(0, offset); };
+      const setTimerMode = (mode) => { if (!timerStatus || !progressRing || !workDurationInput || !shortBreakDurationInput || !longBreakDurationInput) return; timerMode = mode; pomodoroCycle = parseInt(localStorage.getItem('pomodoroCycle') || '0'); switch (mode) { case 'work': totalSeconds = parseInt(workDurationInput.value) * 60; timerStatus.textContent = 'Work'; progressRing.classList.remove('text-green-500', 'dark:text-green-400', 'text-blue-500', 'dark:text-blue-400'); progressRing.classList.add('text-primary', 'dark:text-primary-dark'); break; case 'shortBreak': totalSeconds = parseInt(shortBreakDurationInput.value) * 60; timerStatus.textContent = 'Short Break'; progressRing.classList.remove('text-primary', 'dark:text-primary-dark', 'text-blue-500', 'dark:text-blue-400'); progressRing.classList.add('text-green-500', 'dark:text-green-400'); break; case 'longBreak': totalSeconds = parseInt(longBreakDurationInput.value) * 60; timerStatus.textContent = 'Long Break'; progressRing.classList.remove('text-primary', 'dark:text-primary-dark', 'text-green-500', 'dark:text-green-400'); progressRing.classList.add('text-blue-500', 'dark:text-blue-400'); break; } currentSeconds = totalSeconds > 0 ? totalSeconds : 0; updateTimerDisplay(); };
+      const addPomodoroLogAndAnalytics = async (subject, duration) => { if (!currentUserId) return; const logData = { subject, duration, timestamp: serverTimestamp() }; const logsRef = getSubcollectionRef(currentUserId, 'pomodoroLogs'); const analyticsDocRef = doc(db, "users", currentUserId, "analytics", "pomodoro"); try { const batch = writeBatch(db); batch.set(doc(logsRef), logData); const analyticsUpdate = {}; analyticsUpdate[subject] = increment(duration); batch.set(analyticsDocRef, analyticsUpdate, { merge: true }); await batch.commit(); console.log("Pomodoro log and analytics updated."); loadDashboard(); } catch (error) { console.error("Error saving Pomodoro log/analytics:", error); alert("Failed to save session data."); } };
+      const startTimer = () => { if (timerState === 'running' || !startPauseButton) return; selectedSubject = pomodoroSubjectSelect.value; if (timerMode === 'work' && !selectedSubject) { alert('Please select a subject before starting a work session.'); pomodoroSubjectSelect.focus(); return; } timerState = 'running'; startPauseButton.innerHTML = `<i data-lucide="pause" class="h-5 w-5"></i> <span>Pause</span>`; if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [startPauseButton] }); if (currentSeconds <= 0) setTimerMode(timerMode); timerInterval = setInterval(() => { currentSeconds--; updateTimerDisplay(); if (currentSeconds < 0) { clearInterval(timerInterval); timerState = 'stopped'; if (timerMode === 'work') { pomodoroCycle++; localStorage.setItem('pomodoroCycle', pomodoroCycle); addPomodoroLogAndAnalytics(selectedSubject, parseInt(workDurationInput.value)); setTimerMode(pomodoroCycle % 4 === 0 ? 'longBreak' : 'shortBreak'); } else { setTimerMode('work'); } startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Start ${timerMode === 'work' ? 'Work' : 'Break'}</span>`; if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [startPauseButton] }); updateTimerDisplay(); } }, 1000); };
+      const pauseTimer = () => { if (timerState !== 'running' || !startPauseButton) return; clearInterval(timerInterval); timerState = 'paused'; startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Resume</span>`; if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [startPauseButton] }); };
+      const resetTimer = () => { if (!startPauseButton) return; clearInterval(timerInterval); timerState = 'stopped'; setTimerMode('work'); pomodoroCycle = 0; localStorage.setItem('pomodoroCycle', pomodoroCycle); startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Start</span>`; if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [startPauseButton] }); };
+      startPauseButton?.addEventListener('click', () => { if (timerState === 'running') pauseTimer(); else startTimer(); });
+      resetButton?.addEventListener('click', resetTimer);
+      workDurationInput?.addEventListener('change', () => { if(timerState === 'stopped' && timerMode === 'work') setTimerMode('work'); }); shortBreakDurationInput?.addEventListener('change', () => { if(timerState === 'stopped' && timerMode === 'shortBreak') setTimerMode('shortBreak'); }); longBreakDurationInput?.addEventListener('change', () => { if(timerState === 'stopped' && timerMode === 'longBreak') setTimerMode('longBreak'); });
+
+      // --- TRACKER ---
+      const loadTracker = () => { const subjectSelect = document.getElementById('tracker-subject-select'); const itemsList = document.getElementById('tracker-items-list'); const addItemForm = document.getElementById('add-tracker-item-form'); const descriptionInput = document.getElementById('tracker-description'); const statusSelect = document.getElementById('tracker-status-select'); const saveItemBtn = document.getElementById('save-tracker-item-btn'); if (!subjectSelect || !itemsList || !addItemForm) return; populateSubjectDropdown(subjectSelect); let currentTrackerSubject = subjectSelect.value || null; if (currentTrackerSubject) { displayTrackerItems(currentTrackerSubject); addItemForm.classList.remove('hidden'); } else { itemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to view or add items.</p>'; addItemForm.classList.add('hidden'); } subjectSelect.addEventListener('change', () => { currentTrackerSubject = subjectSelect.value; if (currentTrackerSubject) { displayTrackerItems(currentTrackerSubject); addItemForm.classList.remove('hidden'); } else { itemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to view or add items.</p>'; addItemForm.classList.add('hidden'); } }); saveItemBtn.addEventListener('click', async () => { if (!currentTrackerSubject || !currentUserId) { alert('Please select a subject.'); return; } const description = descriptionInput.value.trim(); const status = statusSelect.value; if (!description) { alert('Please enter a description.'); return; } const newItem = { description, status, createdAt: serverTimestamp() }; saveItemBtn.disabled = true; saveItemBtn.textContent = 'Saving...'; try { const itemsRef = collection(db, "users", currentUserId, "trackerItems", currentTrackerSubject, "items"); await addDoc(itemsRef, newItem); displayTrackerItems(currentTrackerSubject); descriptionInput.value = ''; statusSelect.value = 'To Review'; } catch(e) { console.error("Error saving tracker item:", e); alert("Failed to save item."); } finally { saveItemBtn.disabled = false; saveItemBtn.textContent = 'Add Item'; } }); };
+      const displayTrackerItems = async (subject) => { if (!currentUserId) return; const itemsList = document.getElementById('tracker-items-list'); if (!itemsList) return; itemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Loading items...</p>'; try { const itemsRef = collection(db, "users", currentUserId, "trackerItems", subject, "items"); const q = query(itemsRef, orderBy("createdAt", "desc")); const querySnapshot = await getDocs(q); const items = []; querySnapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() })); itemsList.innerHTML = ''; if (items.length === 0) { itemsList.innerHTML = `<p class="text-muted dark:text-muted-dark italic">No tracker items added for ${subject} yet.</p>`; } else { const list = document.createElement('ul'); list.className = 'space-y-3'; items.forEach(item => { const listItem = document.createElement('li'); listItem.className = 'tracker-item'; const statusClasses = { 'To Review': 'status-review', 'In Progress': 'status-progress', 'Mastered': 'status-mastered' }; const statusColor = statusClasses[item.status] || 'bg-gray-100 text-gray-800'; listItem.innerHTML = `<div class="flex-grow"> <p class="text-sm text-text dark:text-text-dark">${item.description}</p> </div> <div class="flex items-center gap-2 flex-shrink-0"> <select class="tracker-status-change text-xs p-1 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 focus:ring-primary focus:border-primary" data-item-id="${item.id}" data-subject="${subject}"> <option value="To Review" ${item.status === 'To Review' ? 'selected' : ''}>To Review</option> <option value="In Progress" ${item.status === 'In Progress' ? 'selected' : ''}>In Progress</option> <option value="Mastered" ${item.status === 'Mastered' ? 'selected' : ''}>Mastered</option> </select> <span class="tracker-status-badge ${statusColor}">${item.status}</span> <button class="text-red-500 hover:text-red-700 text-xs p-1" onclick="handleDeleteTrackerItem('${subject}', '${item.id}')"> <i data-lucide="trash-2" class="h-4 w-4"></i> </button> </div>`; list.appendChild(listItem); }); itemsList.appendChild(list); itemsList.querySelectorAll('.tracker-status-change').forEach(select => { select.addEventListener('change', async (e) => { const itemId = e.target.dataset.itemId; const itemSubject = e.target.dataset.subject; const newStatus = e.target.value; try { const itemRef = doc(db, "users", currentUserId, "trackerItems", itemSubject, "items", itemId); await updateDoc(itemRef, { status: newStatus }); displayTrackerItems(itemSubject); } catch (err) { console.error("Error updating status:", err); alert("Failed to update status."); } }); }); if (typeof lucide !== 'undefined') lucide.createIcons(); } } catch (error) { console.error("Error loading tracker items:", error); itemsList.innerHTML = `<p class="text-red-500 italic">Error loading items.</p>`; }};
+      window.handleDeleteTrackerItem = async (subject, itemId) => { if (!currentUserId) return; if (!confirm('Are you sure you want to delete this tracker item?')) return; try { const itemRef = doc(db, "users", currentUserId, "trackerItems", subject, "items", itemId); await deleteDoc(itemRef); displayTrackerItems(subject); } catch (error) { console.error("Error deleting tracker item:", error); alert("Failed to delete item."); } };
+
+      // --- PLANNER ---
+      const loadPlanner = () => { const dateInput = document.getElementById('planner-date'); const subjectSelect = document.getElementById('planner-subject-select'); const topicInput = document.getElementById('planner-topic'); const saveBtn = document.getElementById('save-planner-item-btn'); const itemsList = document.getElementById('planner-items-list'); if (!dateInput || !subjectSelect || !topicInput || !saveBtn || !itemsList) return; populateSubjectDropdown(subjectSelect); displayPlannerItems(); try { dateInput.valueAsDate = new Date(); } catch(e) { console.error("Could not set default date", e)} saveBtn.addEventListener('click', async () => { if (!currentUserId) return; const date = dateInput.value; const subject = subjectSelect.value; const topic = topicInput.value.trim(); if (!date || !subject || !topic) { alert('Please fill in all fields.'); return; } const newItem = { date, subject, topic, createdAt: serverTimestamp() }; saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; try { const itemsRef = getSubcollectionRef(currentUserId, 'plannerItems'); await addDoc(itemsRef, newItem); displayPlannerItems(); subjectSelect.value = ''; topicInput.value = ''; } catch(e) { console.error("Error saving planner item:", e); alert("Failed to save session."); } finally { saveBtn.disabled = false; saveBtn.textContent = 'Schedule Session'; } }); };
+      const displayPlannerItems = async () => { if (!currentUserId) return; const itemsList = document.getElementById('planner-items-list'); if (!itemsList) return; itemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Loading scheduled sessions...</p>'; try { const itemsRef = getSubcollectionRef(currentUserId, 'plannerItems'); const q = query(itemsRef, orderBy("date", "asc")); const querySnapshot = await getDocs(q); const items = []; querySnapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() })); itemsList.innerHTML = ''; if (items.length === 0) { itemsList.innerHTML = `<p class="text-muted dark:text-muted-dark italic">No sessions scheduled yet.</p>`; } else { const groupedItems = items.reduce((acc, item) => { const dateStr = formatGeneralDate(item.date); if (!acc[dateStr]) acc[dateStr] = []; acc[dateStr].push(item); return acc; }, {}); const sortedDates = Object.keys(groupedItems).sort((a, b) => new Date(a) - new Date(b)); sortedDates.forEach(dateStr => { const dateHeader = document.createElement('h4'); dateHeader.className = 'text-md font-semibold mt-4 mb-2 text-text dark:text-text-dark'; dateHeader.textContent = dateStr; itemsList.appendChild(dateHeader); const list = document.createElement('ul'); list.className = 'space-y-3'; groupedItems[dateStr].forEach(item => { const listItem = document.createElement('li'); listItem.className = `planner-item border-l-4 ${getSubjectColor(item.subject)}`; listItem.innerHTML = `<div class="flex-grow"> <p class="font-medium text-text dark:text-text-dark">${item.subject}</p> <p class="text-sm text-muted dark:text-muted-dark">${item.topic}</p> </div> <button class="flex-shrink-0 text-red-500 hover:text-red-700 text-xs p-1" onclick="handleDeletePlannerItem('${item.id}')"> <i data-lucide="trash-2" class="h-4 w-4"></i> </button>`; list.appendChild(listItem); }); itemsList.appendChild(list); }); if (typeof lucide !== 'undefined') lucide.createIcons(); } } catch (error) { console.error("Error loading planner items:", error); itemsList.innerHTML = `<p class="text-red-500 italic">Error loading sessions.</p>`; }};
+      window.handleDeletePlannerItem = async (itemId) => { if (!currentUserId) return; if (!confirm('Are you sure you want to delete this scheduled session?')) return; try { const itemRef = getItemDocRef(currentUserId, 'plannerItems', itemId); await deleteDoc(itemRef); displayPlannerItems(); } catch (error) { console.error("Error deleting planner item:", error); alert("Failed to delete session."); } };
+
+      // --- QUIZ ---
+      const quizSubjectSelect = document.getElementById('quiz-subject-select'); const saveQuizQuestionBtn = document.getElementById('save-quiz-question-btn'); const quizQuestionInput = document.getElementById('quiz-question-input'); const quizAnswerInput = document.getElementById('quiz-answer-input'); const quizItemsList = document.getElementById('quiz-items-list'); const startQuizButton = document.getElementById('start-quiz-button'); const addQuizQuestionSection = document.getElementById('add-quiz-question-section'); const quizModeInterface = document.getElementById('quiz-mode-interface'); const quizQuestionDisplay = document.getElementById('quiz-question-display'); const revealAnswerBtn = document.getElementById('reveal-answer-btn'); const quizAnswerDisplay = document.getElementById('quiz-answer-display'); const nextQuestionBtn = document.getElementById('next-question-btn'); const stopQuizButton = document.getElementById('stop-quiz-button'); const quizProgress = document.getElementById('quiz-progress');
+      let currentQuizSubject = null; let quizQuestions = []; let currentQuestionIndex = 0;
+
+      const loadQuizPage = () => { if (!quizSubjectSelect) return; populateSubjectDropdown(quizSubjectSelect); currentQuizSubject = quizSubjectSelect.value || null; toggleQuizButtons(); if(currentQuizSubject) { displaySavedQuizQuestions(currentQuizSubject); } else { quizItemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to see saved questions or start a quiz.</p>'; } quizSubjectSelect.addEventListener('change', () => { currentQuizSubject = quizSubjectSelect.value; toggleQuizButtons(); if (currentQuizSubject) { displaySavedQuizQuestions(currentQuizSubject); } else { quizItemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Select a subject to see saved questions or start a quiz.</p>'; } }); saveQuizQuestionBtn?.addEventListener('click', handleSaveQuizQuestion); startQuizButton?.addEventListener('click', startQuizMode); revealAnswerBtn?.addEventListener('click', revealQuizAnswer); nextQuestionBtn?.addEventListener('click', nextQuizQuestion); stopQuizButton?.addEventListener('click', stopQuizMode); };
+      const toggleQuizButtons = async () => { const hasSubject = !!currentQuizSubject; saveQuizQuestionBtn.disabled = !hasSubject; let itemCount = 0; if (hasSubject && currentUserId) { try { const itemsRef = collection(db, "users", currentUserId, "quizItems", currentQuizSubject, "items"); const snapshot = await getDocs(itemsRef); itemCount = snapshot.size; } catch (e) { console.error("Error checking quiz item count", e); } } startQuizButton.disabled = !hasSubject || itemCount === 0; if (typeof lucide !== 'undefined') lucide.createIcons(); };
+      const displaySavedQuizQuestions = async (subject) => { if (!quizItemsList || !currentUserId) return; quizItemsList.innerHTML = '<p class="text-muted dark:text-muted-dark italic">Loading questions...</p>'; try { const itemsRef = collection(db, "users", currentUserId, "quizItems", subject, "items"); const q = query(itemsRef, orderBy("createdAt", "desc")); const querySnapshot = await getDocs(q); const items = []; querySnapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() })); await toggleQuizButtons(); quizItemsList.innerHTML = ''; if (items.length === 0) { quizItemsList.innerHTML = `<p class="text-muted dark:text-muted-dark italic">No questions saved for ${subject} yet.</p>`; } else { const list = document.createElement('ul'); list.className = 'space-y-2'; items.forEach(item => { const listItem = document.createElement('li'); listItem.className = 'text-sm text-muted dark:text-muted-dark flex justify-between items-center'; const truncatedQuestion = item.question.length > 80 ? item.question.substring(0, 80) + '...' : item.question; listItem.innerHTML = `<span>${truncatedQuestion}</span> <button class="text-red-500 hover:text-red-700 text-xs p-1 flex-shrink-0" onclick="handleDeleteQuizItem('${subject}', '${item.id}')"> <i data-lucide="trash-2" class="h-4 w-4"></i> </button>`; list.appendChild(listItem); }); quizItemsList.appendChild(list); if (typeof lucide !== 'undefined') lucide.createIcons(); } } catch (error) { console.error("Error loading quiz items:", error); quizItemsList.innerHTML = `<p class="text-red-500 italic">Error loading questions.</p>`; }};
+      const handleSaveQuizQuestion = async () => { if (!currentQuizSubject || !currentUserId) { alert('Please select a subject first.'); return; } const question = quizQuestionInput.value.trim(); const answer = quizAnswerInput.value.trim(); if (!question || !answer) { alert('Please enter both a question and an answer.'); return; } const newItem = { question, answer, createdAt: serverTimestamp() }; saveQuizQuestionBtn.disabled = true; saveQuizQuestionBtn.textContent = 'Saving...'; try { const itemsRef = collection(db, "users", currentUserId, "quizItems", currentQuizSubject, "items"); await addDoc(itemsRef, newItem); displaySavedQuizQuestions(currentQuizSubject); quizQuestionInput.value = ''; quizAnswerInput.value = ''; } catch (e) { console.error("Error saving quiz item:", e); alert("Failed to save question."); } finally { saveQuizQuestionBtn.disabled = false; saveQuizQuestionBtn.textContent = 'Add Question'; }};
+      window.handleDeleteQuizItem = async (subject, itemId) => { if (!currentUserId) return; if (!confirm('Are you sure you want to delete this quiz question?')) return; try { const itemRef = doc(db, "users", currentUserId, "quizItems", subject, "items", itemId); await deleteDoc(itemRef); displaySavedQuizQuestions(subject); } catch (error) { console.error("Error deleting quiz item:", error); alert("Failed to delete question."); } };
+      const startQuizMode = async () => { if (!currentQuizSubject || !currentUserId) return; try { const itemsRef = collection(db, "users", currentUserId, "quizItems", currentQuizSubject, "items"); const snapshot = await getDocs(itemsRef); quizQuestions = []; snapshot.forEach(doc => quizQuestions.push({ id: doc.id, ...doc.data() })); quizQuestions = shuffleArray(quizQuestions); if (quizQuestions.length === 0) { alert('No questions saved for this subject!'); return; } currentQuestionIndex = 0; addQuizQuestionSection.classList.add('hidden'); quizModeInterface.classList.remove('hidden'); displayCurrentQuizQuestion(); if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (error) { console.error("Error starting quiz:", error); alert("Failed to load questions for quiz."); }};
+      const stopQuizMode = () => { quizModeInterface.classList.add('hidden'); addQuizQuestionSection.classList.remove('hidden'); quizQuestions = []; currentQuestionIndex = 0; if(currentQuizSubject) displaySavedQuizQuestions(currentQuizSubject); if (typeof lucide !== 'undefined') lucide.createIcons(); };
+      const displayCurrentQuizQuestion = () => { if (quizQuestions.length === 0 || currentQuestionIndex >= quizQuestions.length) { quizQuestionDisplay.innerHTML = '<p class="font-semibold">Quiz finished!</p>'; quizAnswerDisplay.textContent = ''; quizAnswerDisplay.classList.remove('visible'); revealAnswerBtn.disabled = true; nextQuestionBtn.disabled = true; quizProgress.textContent = `Finished`; return; } const item = quizQuestions[currentQuestionIndex]; quizQuestionDisplay.innerHTML = `<p class="text-text dark:text-text-dark whitespace-pre-wrap">${item.question}</p>`; quizAnswerDisplay.textContent = item.answer; quizAnswerDisplay.classList.remove('visible'); revealAnswerBtn.disabled = false; revealAnswerBtn.textContent = 'Reveal Answer'; nextQuestionBtn.disabled = false; quizProgress.textContent = `Question ${currentQuestionIndex + 1} of ${quizQuestions.length}`; };
+      const revealQuizAnswer = () => { quizAnswerDisplay.classList.toggle('visible'); revealAnswerBtn.textContent = quizAnswerDisplay.classList.contains('visible') ? 'Hide Answer' : 'Reveal Answer'; };
+      const nextQuizQuestion = () => { currentQuestionIndex++; displayCurrentQuizQuestion(); };
+
+      // --- INITIALIZATION ---
+      // Renamed function to avoid conflict with Firebase SDK
+      const initializeHubApp = () => {
+          applyTheme(localStorage.getItem('theme') || 'light'); // Apply theme immediately
+          // onAuthStateChanged handles the rest of the initialization flow
+      };
+
+      const initializePostLogin = () => {
+          // console.log("Running initializePostLogin..."); // Removed verbose log
+          if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+
+          // Load static or non-user-specific data first
+          loadTimetable();
+          populateSubjectDropdown(document.getElementById('pomodoro-subject'));
+          populateSubjectDropdown(document.getElementById('tracker-subject-select'));
+          populateSubjectDropdown(document.getElementById('planner-subject-select'));
+          populateSubjectDropdown(document.getElementById('quiz-subject-select'));
+          setTimerMode('work');
+
+          // Load user-specific data
+          loadDashboard();
+          loadResources();
+          loadTracker();
+          loadPlanner();
+          loadQuizPage();
+
+          // Set initial page
+          showPage('dashboard');
+
+          // Set up intervals
+          setInterval(updateTimetableCountdowns, 60000);
+          // setInterval(loadDashboard, 60000 * 5); // Optional: Refresh dashboard periodically
+
+          // Final icon rendering
+          if (typeof lucide !== 'undefined') {
+              // console.log("Calling lucide.createIcons() in initializePostLogin"); // Removed verbose log
+              lucide.createIcons();
+          } else {
+              console.error("Lucide library not loaded.");
+          }
+      };
+
+      // Start the app initialization process using the renamed function
+      initializeHubApp();
+
+    </script>
+
+</body>
+</html>
