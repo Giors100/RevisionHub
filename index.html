@@ -453,12 +453,12 @@
       import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
       import { getFirestore, collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc, query, orderBy, limit, serverTimestamp, increment, writeBatch, Timestamp, where } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-      // --- Firebase Configuration ---
-      const firebaseConfig = { /* ... Your Config ... */
+      const firebaseConfig = {
         apiKey: "AIzaSyAt3uFOLLQXjt2p0LERjvizePMfg9S74Mk",
         authDomain: "studentpage-97bb5.firebaseapp.com",
+        databaseURL: "https://studentpage-97bb5-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "studentpage-97bb5",
-        storageBucket: "studentpage-97bb5.appspot.com",
+        storageBucket: "studentpage-97bb5.firebasestorage.app",
         messagingSenderId: "613071061381",
         appId: "1:613071061381:web:124051538e7e0dfec344ec",
         measurementId: "G-WC262FYLJH"
