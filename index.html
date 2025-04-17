@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        // Configure Tailwind CSS
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -51,43 +50,32 @@
              --color-primary-dark: theme('colors.primary.dark');
         }
         html { scroll-behavior: smooth; }
-        /* Base transition */
         button, a, input, textarea, select, div[role="button"], details summary {
             transition: background-color 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.2s ease-out, transform 0.15s ease-out;
             outline-offset: 2px;
         }
-        /* Consistent Focus Ring */
         *:focus-visible { outline: 2px solid var(--color-primary-DEFAULT); outline-offset: 3px; border-radius: 0.25rem; }
         .dark *:focus-visible { outline-color: var(--color-primary-dark); }
         input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--color-primary-DEFAULT) !important; outline-offset: 1px; }
         .dark input:focus-visible, .dark select:focus-visible, .dark textarea:focus-visible { border-color: var(--color-primary-dark) !important; }
         a:focus-visible, button:focus-visible { outline-offset: 2px; }
-
-        /* Button/Link Hover & Active Animation */
         .btn-animated { transform: scale(1); transition: transform 0.1s var(--ease-snap), background-color 0.15s var(--ease-smooth), box-shadow 0.1s var(--ease-smooth), filter 0.15s var(--ease-smooth); }
         .btn-animated:hover:not(:disabled) { filter: brightness(1.08); transform: scale(1.03); box-shadow: theme('boxShadow.md');}
         .btn-animated:active:not(:disabled) { transform: scale(0.96); filter: brightness(0.90); transition-duration: 0.05s; }
         a.nav-link:hover, a.mobile-nav-link:hover { transform: translateY(-1px); filter: brightness(1.1); }
-
-        /* Card hover */
         .dashboard-card { transition: transform 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth); }
         .dashboard-card:hover { transform: translateY(-6px) scale(1.015); box-shadow: var(--tw-shadow-widget-hover); }
         .dark .dashboard-card:hover { box-shadow: var(--tw-shadow-widget-hover-dark); }
         .upcoming-exam-item { transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background-color 0.2s ease-out; }
         .upcoming-exam-item:hover { transform: scale(1.02); box-shadow: var(--tw-shadow-widget-hover); cursor: pointer; background-color: theme('colors.slate.50');}
         .dark .upcoming-exam-item:hover { box-shadow: var(--tw-shadow-widget-hover-dark); background-color: theme('colors.slate.800'); }
-
-        /* Page transition */
         .page { display: none; padding: 1rem; }
         @media (min-width: 768px) { .page { padding: 1.5rem; } }
         @media (min-width: 1024px) { .page { padding: 2rem; } }
         .page.active { display: block; animation: pageFadeIn 0.5s var(--ease-smooth); }
         @keyframes pageFadeIn { from { opacity: 0; transform: translateY(15px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        /* Lucide Icons */
         i[data-lucide] { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; stroke-width: 2; }
-        /* Pomodoro Timer Ring */
         .timer-ring { stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset 1s linear; }
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background-color: #e2e8f0; border-radius: 9999px; }
         ::-webkit-scrollbar-thumb { background-color: rgba(165, 180, 252, 0.7); border-radius: 9999px; }
@@ -95,13 +83,10 @@
         .dark ::-webkit-scrollbar-track { background-color: #334155; }
         .dark ::-webkit-scrollbar-thumb { background-color: rgba(99, 102, 241, 0.6); }
         .dark ::-webkit-scrollbar-thumb:hover { background-color: rgba(79, 70, 229, 0.8); }
-        /* Mobile Menu Transition */
         #mobile-menu { transform: translateX(-100%); opacity: 0; transition: transform 0.35s var(--ease-smooth), opacity 0.3s ease-out; pointer-events: none; }
         #mobile-menu.open { transform: translateX(0); opacity: 1; pointer-events: auto; }
         #mobile-overlay { transition: opacity 0.35s var(--ease-smooth); opacity: 0; pointer-events: none; }
         #mobile-overlay.visible { opacity: 1; pointer-events: auto; }
-
-        /* Timetable Design Enhancements */
         #timetable-body tr:nth-child(even) { background-color: theme('colors.slate.50 / 70%'); }
         #timetable-body tr:hover { background-color: theme('colors.slate.100'); }
         .dark #timetable-body tr:nth-child(even) { background-color: theme('colors.slate.800 / 50%'); }
@@ -110,76 +95,60 @@
         .dark .timetable-new-day td { border-top-color: #475569 !important; }
         .timetable-subject-cell { background-color: rgba(var(--subject-rgb), 0.08); position: relative; }
         .dark .timetable-subject-cell { background-color: rgba(var(--subject-rgb), 0.18); }
-        #timetable-body td { padding-top: 1rem; padding-bottom: 1rem; vertical-align: middle; } /* Increased padding */
+        #timetable-body td { padding-top: 1rem; padding-bottom: 1rem; vertical-align: middle; }
         .timetable-subject-text { font-weight: 600; }
-
-        /* List Item Hovers & Transitions */
         .list-item { transition: background-color 0.15s ease-out, transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
         .list-item:hover { background-color: #f1f5f9; transform: scale(1.01); box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
         .dark .list-item:hover { background-color: #334155; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
-        /* Delete button */
         .list-delete-btn { color: #94a3b8; transition: color 0.15s ease-out, background-color 0.15s ease-out, transform 0.15s var(--ease-smooth); }
         .list-delete-btn:hover { color: #ef4444; background-color: #fee2e2; transform: scale(1.15) rotate(5deg); }
         .dark .list-delete-btn { color: #64748b; }
         .dark .list-delete-btn:hover { color: #f87171; background-color: #450a0a; }
-        /* Disabled button styling */
         button:disabled, button[disabled] { opacity: 0.5; cursor: not-allowed; filter: grayscale(50%); transform: none !important; box-shadow: none !important; }
-        /* Resource Type Toggle Animation */
         #resource-url-wrapper, #resource-note-wrapper { display: none; }
         #resource-url-wrapper.visible, #resource-note-wrapper.visible { display: block; animation: contentFadeInShort 0.35s var(--ease-smooth); }
-        /* List Item Entrance Animation */
         @keyframes listItemFadeIn { from { opacity: 0; transform: translate(0, 10px) scale(0.98); } to { opacity: 1; transform: translate(0, 0) scale(1); } }
         .list-item-appear { animation: listItemFadeIn 0.4s var(--ease-smooth) backwards; }
-        /* Content Area Fade for Subject Switching */
         @keyframes contentFadeOut { to { opacity: 0; transform: scale(0.98); } }
         @keyframes contentFadeInShort { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
         .content-fade-out { animation: contentFadeOut 0.15s var(--ease-smooth) forwards; }
         .content-fade-in { animation: contentFadeInShort 0.3s var(--ease-smooth) 0.15s backwards; }
-
-         /* **Details/Summary Styling & Animation (Refined)** */
-        details > summary { list-style: none; cursor: pointer; transition: background-color 0.2s ease-out; position: relative; padding-right: 2.5rem; }
+         details > summary { list-style: none; cursor: pointer; transition: background-color 0.2s ease-out; position: relative; padding-right: 2.5rem; }
         details > summary::-webkit-details-marker { display: none; }
         details > summary .summary-chevron { display: block; width: 0.5rem; height: 0.5rem; border-bottom: 2px solid currentColor; border-right: 2px solid currentColor; position: absolute; right: 1rem; top: 50%; transform: translateY(-70%) rotate(45deg); transition: transform 0.3s var(--ease-smooth); pointer-events: none; }
         details[open] > summary .summary-chevron { transform: translateY(-40%) rotate(225deg); }
         details[open] > summary { background-color: #f1f5f9; border-bottom: 1px solid #e2e8f0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
         .dark details[open] > summary { background-color: #334155; border-bottom-color: #475569; }
-        /* Dropdown Content Animation using Grid */
         details > div {
             display: grid;
-            grid-template-rows: 0fr; /* Start collapsed */
+            grid-template-rows: 0fr;
             opacity: 0;
-            transition: grid-template-rows 0.4s var(--ease-smooth), opacity 0.3s ease-out 0.1s; /* Adjusted timing */
+            transition: grid-template-rows 0.4s var(--ease-smooth), opacity 0.3s ease-out 0.1s;
         }
         details[open] > div {
-            grid-template-rows: 1fr; /* Expand */
+            grid-template-rows: 1fr;
             opacity: 1;
         }
-        details > div > div { /* Inner wrapper */
+        details > div > div {
              overflow: hidden;
-             padding: 1rem; /* Apply padding here */
+             padding: 1rem;
              border-top: 1px solid #e2e8f0;
              .dark & { border-top-color: #475569; }
         }
-
-         /* Active Tab Styling */
-        .subject-tab[aria-selected="true"] { color: var(--color-primary-DEFAULT); border-color: var(--color-primary-DEFAULT); font-weight: 600; background-color: transparent; }
+         .subject-tab[aria-selected="true"] { color: var(--color-primary-DEFAULT); border-color: var(--color-primary-DEFAULT); font-weight: 600; background-color: transparent; }
         .dark .subject-tab[aria-selected="true"] { color: var(--color-primary-dark); border-color: var(--color-primary-dark); background-color: transparent; }
-
-        /* Quiz Button Feedback */
         .quiz-feedback-correct { animation: flashGreen 0.5s ease-out; }
         .quiz-feedback-incorrect { animation: shakeHorizontal 0.4s ease-in-out; }
         @keyframes flashGreen { 0%, 100% { background-color: transparent; } 50% { background-color: rgba(74, 222, 128, 0.3); } }
-        @keyframes shakeHorizontal { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-6px); } 50% { transform: translateX(6px); } } /* More pronounced shake */
-
-        /* Hide quiz answer area initially */
+        @keyframes shakeHorizontal { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
         #quiz-correct-answer-display { display: none; }
         #quiz-correct-answer-display.visible { display: block; animation: contentFadeInShort 0.3s var(--ease-smooth); }
-
+        .quiz-file-preview { max-width: 80px; max-height: 60px; margin-top: 4px; border-radius: 4px; border: 1px solid #e2e8f0; object-fit: cover; }
+        .dark .quiz-file-preview { border-color: #475569; }
+        .analytics-item { border-left: 3px solid; padding-left: 0.75rem; } /* Styling for analytics list items */
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-background text-text font-sans transition-colors duration-300 dark:bg-background-dark">
-
-    <!-- Login Overlay -->
     <div id="login-overlay" class="fixed inset-0 bg-background dark:bg-background-dark flex items-center justify-center p-4 transition-opacity duration-300 z-[100]">
         <div class="bg-card text-text rounded-xl shadow-widget p-6 md:p-8 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 max-w-sm w-full">
             <h2 class="text-2xl font-semibold mb-4 text-center text-primary dark:text-primary-dark">Revision Hub Login</h2>
@@ -194,13 +163,10 @@
                 <input type="password" id="password-input" placeholder="••••••••" class="w-full p-2 border rounded-lg bg-background dark:bg-slate-700 border-slate-300 dark:border-slate-600 focus:ring-primary focus:border-primary transition duration-150 ease-in-out">
             </div>
             <button id="login-button" class="w-full bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2.5 px-4 rounded-lg btn-animated shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">Login</button>
-            <p id="login-error" class="text-red-500 text-sm mt-3 text-center hidden h-4"></p> <!-- Ensure this has space -->
+            <p id="login-error" class="text-red-500 text-sm mt-3 text-center hidden h-4"></p>
         </div>
     </div>
-
-    <!-- Main App Wrapper -->
     <div id="app-wrapper" class="hidden flex flex-col min-h-screen">
-        <!-- Header -->
         <header class="sticky top-0 z-50 bg-card dark:bg-card-dark shadow-md dark:shadow-slate-700/50 transition-colors duration-300">
             <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
                  <a href="#" data-page="dashboard" class="nav-link text-xl md:text-2xl font-bold text-primary dark:text-primary-dark flex items-center space-x-2 btn-animated rounded-md p-1 -m-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"> <i data-lucide="graduation-cap" class="h-6 w-6"></i> <span>Giorgi's Hub</span> </a>
@@ -220,13 +186,10 @@
                     <button id="mobile-menu-button" title="Open Menu" class="p-2 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary btn-animated"> <span class="sr-only">Open main menu</span> <i data-lucide="menu" class="h-6 w-6"></i> </button>
                 </div>
             </nav>
-             <div id="mobile-menu" class="md:hidden fixed inset-y-0 left-0 w-64 bg-card dark:bg-card-dark shadow-xl z-60 p-4 border-r border-slate-200 dark:border-slate-700"> <div class="flex justify-between items-center mb-6"> <a href="#" data-page="dashboard" class="nav-link text-lg font-bold text-primary dark:text-primary-dark flex items-center space-x-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded"> <i data-lucide="graduation-cap" class="h-5 w-5"></i> <span>Giorgi's Hub</span> </a> <button id="mobile-close-button" title="Close Menu" class="p-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700 btn-animated focus-visible:ring-2 focus-visible:ring-primary"> <i data-lucide="x" class="h-5 w-5"></i> </button> </div> <nav class="flex flex-col space-y-1"> <a href="#" data-page="dashboard" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Dashboard</a> <a href="#" data-page="timetable" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Timetable</a> <a href="#" data-page="resources" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Resources</a> <a href="#" data-page="pomodoro" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Pomodoro</a> <a href="#" data-page="tracker" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Tracker</a> <a href="#" data-page="planner" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Planner</a> <a href="#" data-page="quiz" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Quiz</a> <hr class="my-3 border-slate-200 dark:border-slate-700"> <button id="logout-button-mobile" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 btn-animated flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-red-500"> <i data-lucide="log-out" class="h-4 w-4"></i> <span>Logout</span> </button> </nav> </div>
-            <div id="mobile-overlay" class="fixed inset-0 bg-black/60 dark:bg-black/80 z-55 hidden md:hidden"></div>
+            <div id="mobile-overlay" class="fixed inset-0 bg-black/60 dark:bg-black/80 z-[55] hidden md:hidden"></div>
+             <div id="mobile-menu" class="md:hidden fixed inset-y-0 left-0 w-64 bg-card dark:bg-card-dark shadow-xl z-[60] p-4 border-r border-slate-200 dark:border-slate-700"> <div class="flex justify-between items-center mb-6"> <a href="#" data-page="dashboard" class="nav-link text-lg font-bold text-primary dark:text-primary-dark flex items-center space-x-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded"> <i data-lucide="graduation-cap" class="h-5 w-5"></i> <span>Giorgi's Hub</span> </a> <button id="mobile-close-button" title="Close Menu" class="p-1 rounded-md text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700 btn-animated focus-visible:ring-2 focus-visible:ring-primary"> <i data-lucide="x" class="h-5 w-5"></i> </button> </div> <nav class="flex flex-col space-y-1"> <a href="#" data-page="dashboard" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Dashboard</a> <a href="#" data-page="timetable" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Timetable</a> <a href="#" data-page="resources" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Resources</a> <a href="#" data-page="pomodoro" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Pomodoro</a> <a href="#" data-page="tracker" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Tracker</a> <a href="#" data-page="planner" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Planner</a> <a href="#" data-page="quiz" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-muted dark:text-muted-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-dark focus-visible:ring-2 focus-visible:ring-primary">Quiz</a> <hr class="my-3 border-slate-200 dark:border-slate-700"> <button id="logout-button-mobile" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 btn-animated flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-red-500"> <i data-lucide="log-out" class="h-4 w-4"></i> <span>Logout</span> </button> </nav> </div>
         </header>
-
         <main class="flex-grow container mx-auto py-6 bg-background dark:bg-background-dark transition-colors duration-300">
-
-            <!-- Dashboard Section -->
             <section id="dashboard" class="page active">
                  <h1 class="text-2xl md:text-3xl font-bold mb-1 text-text dark:text-text-dark">Welcome, Giorgi!</h1>
                  <p class="text-muted dark:text-muted-dark mb-6 text-sm">Candidate Number: 7590</p>
@@ -235,14 +198,14 @@
                         <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="calendar-clock" class="h-5 w-5 text-primary dark:text-primary-dark"></i> <span>Upcoming Exams</span> </h2>
                         <div id="upcoming-exams-list" class="space-y-3 text-sm min-h-[60px]"></div>
                     </div>
+                     <div class="dashboard-card bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="bar-chart-3" class="h-5 w-5 text-cyan-500"></i> <span>Study Time Analytics</span> </h2>
+                        <div id="pomodoro-analytics" class="space-y-3 text-sm min-h-[60px]"></div>
+                    </div>
                     <div class="dashboard-card bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark">
                         <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="timer" class="h-5 w-5 text-secondary dark:text-secondary-dark"></i> <span>Recent Study Sessions</span> </h2>
                         <div id="pomodoro-summary" class="space-y-2 text-sm min-h-[60px]"></div>
                         <button id="start-pomodoro-dashboard-btn" class="mt-4 w-full bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 btn-animated shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary"> <i data-lucide="play-circle" class="h-5 w-5"></i> <span>Start Pomodoro</span> </button>
-                    </div>
-                     <div class="dashboard-card bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark">
-                        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="bar-chart-3" class="h-5 w-5 text-cyan-500"></i> <span>Study Time Analytics</span> </h2>
-                        <div id="pomodoro-analytics" class="space-y-2 text-sm min-h-[60px]"></div>
                     </div>
                     <div class="dashboard-card bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark">
                         <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2"> <i data-lucide="link" class="h-5 w-5 text-blue-500"></i> <span>Quick Links</span> </h2>
@@ -271,8 +234,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Timetable Section -->
             <section id="timetable" class="page">
                 <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Exam Timetable</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 overflow-x-auto">
@@ -291,8 +252,6 @@
                     </table>
                 </div>
             </section>
-
-            <!-- Resources Section -->
             <section id="resources" class="page">
                  <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Revision Resources</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
@@ -314,8 +273,6 @@
                     <div id="resource-content" class="mt-4 min-h-[150px]"></div>
                 </div>
             </section>
-
-            <!-- Pomodoro Section -->
             <section id="pomodoro" class="page">
                  <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Pomodoro Timer</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget p-5 md:p-8 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300 max-w-lg mx-auto flex flex-col items-center">
@@ -327,8 +284,6 @@
                     <details class="mt-8 text-center w-full max-w-xs"> <summary class="cursor-pointer text-sm text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark font-medium list-none flex items-center justify-center space-x-1 focus-visible:ring-1 focus-visible:ring-primary rounded p-1"> <i data-lucide="settings" class="h-4 w-4"></i> <span>Timer Settings</span> <span class="summary-chevron ml-auto"></span> </summary> <div><div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-b-lg border border-t-0 border-slate-200 dark:border-slate-600/50 space-y-3 text-left"> <div> <label for="work-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Work Duration (min):</label> <input type="number" id="work-duration" value="25" min="1" max="90" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> <div> <label for="short-break-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Short Break (min):</label> <input type="number" id="short-break-duration" value="5" min="1" max="30" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> <div> <label for="long-break-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Long Break (min):</label> <input type="number" id="long-break-duration" value="15" min="5" max="60" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> </div></div> </details>
                 </div>
             </section>
-
-            <!-- Tracker Section -->
             <section id="tracker" class="page">
                  <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Feedback & Improvement Tracker</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
@@ -352,8 +307,6 @@
                     <div id="tracker-items-list" class="mt-4 min-h-[150px] space-y-3"></div>
                 </div>
             </section>
-
-            <!-- Planner Section -->
             <section id="planner" class="page">
                 <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Revision Planner</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
@@ -373,8 +326,6 @@
                     <div id="planner-items-list" class="mt-4 space-y-5 min-h-[100px]"></div>
                 </div>
             </section>
-
-             <!-- Quiz Section -->
              <section id="quiz" class="page">
                  <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Quiz Yourself</h1>
                 <div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300">
@@ -384,47 +335,43 @@
                         <label for="quiz-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label>
                         <select id="quiz-subject-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select>
                     </div>
-
                     <div id="quiz-content-wrapper" class="hidden">
-                         <!-- Add Question Dropdown -->
                         <details id="add-quiz-details" class="mb-6 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50" style="display: none;">
                             <summary class="p-3 font-medium text-primary dark:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-between focus-visible:ring-1 focus-visible:ring-primary cursor-pointer">
                                 <span>Add New Question</span> <span class="summary-chevron"></span>
                             </summary>
                             <div><div id="add-quiz-question-form" class="p-4 space-y-4 border-t border-slate-200 dark:border-slate-700">
                                  <div> <label for="quiz-question-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Question:</label> <textarea id="quiz-question-input" placeholder="Enter the question text..." rows="3" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div>
+                                 <div> <label for="quiz-question-file" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Question Image/File (Optional):</label> <input type="file" id="quiz-question-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200 dark:file:bg-primary-900/40 dark:file:text-primary-300 dark:hover:file:bg-primary-900/60 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-lg"> </div>
                                  <div> <label for="quiz-answer-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Answer / Mark Scheme:</label> <textarea id="quiz-answer-input" placeholder="Enter the correct answer..." rows="4" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div>
+                                 <div> <label for="quiz-answer-file" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Answer Image/File (Optional):</label> <input type="file" id="quiz-answer-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200 dark:file:bg-primary-900/40 dark:file:text-primary-300 dark:hover:file:bg-primary-900/60 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-lg"> </div>
                                  <button id="save-quiz-question-btn" class="mt-2 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">Add Question</button>
                             </div></div>
                         </details>
-
                         <div id="quiz-list-container">
                              <h3 class="text-lg font-medium mb-3 text-text dark:text-text-dark">Saved Questions</h3>
                              <div id="quiz-items-list" class="mt-4 mb-6 max-h-72 overflow-y-auto space-y-3 pr-2 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/30 min-h-[100px]"></div>
-                             <button id="start-quiz-button" class="bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2.5 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary"> <i data-lucide="swords" class="h-5 w-5"></i> <span>Challenge Me!</span> </button> <!-- Changed text -->
+                             <button id="start-quiz-button" class="bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2.5 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary"> <i data-lucide="swords" class="h-5 w-5"></i> <span>Challenge Me!</span> </button>
                         </div>
                     </div>
-
-                    <!-- ** GAMIFIED Quiz Mode Interface ** -->
                     <div id="quiz-mode-interface" class="hidden mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
                          <div class="flex justify-between items-center mb-3">
                              <h3 class="text-xl font-semibold text-primary dark:text-primary-dark">Quiz Challenge</h3>
                              <span id="quiz-progress" class="text-sm font-medium text-muted dark:text-muted-dark">Round 1 | Remaining: 0</span>
                          </div>
-                         <div id="quiz-question-display" class="p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg mb-4 min-h-[120px] bg-background dark:bg-slate-800/50 text-text dark:text-text-dark flex items-center justify-center text-center text-lg"> <!-- Increased min-height and text size -->
+                         <div id="quiz-question-display" class="p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg mb-4 min-h-[120px] bg-background dark:bg-slate-800/50 text-text dark:text-text-dark flex flex-col items-center justify-center text-center text-lg space-y-2">
                              <p class="italic text-muted dark:text-muted-dark">Loading question...</p>
+                             <div id="quiz-question-file-display"></div>
                          </div>
-                         <!-- Show Answer Button -->
                          <div id="quiz-reveal-button-container" class="mb-3 text-center">
                             <button id="quiz-reveal-answer-btn" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg text-sm btn-animated flex items-center space-x-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500">
                                 <i data-lucide="eye" class="h-4 w-4"></i> <span>Show Answer</span>
                             </button>
                          </div>
-                         <!-- Answer Area (hidden initially) -->
-                         <div id="quiz-correct-answer-display" class="p-3 bg-slate-100 dark:bg-slate-700 rounded-md text-sm mb-4" style="display: none;"> <!-- Use display none initially -->
-                             <!-- Content set by JS -->
+                         <div id="quiz-correct-answer-display" class="p-3 bg-slate-100 dark:bg-slate-700 rounded-md text-sm mb-4 space-y-2" style="display: none;">
+                            <div id="quiz-answer-text-display"></div>
+                            <div id="quiz-answer-file-display"></div>
                          </div>
-                         <!-- Correct/Incorrect Buttons (hidden initially) -->
                          <div id="quiz-judgment-buttons" class="mt-4 flex justify-center gap-4" style="display: none;">
                              <button id="quiz-incorrect-btn" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500">
                                  <i data-lucide="x" class="h-5 w-5"></i> <span>Got it Wrong</span>
@@ -433,55 +380,43 @@
                                  <i data-lucide="check" class="h-5 w-5"></i> <span>Got it Right!</span>
                              </button>
                          </div>
-                         <!-- Stop Button -->
                          <div class="mt-6 text-center">
                             <button id="stop-quiz-button" class="text-xs text-muted dark:text-muted-dark hover:text-red-600 dark:hover:text-red-400 underline focus-visible:ring-1 focus-visible:ring-red-500 rounded px-1 btn-animated">Stop Quiz</button>
                          </div>
-                         <!-- Completion Message Area -->
                          <div id="quiz-completion-message" class="hidden mt-6 p-4 text-center bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 rounded-lg font-medium"></div>
                     </div>
                 </div>
             </section>
-
         </main>
-
-        <!-- Footer -->
         <footer class="bg-card dark:bg-card-dark mt-auto py-4 shadow-inner dark:shadow-[0_-1px_5px_-1px_rgba(0,0,0,0.1)] transition-colors duration-300 border-t border-slate-200 dark:border-slate-700">
             <div class="container mx-auto px-4 text-center text-xs text-muted dark:text-muted-dark">
                  &copy; <span id="current-year"></span> Giorgi Suramlishvili Revision Hub. Candidate: 7590. Keep pushing!
             </div>
         </footer>
-    </div> <!-- End App Wrapper -->
-
+    </div>
     <script type="module">
-      // Import Firebase functions
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
       import { getFirestore, collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc, query, orderBy, limit, serverTimestamp, increment, writeBatch, Timestamp, where } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-    
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
       const firebaseConfig = {
         apiKey: "AIzaSyAt3uFOLLQXjt2p0LERjvizePMfg9S74Mk",
         authDomain: "studentpage-97bb5.firebaseapp.com",
         databaseURL: "https://studentpage-97bb5-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "studentpage-97bb5",
-        storageBucket: "studentpage-97bb5.firebasestorage.app",
+        storageBucket: "studentpage-97bb5.appspot.com",
         messagingSenderId: "613071061381",
         appId: "1:613071061381:web:124051538e7e0dfec344ec",
-        measurementId: "G-WC262FYLJH"  
+        measurementId: "G-WC262FYLJH"
       };
-
-      // --- Initialize Firebase ---
-      let app, auth, db;
+      let app, auth, db, storage;
       try {
           app = initializeApp(firebaseConfig);
           auth = getAuth(app);
           db = getFirestore(app);
-          console.log("Firebase Initialized");
+          storage = getStorage(app);
       } catch (error) {
           console.error("Firebase Init Error:", error);
-          // Display error directly on login form if init fails
           const initialLoginError = document.getElementById('login-error');
           const initialLoginButton = document.getElementById('login-button');
           if (initialLoginError) {
@@ -493,11 +428,9 @@
               initialLoginButton.textContent = 'Login Unavailable';
           }
       }
-
-      // --- Global State ---
       let currentUserId = null;
-      let isInitialized = false; // Tracks if post-login setup has run
-      let eventListenersAttached = false; // *** FLAG ADDED ***
+      let isInitialized = false;
+      let eventListenersAttached = false;
       let countdownInterval = null;
       let pomodoroInterval = null;
       let currentActiveSubject = null;
@@ -506,13 +439,9 @@
           currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null
       };
       let targetSubjectParam = null;
-
-      // --- DATA (Hardcoded Exam & Quotes) ---
       const examData = [ { subject: "English Literature", paper: "Paper 1", date: "2025-05-12T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computer Systems Written", date: "2025-05-12T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Biology", paper: "Paper 1", date: "2025-05-13T13:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Geography", paper: "Paper 1", date: "2025-05-14T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Mathematics", paper: "Option H: Non-Calculator", date: "2025-05-15T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Chemistry", paper: "Paper 1", date: "2025-05-19T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Literature", paper: "Paper 2", date: "2025-05-20T08:45:00", duration: "2h 15m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computational Thinking, Algorithms & Programming", date: "2025-05-20T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Physics", paper: "Paper 1", date: "2025-05-22T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Language", paper: "Paper 1", date: "2025-05-23T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Mathematics", paper: "Option H: Calculator", date: "2025-06-04T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M2" }, { subject: "English Language", paper: "Paper 2", date: "2025-06-06T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 2", date: "2025-06-06T13:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Biology", paper: "Paper 2", date: "2025-06-09T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Listening", date: "2025-06-10T08:45:00", duration: "0h 45m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Spanish", paper: "Reading", date: "2025-06-10T09:50:00", duration: "1h 00m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Mathematics", paper: "Option H: Calculator P3", date: "2025-06-11T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 3", date: "2025-06-12T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Chemistry", paper: "Paper 2", date: "2025-06-13T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Physics", paper: "Paper 2", date: "2025-06-16T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Writing", date: "2025-06-17T08:45:00", duration: "1h 15m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "J3" } ].sort((a, b) => new Date(a.date) - new Date(b.date));
       const motivationalQuotes = [ "Believe you can and you're halfway there.", "The secret to getting ahead is getting started.", "Don't watch the clock; do what it does. Keep going.", "Success is not final, failure is not fatal: It is the courage to continue that counts.", "The expert in anything was once a beginner.", "Strive for progress, not perfection.", "Your limitation—it's only your imagination.", "Push yourself, because no one else is going to do it for you.", "Great things never come from comfort zones.", "The harder you work for something, the greater you'll feel when you achieve it.", "Focus on the step in front of you, not the whole staircase.", "Small steps every day lead to big results." ];
       const subjects = [...new Set(examData.map(exam => exam.subject))].sort();
-
-      // --- UTILS ---
       const getElement = (id) => document.getElementById(id);
       const safelyCreateIcons = () => { if (typeof lucide !== 'undefined' && lucide.createIcons) { try { lucide.createIcons(); } catch (e) { console.error("Lucide icon creation failed:", e); } } };
       const formatGeneralDate = (d) => { try { const date = new Date(d); return date.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return "Invalid Date"; } };
@@ -523,16 +452,12 @@
       const getSubjectColor = (s) => { const cs = [ 'border-indigo-400 dark:border-indigo-600', 'border-sky-400 dark:border-sky-600', 'border-emerald-400 dark:border-emerald-600', 'border-amber-400 dark:border-amber-600', 'border-violet-400 dark:border-violet-600', 'border-rose-400 dark:border-rose-600', 'border-cyan-400 dark:border-cyan-600', 'border-lime-400 dark:border-lime-600', 'border-fuchsia-400 dark:border-fuchsia-600', 'border-orange-400 dark:border-orange-600', ]; const i = subjects.indexOf(s); return cs[i % cs.length] || 'border-slate-400 dark:border-slate-600'; };
       const getSubjectColorRGB = (s) => { const cm = { 'border-indigo-400': '129, 140, 248', 'border-sky-400': '56, 189, 248', 'border-emerald-400': '52, 211, 153', 'border-amber-400': '251, 191, 36', 'border-violet-400': '167, 139, 250', 'border-rose-400': '251, 113, 133', 'border-cyan-400': '34, 211, 238', 'border-lime-400': '163, 230, 53', 'border-fuchsia-400': '217, 70, 239', 'border-orange-400': '251, 146, 60' }; const bc = getSubjectColor(s).split(' ')[0]; return cm[bc] || '203, 213, 225'; };
       const shuffleArray = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-      const escapeHtml = (unsafe) => { return unsafe ? unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : ''; };
+      const escapeHtml = (unsafe) => { return unsafe ? unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : ''; };
       const applyStaggerAnimation = (elements) => { Array.from(elements).forEach((el, index) => { el.style.animationDelay = `${index * 0.06}s`; el.classList.add('list-item-appear'); }); };
-
-      // --- Firestore Refs ---
       const getUserDataRef = (userId, path) => doc(db, `users/${userId}/${path}`);
       const getUserCollectionRef = (userId, collectionName) => collection(db, `users/${userId}/${collectionName}`);
       const getSubjectSpecificCollectionRef = (userId, mainCollection, subject) => collection(db, `users/${userId}/${mainCollection}/${subject}/items`);
       const getSubjectSpecificDocRef = (userId, mainCollection, subject, docId) => doc(db, `users/${userId}/${mainCollection}/${subject}/items/${docId}`);
-
-      // --- DOM Elements --- (Defined in HTML)
       const loginOverlay = getElement('login-overlay');
       const appWrapper = getElement('app-wrapper');
       const emailInput = getElement('email-input');
@@ -602,23 +527,26 @@
       const addQuizDetails = getElement('add-quiz-details');
       const quizQuestionInput = getElement('quiz-question-input');
       const quizAnswerInput = getElement('quiz-answer-input');
+      const quizQuestionFileInput = getElement('quiz-question-file');
+      const quizAnswerFileInput = getElement('quiz-answer-file');
       const saveQuizQuestionBtn = getElement('save-quiz-question-btn');
       const quizItemsList = getElement('quiz-items-list');
       const quizListContainer = getElement('quiz-list-container');
       const startQuizButton = getElement('start-quiz-button');
       const quizModeInterface = getElement('quiz-mode-interface');
       const quizQuestionDisplay = getElement('quiz-question-display');
+      const quizQuestionFileDisplay = getElement('quiz-question-file-display');
       const quizRevealBtnContainer = getElement('quiz-reveal-button-container');
       const quizRevealAnswerBtn = getElement('quiz-reveal-answer-btn');
       const quizCorrectAnswerDisplay = getElement('quiz-correct-answer-display');
+      const quizAnswerTextDisplay = getElement('quiz-answer-text-display');
+      const quizAnswerFileDisplay = getElement('quiz-answer-file-display');
       const quizJudgmentButtons = getElement('quiz-judgment-buttons');
       const quizIncorrectBtn = getElement('quiz-incorrect-btn');
       const quizCorrectBtn = getElement('quiz-correct-btn');
       const stopQuizButton = getElement('stop-quiz-button');
       const quizProgress = getElement('quiz-progress');
       const quizCompletionMessage = getElement('quiz-completion-message');
-
-      // --- Helper: Populate Subject Dropdowns ---
       const populateSubjectDropdown = (selectElement) => {
           if (!selectElement) return;
           const placeholder = selectElement.options[0];
@@ -633,8 +561,6 @@
               selectElement.appendChild(option);
           });
       };
-
-      // --- Helper: Create Loading/Empty Messages ---
       const createLoadingMessage = (text, isTableRow = false, colspan = 1) => {
           const p = document.createElement('p');
           p.className = 'text-muted dark:text-muted-dark italic p-4 text-center text-sm';
@@ -646,42 +572,33 @@
               td.appendChild(p);
               const tr = document.createElement('tr');
               tr.appendChild(td);
-              // Return the HTML string for the table row
               return tr.outerHTML;
           }
-          // Return the HTML string for the paragraph
           return p.outerHTML;
       };
-
-      // --- AUTHENTICATION & State Management ---
       onAuthStateChanged(auth, (user) => {
-          console.log("Auth state changed:", user ? `Logged in as ${user.uid}` : 'Logged out');
-          if (user && db) { // Make sure DB is also ready
+          if (user && db && storage) {
               currentUserId = user.uid;
               loginOverlay.classList.add('opacity-0', 'pointer-events-none');
               setTimeout(() => loginOverlay.classList.add('hidden'), 400);
               appWrapper.classList.remove('hidden');
               appWrapper.classList.add('flex');
               if (!isInitialized) {
-                  // Use DOMContentLoaded only if needed (script is at the end, likely not needed)
-                  initializePostLogin(user); // Initialize immediately
+                  initializePostLogin(user);
                   isInitialized = true;
               }
           } else {
               currentUserId = null;
-              isInitialized = false; // Reset initialization flag on logout
+              isInitialized = false;
               loginOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
               appWrapper.classList.add('hidden');
               appWrapper.classList.remove('flex');
-              clearDynamicContent(); // Clear UI elements
-              // Clear intervals
+              clearDynamicContent();
               if (countdownInterval) clearInterval(countdownInterval);
               if (pomodoroInterval) clearInterval(pomodoroInterval);
               countdownInterval = null;
               pomodoroInterval = null;
-              // Reset quiz state
               quizState = { active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null };
-              // Clear login form fields
               if (emailInput) emailInput.value = '';
               if (passwordInput) passwordInput.value = '';
               if (loginError) {
@@ -689,55 +606,38 @@
                   loginError.classList.add('hidden');
               }
           }
-          safelyCreateIcons(); // Refresh icons after UI changes
+          safelyCreateIcons();
       });
-
-      // --- Handle Login Function (Robust Version) ---
       const handleLogin = async () => {
-          // Check if essential elements and auth are available
           if (!emailInput || !passwordInput || !loginButton || !loginError || !auth) {
               console.error("Login function cannot run: Missing required elements or Firebase auth.");
               if (loginError) {
                   loginError.textContent = "Internal error. Please refresh.";
-                  loginError.classList.remove('hidden'); // Show error
+                  loginError.classList.remove('hidden');
               }
               if (loginButton) {
-                  loginButton.disabled = true; // Disable button if setup fails
+                  loginButton.disabled = true;
                   loginButton.textContent = 'Error';
               }
               return;
           }
-
           const email = emailInput.value.trim();
           const password = passwordInput.value;
-
-          // Reset previous error messages before attempting
           loginError.textContent = '';
           loginError.classList.add('hidden');
-
-          // Basic validation
           if (!email || !password) {
               loginError.textContent = "Please enter both email and password.";
               loginError.classList.remove('hidden');
               return;
           }
-
-          // Disable button during login attempt
           loginButton.disabled = true;
           loginButton.textContent = 'Logging in...';
-
           try {
-              console.log("Attempting Firebase sign in with:", email); // Log the email being used
               await signInWithEmailAndPassword(auth, email, password);
-              console.log("Login successful for:", email);
-              // Successful login: onAuthStateChanged will handle showing the app.
-              // No need to manually hide loginError here, as the overlay will hide.
           } catch (error) {
-              console.error("RAW LOGIN ERROR OBJECT:", error); // Log the raw error for debugging
-              console.error("Login Error Code:", error.code, "Message:", error.message); // Log specific parts
-
-              // Determine user-friendly error message
-              let errorMessage = "Login failed. Please check details and try again."; // Default
+              console.error("RAW LOGIN ERROR OBJECT:", error);
+              console.error("Login Error Code:", error.code, "Message:", error.message);
+              let errorMessage = "Login failed. Please check details and try again.";
               if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                   errorMessage = "Invalid email or password.";
               } else if (error.code === 'auth/network-request-failed') {
@@ -745,40 +645,29 @@
               } else if (error.code === 'auth/too-many-requests') {
                   errorMessage = "Too many login attempts. Please try again later.";
               } else if (error.message) {
-                   // Use Firebase's message for other errors if available
                    errorMessage = `Login error: ${error.message}`;
               }
-
               loginError.textContent = errorMessage;
-              loginError.classList.remove('hidden'); // *** Ensure the error message is displayed ***
-
-              // Re-enable the login button after failure
+              loginError.classList.remove('hidden');
               loginButton.disabled = false;
               loginButton.textContent = 'Login';
           }
       };
-      // --- End Handle Login Function ---
-
       const handleLogout = async () => {
-          if (!auth) return; // Check if auth is available
-          // Stop timers/processes before logging out
+          if (!auth) return;
           if (pomodoroInterval) clearInterval(pomodoroInterval);
           pomodoroInterval = null;
           if (countdownInterval) clearInterval(countdownInterval);
           countdownInterval = null;
-          if (quizState.active) stopQuizMode(); // Stop quiz if running
-
+          if (quizState.active) stopQuizMode();
           try {
               await signOut(auth);
-              console.log("Logout successful");
-              closeMobileMenu(); // Close menu if open
-              // onAuthStateChanged will handle UI clearing and showing login overlay
+              closeMobileMenu();
           } catch (error) {
               console.error("Logout Error:", error);
-              alert("Logout failed. Please try again."); // Inform user
+              alert("Logout failed. Please try again.");
           }
       };
-
       const handleChangePassword = async () => {
            if (!currentPasswordInput || !newPasswordInput || !changePasswordButton || !changePasswordMessage || !auth?.currentUser) {
               if(changePasswordMessage) changePasswordMessage.textContent = 'Cannot change password now.';
@@ -788,7 +677,6 @@
             const newPassword = newPasswordInput.value;
             changePasswordMessage.textContent = '';
             changePasswordMessage.className = 'text-sm mt-2 h-4';
-
             if (!currentPassword || !newPassword) {
                 changePasswordMessage.textContent = 'Please enter both current and new passwords.';
                 changePasswordMessage.classList.add('text-red-500');
@@ -799,21 +687,17 @@
                 changePasswordMessage.classList.add('text-red-500');
                 return;
             }
-
             changePasswordButton.disabled = true;
             changePasswordButton.textContent = 'Changing...';
-
             try {
                 const user = auth.currentUser;
-                if (!user || !user.email) throw new Error("User or email not found."); // Should not happen if logged in
-
+                if (!user || !user.email) throw new Error("User or email not found.");
                 const credential = EmailAuthProvider.credential(user.email, currentPassword);
-                await reauthenticateWithCredential(user, credential); // Re-authenticate first
-                await updatePassword(user, newPassword); // Then update
-
+                await reauthenticateWithCredential(user, credential);
+                await updatePassword(user, newPassword);
                 changePasswordMessage.textContent = 'Password updated successfully!';
                 changePasswordMessage.classList.add('text-green-600', 'dark:text-green-400');
-                currentPasswordInput.value = ''; // Clear fields on success
+                currentPasswordInput.value = '';
                 newPasswordInput.value = '';
             } catch (error) {
                 console.error("Change Password Error:", error);
@@ -832,8 +716,6 @@
                 changePasswordButton.textContent = 'Change Password';
             }
       };
-
-      // --- THEME TOGGLE ---
       const applyTheme = (theme) => {
           htmlElement.classList.remove('light', 'dark');
           htmlElement.classList.add(theme);
@@ -843,13 +725,10 @@
           themeIconLightMobile?.classList.toggle('hidden', isDark);
           themeIconDarkMobile?.classList.toggle('hidden', !isDark);
           localStorage.setItem('theme', theme);
-          safelyCreateIcons(); // Ensure icons are updated
+          safelyCreateIcons();
       };
       const toggleTheme = () => { applyTheme(htmlElement.classList.contains('dark') ? 'light' : 'dark'); };
-
-      // --- NAVIGATION ---
       const setActiveLink = (pageId) => {
-          // Desktop nav
           navLinks.forEach(link => {
               const isActive = link.dataset.page === pageId;
               link.classList.toggle('text-primary', isActive);
@@ -861,7 +740,6 @@
               link.classList.toggle('dark:text-muted-dark', !isActive);
               link.classList.toggle('font-medium', !isActive);
           });
-          // Mobile nav
           mobileNavLinks.forEach(link => {
               const isActive = link.dataset.page === pageId;
               link.classList.toggle('text-primary', isActive);
@@ -875,122 +753,92 @@
           });
       };
       const showPage = (pageId) => {
-          if (!getElement(pageId)) pageId = 'dashboard'; // Default to dashboard if page doesn't exist
+          if (!getElement(pageId)) pageId = 'dashboard';
           pages.forEach(page => page.classList.remove('active'));
           const targetPage = getElement(pageId);
           if (targetPage) targetPage.classList.add('active');
-          setActiveLink(pageId); // Update nav link styles
-          window.scrollTo(0, 0); // Scroll to top
-          safelyCreateIcons(); // Re-render icons if needed
-
-          // Handle deferred subject selection if navigating to a relevant page
+          setActiveLink(pageId);
+          window.scrollTo(0, 0);
+          safelyCreateIcons();
           if (targetSubjectParam && targetSubjectParam.page === pageId) {
-              console.log(`Handling deferred param for ${pageId}: ${targetSubjectParam.subject}`);
               handleSubjectSelection(targetSubjectParam.subject, pageId);
-              targetSubjectParam = null; // Clear the param once handled
+              targetSubjectParam = null;
+          }
+          // Refresh dashboard data if navigating to it
+          if (pageId === 'dashboard' && currentUserId) {
+              loadDashboard();
           }
       };
       const _navigateToPage = (pageId, param = null) => {
-          console.log(`Navigate request: ${pageId}, param: ${param ? param : 'none'}`);
-          // Store subject param only if navigating to a page that uses it
           targetSubjectParam = (param && ['resources', 'tracker', 'quiz'].includes(pageId)) ? { page: pageId, subject: param } : null;
-
-          // Reset active subject if navigating away from subject-specific pages
           if (!['resources', 'tracker', 'quiz'].includes(pageId)) {
               currentActiveSubject = null;
           }
-
           showPage(pageId);
-          closeMobileMenu(); // Close mobile menu on navigation
+          closeMobileMenu();
       };
       const openMobileMenu = () => {
           mobileMenu?.classList.add('open');
           mobileOverlay?.classList.remove('hidden');
-          setTimeout(() => mobileOverlay?.classList.add('visible'), 10); // For transition
+          setTimeout(() => mobileOverlay?.classList.add('visible'), 10);
       };
       const closeMobileMenu = () => {
           mobileOverlay?.classList.remove('visible');
           mobileMenu?.classList.remove('open');
-          setTimeout(() => mobileOverlay?.classList.add('hidden'), 350); // Match transition duration
+          setTimeout(() => mobileOverlay?.classList.add('hidden'), 350);
       };
-
-      // --- Clear Dynamic Content on Logout ---
       const clearDynamicContent = () => {
-          console.log("Clearing dynamic content...");
           const upcomingList = getElement('upcoming-exams-list');
           const pomodoroSummary = getElement('pomodoro-summary');
           const pomodoroAnalytics = getElement('pomodoro-analytics');
           const quoteEl = getElement('motivational-quote');
-          const timetableBody = getElement('timetable-body'); // Get reference
-
-          // Dashboard
+          const timetableBody = getElement('timetable-body');
           if (upcomingList) upcomingList.innerHTML = createLoadingMessage('Loading...');
           if (pomodoroSummary) pomodoroSummary.innerHTML = createLoadingMessage('No sessions logged.');
           if (pomodoroAnalytics) pomodoroAnalytics.innerHTML = createLoadingMessage('Loading analytics...');
           if (quoteEl) quoteEl.textContent = 'Loading quote...';
-
-          // Timetable
           if (timetableBody) {
               timetableBody.innerHTML = createLoadingMessage('Loading timetable...', true, 6);
           }
-
-          // Resources
           if (subjectTabsContainer) subjectTabsContainer.innerHTML = '';
           if (resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject.');
           if (addResourceDetails) { addResourceDetails.style.display = 'none'; addResourceDetails.removeAttribute('open'); }
-
-          // Tracker
           if (trackerSubjectSelect) trackerSubjectSelect.value = '';
           if (trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.');
           if (addTrackerDetails) { addTrackerDetails.style.display = 'none'; addTrackerDetails.removeAttribute('open'); }
-
-          // Planner
           if (plannerSubjectSelect) plannerSubjectSelect.value = '';
           if (plannerItemsList) plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled.');
           if(plannerDateInput) plannerDateInput.value = '';
           if(plannerTimeInput) plannerTimeInput.value = '';
           if(plannerTopicInput) plannerTopicInput.value = '';
-
-          // Quiz
           if (quizSubjectSelect) quizSubjectSelect.value = '';
           if (quizContentWrapper) quizContentWrapper.classList.add('hidden');
           if (quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.');
           if (addQuizDetails) { addQuizDetails.style.display = 'none'; addQuizDetails.removeAttribute('open'); }
           if (quizModeInterface) quizModeInterface.classList.add('hidden');
-
-          // Password Change Form
           if (currentPasswordInput) currentPasswordInput.value = '';
           if (newPasswordInput) newPasswordInput.value = '';
           if (changePasswordMessage) changePasswordMessage.textContent = '';
-
-          // Pomodoro Reset
-          resetTimer(true); // Reset timer state silently
-          currentActiveSubject = null; // Reset active subject state
-          console.log("Dynamic content cleared.");
+          resetTimer(true);
+          currentActiveSubject = null;
       };
-
-
-      // --- DASHBOARD ---
       const loadDashboard = async () => {
           if (!currentUserId || !db) return;
-          console.log("Loading dashboard data...");
           const upcomingList = getElement('upcoming-exams-list');
           const pomodoroSummaryEl = getElement('pomodoro-summary');
           const pomodoroAnalyticsEl = getElement('pomodoro-analytics');
           const quoteEl = getElement('motivational-quote');
-
-          // Upcoming Exams
           if (upcomingList) {
-              upcomingList.innerHTML = ''; // Clear previous
+              upcomingList.innerHTML = '';
               const now = new Date();
-              const futureExams = examData.filter(exam => new Date(exam.date) > now).slice(0, 5); // Get next 5
+              const futureExams = examData.filter(exam => new Date(exam.date) > now).slice(0, 5);
               if (futureExams.length > 0) {
                   futureExams.forEach((exam, index) => {
                       const div = document.createElement('div');
                       div.className = `upcoming-exam-item p-3 rounded-lg border-l-4 ${getSubjectColor(exam.subject)} bg-background dark:bg-slate-800/50 shadow-sm list-item list-item-appear cursor-pointer hover:shadow-md dark:hover:shadow-widget-hover-dark`;
-                      div.style.animationDelay = `${index * 0.07}s`; // Stagger animation
-                      div.dataset.page = "resources"; // Link to resources page
-                      div.dataset.subject = exam.subject; // Pass subject
+                      div.style.animationDelay = `${index * 0.07}s`;
+                      div.dataset.page = "resources";
+                      div.dataset.subject = exam.subject;
                       div.setAttribute('role', 'button');
                       div.setAttribute('tabindex', '0');
                       div.innerHTML = `
@@ -1006,19 +854,15 @@
                   upcomingList.innerHTML = createLoadingMessage('No upcoming exams found.');
               }
           }
-
-          // Pomodoro Summary & Analytics
-          if (pomodoroSummaryEl && pomodoroAnalyticsEl) {
+          if (pomodoroSummaryEl) {
              pomodoroSummaryEl.innerHTML = createLoadingMessage('Loading sessions...');
-             pomodoroAnalyticsEl.innerHTML = createLoadingMessage('Loading analytics...');
               try {
-                  // Fetch recent logs (last 5)
                   const logQuery = query(getUserCollectionRef(currentUserId, 'pomodoroLogs'), orderBy("timestamp", "desc"), limit(5));
                   const logSnapshot = await getDocs(logQuery);
                   if (logSnapshot.empty) {
                       pomodoroSummaryEl.innerHTML = createLoadingMessage('No recent study sessions.');
                   } else {
-                       pomodoroSummaryEl.innerHTML = ''; // Clear loading
+                       pomodoroSummaryEl.innerHTML = '';
                        logSnapshot.docs.forEach((logDoc, index) => {
                            const data = logDoc.data();
                            const p = document.createElement('p');
@@ -1030,81 +874,85 @@
                        });
                        safelyCreateIcons();
                   }
-
-                  // Fetch analytics
-                  const analyticsDoc = await getDoc(getUserDataRef(currentUserId, 'stats/pomodoroAnalytics'));
-                  if (analyticsDoc.exists()) {
-                      const data = analyticsDoc.data();
-                       pomodoroAnalyticsEl.innerHTML = ''; // Clear loading
-                      const totalMins = data.totalMinutes || 0;
-                      const totalSessions = data.totalSessions || 0;
-                      const subjectMins = data.subjectMinutes || {};
-                      let analyticsHTML = `<p class="text-sm text-text dark:text-text-dark">Total Time: <span class="font-semibold">${formatMinutes(totalMins)}</span> (${totalSessions} sessions)</p>`;
-                      const sortedSubjects = Object.entries(subjectMins).sort(([,a],[,b]) => b-a).slice(0, 3); // Top 3 subjects
-                      if(sortedSubjects.length > 0) {
-                          analyticsHTML += `<p class="text-xs mt-2 text-muted dark:text-muted-dark">Top Subjects:</p><ul class="list-disc list-inside text-xs ml-1 space-y-0.5 mt-1">`;
-                          sortedSubjects.forEach(([subject, mins]) => {
-                              analyticsHTML += `<li>${escapeHtml(subject)}: ${formatMinutes(mins)}</li>`;
-                          });
-                           analyticsHTML += `</ul>`;
-                      } else if (totalMins > 0) {
-                          analyticsHTML += `<p class="text-xs mt-2 text-muted dark:text-muted-dark">Keep tracking to see subject breakdown!</p>`;
-                      }
-                      pomodoroAnalyticsEl.innerHTML = analyticsHTML;
-                  } else {
-                      pomodoroAnalyticsEl.innerHTML = createLoadingMessage('No analytics data yet.');
-                  }
-
               } catch (error) {
-                  console.error("Error loading Pomodoro data:", error);
+                  console.error("Error loading Pomodoro recent sessions:", error);
                   pomodoroSummaryEl.innerHTML = createLoadingMessage('Error loading sessions.');
-                  pomodoroAnalyticsEl.innerHTML = createLoadingMessage('Error loading analytics.');
               }
           }
+          if (pomodoroAnalyticsEl) {
+              pomodoroAnalyticsEl.innerHTML = createLoadingMessage('Loading analytics...');
+               try {
+                    const analyticsDoc = await getDoc(getUserDataRef(currentUserId, 'stats/pomodoroAnalytics'));
+                    if (analyticsDoc.exists()) {
+                        const data = analyticsDoc.data();
+                        pomodoroAnalyticsEl.innerHTML = '';
+                        const totalMins = data.totalMinutes || 0;
+                        const totalSessions = data.totalSessions || 0;
+                        const subjectMins = data.subjectMinutes || {};
+                        let analyticsHTML = `<div class="space-y-3">`; // Container for better spacing
+                        analyticsHTML += `<div class="flex justify-between items-baseline">
+                                            <span class="text-sm text-muted dark:text-muted-dark">Total Study Time:</span>
+                                            <span class="text-lg font-semibold text-text dark:text-text-dark">${formatMinutes(totalMins)}</span>
+                                         </div>`;
+                        analyticsHTML += `<div class="flex justify-between items-baseline">
+                                            <span class="text-sm text-muted dark:text-muted-dark">Total Sessions:</span>
+                                            <span class="text-lg font-semibold text-text dark:text-text-dark">${totalSessions}</span>
+                                         </div>`;
 
-          // Motivational Quote
+                        const sortedSubjects = Object.entries(subjectMins).sort(([,a],[,b]) => b-a);
+                        if(sortedSubjects.length > 0) {
+                            analyticsHTML += `<hr class="border-slate-200 dark:border-slate-700 my-3">`;
+                            analyticsHTML += `<h4 class="text-sm font-medium text-muted dark:text-muted-dark mb-2">Time per Subject:</h4><div class="space-y-2">`;
+                            sortedSubjects.forEach(([subject, mins]) => {
+                                const colorBorderClass = getSubjectColor(subject).split(' ')[0]; // e.g., 'border-indigo-400'
+                                analyticsHTML += `<div class="analytics-item flex justify-between items-center text-sm ${colorBorderClass}">
+                                                    <span class="text-text dark:text-text-dark">${escapeHtml(subject)}</span>
+                                                    <span class="font-medium text-muted dark:text-muted-dark">${formatMinutes(mins)}</span>
+                                                  </div>`;
+                            });
+                            analyticsHTML += `</div>`;
+                        } else if (totalMins > 0) {
+                            analyticsHTML += `<p class="text-xs mt-2 text-muted dark:text-muted-dark italic">Keep tracking to see subject breakdown!</p>`;
+                        }
+                        analyticsHTML += `</div>`; // Close container
+                        pomodoroAnalyticsEl.innerHTML = analyticsHTML;
+                    } else {
+                        pomodoroAnalyticsEl.innerHTML = createLoadingMessage('No study analytics yet. Complete a Pomodoro session!');
+                    }
+               } catch(error) {
+                    console.error("Error loading Pomodoro analytics:", error);
+                    pomodoroAnalyticsEl.innerHTML = createLoadingMessage('Error loading analytics.');
+               }
+          }
           if (quoteEl) {
               quoteEl.textContent = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
           }
-
-          safelyCreateIcons(); // Ensure all icons render
-          console.log("Dashboard loaded.");
+          safelyCreateIcons();
       };
-
-
-      // --- TIMETABLE ---
       const loadTimetable = () => {
           const tbody = getElement('timetable-body');
           if (!tbody) { console.error("Timetable tbody missing!"); return; }
-          tbody.innerHTML = ''; // Clear previous content
+          tbody.innerHTML = '';
           let lastDateStr = null;
-
           if (!examData || examData.length === 0) {
               tbody.innerHTML = createLoadingMessage('Timetable data unavailable.', true, 6);
               return;
           }
-
           examData.forEach((exam, index) => {
               try {
                   const tr = document.createElement('tr');
                   const currentDate = new Date(exam.date);
-                  if (isNaN(currentDate.getTime())) return; // Skip invalid dates
-
+                  if (isNaN(currentDate.getTime())) return;
                   const currentDateStr = currentDate.toDateString();
-                  // Add class for visual separation between days
                   if (lastDateStr && currentDateStr !== lastDateStr) {
                       tr.classList.add('timetable-new-day');
                   }
                   lastDateStr = currentDateStr;
-
                   const colorClasses = getSubjectColor(exam.subject).split(' ');
                   const rgbColor = getSubjectColorRGB(exam.subject);
-
                   tr.classList.add('text-sm', 'align-middle');
-
                   const subjectColorVar = colorClasses.find(c => c.startsWith('border-'))?.replace('border-', 'text-') || 'text-slate-700';
                   const darkSubjectColorVar = colorClasses.find(c => c.startsWith('dark:border-'))?.replace('dark:border-', 'dark:text-') || 'dark:text-slate-300';
-
                   tr.innerHTML = `
                       <td class="timetable-subject-cell pl-4 pr-3 py-4 font-medium text-text dark:text-text-dark whitespace-nowrap border-l-4 ${colorClasses.join(' ')}" style="--subject-rgb: ${rgbColor};">
                           <span class="timetable-subject-text ${subjectColorVar} ${darkSubjectColorVar}">${escapeHtml(exam.subject)}</span>
@@ -1120,13 +968,11 @@
                   console.error(`Error creating timetable row ${index}:`, rowError, exam);
               }
           });
-          safelyCreateIcons(); // Render any icons if added later
-          updateTimetableCountdowns(); // Initial countdown update
-          console.log("Timetable loaded.");
+          safelyCreateIcons();
+          updateTimetableCountdowns();
       };
-
       const updateTimetableCountdowns = () => {
-           if (!appWrapper || appWrapper.classList.contains('hidden')) return; // Only update if app is visible
+           if (!appWrapper || appWrapper.classList.contains('hidden')) return;
            document.querySelectorAll('.countdown-cell[data-date]').forEach(cell => {
                 cell.innerHTML = formatCountdown(cell.dataset.date);
             });
@@ -1134,8 +980,6 @@
                  span.innerHTML = formatCountdown(span.dataset.date);
              });
       };
-
-      // --- Content Area Animation ---
       const animateContentSwitch = async (containerElement, displayFunction, subject) => {
           if (!containerElement) return;
           containerElement.classList.add('content-fade-out');
@@ -1146,13 +990,9 @@
           containerElement.classList.add('content-fade-in');
           setTimeout(() => containerElement.classList.remove('content-fade-in'), 300);
       };
-
-      // --- SUBJECT SELECTION HANDLER (for Resources, Tracker, Quiz) ---
       const handleSubjectSelection = (subject, context) => {
           const isValidSubject = subjects.includes(subject);
           currentActiveSubject = isValidSubject ? subject : null;
-          console.log(`Handling Subject selection for ${context}: ${currentActiveSubject || 'None'}`);
-
           const toggleDetailsVisibility = (detailsId) => {
               const detailsElement = getElement(detailsId);
               if (detailsElement) {
@@ -1162,12 +1002,10 @@
                   }
               }
           };
-
           toggleDetailsVisibility('add-resource-details');
           toggleDetailsVisibility('add-tracker-details');
           toggleDetailsVisibility('add-quiz-details');
           if (quizContentWrapper) quizContentWrapper.classList.toggle('hidden', !isValidSubject);
-
           if (context === 'resources') {
               setActiveSubjectTab(currentActiveSubject);
               if (isValidSubject) {
@@ -1195,6 +1033,8 @@
               if (isValidSubject) {
                   if(quizQuestionInput) quizQuestionInput.value = '';
                   if(quizAnswerInput) quizAnswerInput.value = '';
+                  if(quizQuestionFileInput) quizQuestionFileInput.value = '';
+                  if(quizAnswerFileInput) quizAnswerFileInput.value = '';
                   validateQuizForm();
                   animateContentSwitch(quizItemsList, displaySavedQuizQuestions, currentActiveSubject);
               } else {
@@ -1203,13 +1043,10 @@
               }
           }
       };
-
-      // --- RESOURCES ---
       const loadResources = () => {
            if (!subjectTabsContainer) return;
            subjectTabsContainer.innerHTML = '';
             if (!subjects || subjects.length === 0) return;
-
             subjects.forEach(subject => {
                 const button = document.createElement('button');
                 button.setAttribute('role', 'tab');
@@ -1219,7 +1056,6 @@
                 button.textContent = subject;
                 subjectTabsContainer.appendChild(button);
             });
-
             if (addResourceDetails) addResourceDetails.style.display = 'none';
             if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.');
             validateResourceForm();
@@ -1239,7 +1075,6 @@
                 return;
             }
             let isValid = resourceTitleInput.value.trim() !== '';
-
             if (resourceTypeSelect.value === 'link') {
                  isValid = isValid && resourceUrlInput && resourceUrlInput.value.trim() !== '' && resourceUrlInput.value.includes('://');
             } else if (resourceTypeSelect.value === 'note') {
@@ -1272,7 +1107,6 @@
                 const snapshot = await getDocs(q);
                 const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 resourceContent.innerHTML = '';
-
                 if (items.length === 0) {
                      resourceContent.innerHTML = createLoadingMessage(`No resources saved for ${subject} yet.`);
                 } else {
@@ -1303,7 +1137,7 @@
                          }
                          li.innerHTML = `
                             <div class="flex-grow mr-2">${contentHtml}</div>
-                            <button title="Delete Resource" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleDeleteResource('${escapeHtml(subject)}', '${item.id}')">
+                            <button title="Delete Resource" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('resources', '${escapeHtml(subject)}', '${item.id}', 'resource', displayResources)">
                                 <i data-lucide="trash-2" class="h-4 w-4"></i>
                             </button>`;
                          ul.appendChild(li);
@@ -1321,19 +1155,15 @@
            if (!currentUserId || !currentActiveSubject || !saveResourceBtn || !db) return;
            validateResourceForm();
            if (saveResourceBtn.disabled) return;
-
            const type = resourceTypeSelect.value;
            const title = resourceTitleInput.value.trim();
            const url = resourceUrlInput.value.trim();
            const noteContent = resourceNoteInput.value.trim();
-
            const newResource = { title, type, createdAt: serverTimestamp() };
            if (type === 'link') newResource.url = url;
            else if (type === 'note') newResource.noteContent = noteContent;
-
            saveResourceBtn.disabled = true;
            saveResourceBtn.textContent = 'Saving...';
-
            try {
                 await addDoc(getSubjectSpecificCollectionRef(currentUserId, 'resources', currentActiveSubject), newResource);
                 resourceTitleInput.value = '';
@@ -1352,26 +1182,9 @@
                 validateResourceForm();
            }
       };
-       window.handleDeleteResource = async (subject, resourceDocId) => {
-            if (!currentUserId || !subject || !resourceDocId || !db) return;
-            if (!confirm(`Are you sure you want to delete this resource for ${subject}?`)) return;
-            try {
-                 await deleteDoc(getSubjectSpecificDocRef(currentUserId, 'resources', subject, resourceDocId));
-                 console.log(`Resource ${resourceDocId} deleted for ${subject}.`);
-                 if (currentActiveSubject === subject && getElement('resources').classList.contains('active')) {
-                      displayResources(subject);
-                 }
-            } catch (error) {
-                 console.error("Error deleting resource:", error);
-                 alert("Failed to delete resource.");
-            }
-       };
-
-       // --- POMODORO TIMER ---
        const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r')) : 283;
        if (progressRing) { progressRing.style.strokeDasharray = `${ringCircumference} ${ringCircumference}`; progressRing.style.strokeDashoffset = ringCircumference; }
-       let totalSeconds = 0, currentSeconds = 0, timerState = 'stopped', timerMode = 'work', pomodoroCycle = 0, selectedSubject = '';
-
+       let totalSeconds = 0, currentSeconds = 0, timerState = 'stopped', timerMode = 'work', pomodoroCycle = 0, workSessionSubject = '';
        const updateTimerDisplay = () => {
            if (!timerDisplay || !progressRing) return;
            const minutes = Math.max(0, Math.floor(currentSeconds / 60));
@@ -1396,37 +1209,29 @@
        };
        const setTimerMode = (mode, fromInteraction = false) => {
            if (!timerStatus || !progressRing || !workDurationInput || !shortBreakDurationInput || !longBreakDurationInput || !pomodoroModeTitle) return;
-
            if (timerState === 'running' && fromInteraction) {
-               console.log("Cannot change mode while timer is running.");
                const buttonToShake = modeButtons.find(btn => btn.dataset.mode === mode);
                buttonToShake?.classList.add('shake-horizontal');
                setTimeout(() => buttonToShake?.classList.remove('shake-horizontal'), 400);
                return;
            }
-
            timerMode = mode;
            pomodoroCycle = parseInt(localStorage.getItem('pomodoroCycle') || '0');
            let title = '', durationInput, ringColorClass = 'text-primary dark:text-primary-dark';
-
            switch (mode) {
                case 'work': durationInput = workDurationInput; title = 'Focus Session'; timerStatus.textContent = 'Work'; break;
                case 'shortBreak': durationInput = shortBreakDurationInput; title = 'Short Break'; timerStatus.textContent = 'Short Break'; ringColorClass = 'text-emerald-500 dark:text-emerald-400'; break;
                case 'longBreak': durationInput = longBreakDurationInput; title = 'Long Break'; timerStatus.textContent = 'Long Break'; ringColorClass = 'text-sky-500 dark:text-sky-400'; break;
                default: console.error("Invalid timer mode:", mode); return;
            }
-
            totalSeconds = parseInt(durationInput.value) * 60;
            totalSeconds = (!isNaN(totalSeconds) && totalSeconds >= 0) ? totalSeconds : (25 * 60);
            currentSeconds = totalSeconds;
-
            pomodoroModeTitle.textContent = title;
            setActiveModeButton(mode);
            updateTimerDisplay();
-
            progressRing.classList.remove('text-primary', 'dark:text-primary-dark', 'text-emerald-500', 'dark:text-emerald-400', 'text-sky-500', 'dark:text-sky-400');
            progressRing.classList.add(...ringColorClass.split(' '));
-
            if (timerState !== 'running' || !fromInteraction) {
                if (pomodoroInterval) clearInterval(pomodoroInterval);
                pomodoroInterval = null;
@@ -1441,38 +1246,42 @@
        };
        const addPomodoroLogAndAnalytics = async (subject, durationMinutes) => {
            if (!currentUserId || !subject || durationMinutes < 1 || !db) return;
-           console.log(`Logging Pomodoro: ${subject}, ${durationMinutes}min`);
            const logCollRef = getUserCollectionRef(currentUserId, 'pomodoroLogs');
            const analyticsRef = getUserDataRef(currentUserId, 'stats/pomodoroAnalytics');
            try {
                const batch = writeBatch(db);
                batch.set(doc(logCollRef), { subject, durationMinutes, timestamp: serverTimestamp() });
-               const updateData = { totalSessions: increment(1), totalMinutes: increment(durationMinutes), [`subjectMinutes.${subject}`]: increment(durationMinutes) };
+               const updateData = {
+                   totalSessions: increment(1),
+                   totalMinutes: increment(durationMinutes),
+                   [`subjectMinutes.${subject}`]: increment(durationMinutes)
+               };
                batch.set(analyticsRef, updateData, { merge: true });
                await batch.commit();
-               console.log("Pomodoro log and analytics updated.");
-               if (getElement('dashboard').classList.contains('active')) { loadDashboard(); }
+               if (getElement('dashboard').classList.contains('active')) {
+                   loadDashboard(); // Refresh dashboard if visible
+               }
            } catch (error) { console.error("Error logging Pomodoro:", error); }
        };
        const startTimer = () => {
            if (timerState === 'running' || !startPauseButton) return;
-
            if (timerMode === 'work') {
-               selectedSubject = pomodoroSubjectSelect.value;
-               if (!selectedSubject) { alert('Please select a subject for this Focus Session.'); pomodoroSubjectSelect.focus(); return; }
-           } else { selectedSubject = `Break (${timerMode})`; }
-
+               workSessionSubject = pomodoroSubjectSelect.value; // Store subject for logging
+               if (!workSessionSubject) {
+                   alert('Please select a subject for this Focus Session.');
+                   pomodoroSubjectSelect.focus();
+                   return;
+                }
+           } else { workSessionSubject = ''; } // Not needed for breaks
            if (currentSeconds <= 0) {
                setTimerMode(timerMode, false);
                if (currentSeconds <= 0) { alert("Timer duration is set to 0. Please adjust settings."); return; }
            }
-
            timerState = 'running';
            startPauseButton.innerHTML = `<i data-lucide="pause" class="h-5 w-5"></i> <span>Pause</span>`;
            safelyCreateIcons();
            startPauseButton.disabled = false;
            modeButtons.forEach(btn => { if (btn) btn.disabled = true; });
-
            if (pomodoroInterval) clearInterval(pomodoroInterval);
            pomodoroInterval = setInterval(() => {
                if (currentSeconds <= 0) {
@@ -1480,23 +1289,23 @@
                    pomodoroInterval = null;
                    timerState = 'stopped';
                    modeButtons.forEach(btn => { if(btn) btn.disabled = false; });
-
                    const finishedMode = timerMode;
+                   const workDuration = parseInt(workDurationInput.value);
                    let nextMode = 'work';
                    let alertMessage = '';
-
-                   if (finishedMode === 'work') {
+                   if (finishedMode === 'work' && workSessionSubject && workDuration > 0) {
                        pomodoroCycle++;
                        localStorage.setItem('pomodoroCycle', pomodoroCycle.toString());
-                       addPomodoroLogAndAnalytics(selectedSubject, parseInt(workDurationInput.value));
+                       addPomodoroLogAndAnalytics(workSessionSubject, workDuration); // Log completed session
                        nextMode = (pomodoroCycle % 4 === 0) ? 'longBreak' : 'shortBreak';
                        alertMessage = `Focus session complete! Time for a ${nextMode === 'longBreak' ? 'long' : 'short'} break.`;
-                   } else {
+                   } else if (finishedMode !== 'work') {
                        alertMessage = "Break's over! Time to get back to focus.";
                        nextMode = 'work';
                    }
-                   alert(alertMessage);
+                   if (alertMessage) alert(alertMessage);
                    setTimerMode(nextMode, false);
+                   workSessionSubject = ''; // Reset subject for next work session
                } else {
                    currentSeconds--;
                    updateTimerDisplay();
@@ -1510,23 +1319,21 @@
            timerState = 'paused';
            startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Resume</span>`;
            safelyCreateIcons();
-           modeButtons.forEach(btn => { if (btn) btn.disabled = true; });
+           modeButtons.forEach(btn => { if (btn) btn.disabled = true; }); // Keep mode buttons disabled on pause
        };
        const resetTimer = (silent = false) => {
            if (pomodoroInterval) clearInterval(pomodoroInterval);
            pomodoroInterval = null;
            timerState = 'stopped';
-           setTimerMode(timerMode, true);
+           workSessionSubject = ''; // Clear subject on reset
+           setTimerMode(timerMode, true); // Reset display and state, enabling buttons
            if (startPauseButton) {
                startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Start</span>`;
                startPauseButton.disabled = false;
            }
            safelyCreateIcons();
            modeButtons.forEach(btn => { if (btn) btn.disabled = false; });
-           if (!silent) console.log("Timer reset by user.");
        };
-
-       // --- TRACKER ---
        const loadTracker = () => {
            populateSubjectDropdown(trackerSubjectSelect);
            if(addTrackerDetails) addTrackerDetails.style.display = 'none';
@@ -1548,7 +1355,6 @@
                const snapshot = await getDocs(q);
                const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                trackerItemsList.innerHTML = '';
-
                if (items.length === 0) {
                    trackerItemsList.innerHTML = createLoadingMessage(`No items tracked for ${subject} yet.`);
                } else {
@@ -1567,7 +1373,7 @@
                                ${item.createdAt?.toDate ? `<span class="text-xs text-muted dark:text-muted-dark ml-2">${formatGeneralDate(item.createdAt.toDate())}</span>` : ''}
                            </div>
                            <div class="flex-shrink-0 flex flex-col items-end space-y-1">
-                               <button title="Delete Item" class="list-delete-btn p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleDeleteTrackerItem('${escapeHtml(subject)}', '${item.id}')">
+                               <button title="Delete Item" class="list-delete-btn p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('trackerItems', '${escapeHtml(subject)}', '${item.id}', 'tracker item', displayTrackerItems)">
                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
                                </button>
                            </div>`;
@@ -1584,14 +1390,11 @@
            if (!currentUserId || !currentActiveSubject || !saveTrackerItemBtn || !db) return;
            validateTrackerForm();
            if (saveTrackerItemBtn.disabled) return;
-
            const description = trackerDescriptionInput.value.trim();
            const status = trackerStatusSelect.value;
            const newItem = { description, status, createdAt: serverTimestamp() };
-
            saveTrackerItemBtn.disabled = true;
            saveTrackerItemBtn.textContent = 'Adding...';
-
            try {
                await addDoc(getSubjectSpecificCollectionRef(currentUserId, 'trackerItems', currentActiveSubject), newItem);
                trackerDescriptionInput.value = '';
@@ -1607,28 +1410,10 @@
                validateTrackerForm();
            }
        };
-       window.handleDeleteTrackerItem = async (subject, itemId) => {
-           if (!currentUserId || !subject || !itemId || !db) return;
-           if (!confirm(`Are you sure you want to delete this tracker item for ${subject}?`)) return;
-           try {
-               await deleteDoc(getSubjectSpecificDocRef(currentUserId, 'trackerItems', subject, itemId));
-               console.log(`Tracker item ${itemId} deleted for ${subject}.`);
-               if (currentActiveSubject === subject && getElement('tracker').classList.contains('active')) {
-                   displayTrackerItems(subject);
-               }
-           } catch (error) {
-               console.error("Error deleting tracker item:", error);
-               alert("Failed to delete tracker item.");
-           }
-       };
-
-
-      // --- PLANNER ---
       const loadPlanner = () => {
           if (!plannerDateInput || !plannerTimeInput || !plannerSubjectSelect || !plannerTopicInput || !savePlannerItemBtn || !plannerItemsList) return;
           populateSubjectDropdown(plannerSubjectSelect);
           displayPlannerItems();
-
           try {
               const now = new Date();
               const localISODate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
@@ -1648,24 +1433,19 @@
           if (!currentUserId || !db) return;
           validatePlannerForm();
           if (savePlannerItemBtn.disabled) return;
-
           const date = plannerDateInput.value;
           const time = plannerTimeInput.value;
           const subject = plannerSubjectSelect.value;
           const topic = plannerTopicInput.value.trim();
           let dateTimeString;
-
           try {
               const combined = new Date(`${date}T${time}:00`);
               if (isNaN(combined.getTime())) throw new Error("Invalid date/time combination");
               dateTimeString = combined.toISOString();
           } catch (e) { console.error("Invalid date/time format:", e); alert("Please enter a valid date and time."); return; }
-
           const newItem = { dateTime: dateTimeString, subject, topic, createdAt: serverTimestamp() };
-
           savePlannerItemBtn.disabled = true;
           savePlannerItemBtn.textContent = 'Scheduling...';
-
           try {
               await addDoc(getUserCollectionRef(currentUserId, 'plannerItems'), newItem);
               await displayPlannerItems();
@@ -1688,7 +1468,6 @@
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
               plannerItemsList.innerHTML = '';
-
               if (items.length === 0) {
                   plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled yet.');
               } else {
@@ -1702,7 +1481,6 @@
                       } catch (e) { console.warn("Skipping item with invalid date:", item.id, item.dateTime, e); }
                       return acc;
                   }, {});
-
                   const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
                        try {
                            const parseDate = (str) => {
@@ -1724,13 +1502,11 @@
                            return dateA - dateB;
                        } catch { return 0; }
                   });
-
                   sortedDates.forEach(dateStr => {
                       const dateHeader = document.createElement('h4');
                       dateHeader.className = 'text-lg font-semibold mt-5 mb-2 text-text dark:text-text-dark border-b pb-1 dark:border-slate-600';
                       dateHeader.textContent = dateStr;
                       plannerItemsList.appendChild(dateHeader);
-
                       const list = document.createElement('ul');
                       list.className = 'space-y-3';
                       groupedByDate[dateStr].forEach((item, index) => {
@@ -1746,7 +1522,7 @@
                                   <p class="text-xs text-primary dark:text-primary-dark font-medium mt-1.5">${formattedDateTime}</p>
                                   ${isPast ? '<span class="text-xs text-red-500 dark:text-red-400 ml-2">(Past)</span>' : ''}
                               </div>
-                              <button title="Delete Session" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleDeletePlannerItem('${item.id}')">
+                              <button title="Delete Session" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('plannerItems', null, '${item.id}', 'scheduled session', displayPlannerItems)">
                                   <i data-lucide="trash-2" class="h-4 w-4"></i>
                               </button>`;
                           list.appendChild(li);
@@ -1760,20 +1536,27 @@
               plannerItemsList.innerHTML = createLoadingMessage('Error loading scheduled sessions.');
           }
       };
-      window.handleDeletePlannerItem = async (itemId) => {
-          if (!currentUserId || !itemId || !db) return;
-          if (!confirm('Are you sure you want to delete this scheduled session?')) return;
-          try {
-              await deleteDoc(doc(db, `users/${currentUserId}/plannerItems/${itemId}`));
-              console.log(`Planner item ${itemId} deleted.`);
-              displayPlannerItems();
-          } catch (error) {
-              console.error("Error deleting planner item:", error);
-              alert("Failed to delete session.");
-          }
-      };
-
-      // --- QUIZ (Gamified) ---
+       window.handleGenericDeleteItem = async (collectionName, subject, itemId, itemTypeName, displayFunction) => {
+           if (!currentUserId || !itemId || !db) return;
+           if (!confirm(`Are you sure you want to delete this ${itemTypeName}?`)) return;
+           try {
+               let itemRef;
+               if (subject) {
+                   itemRef = getSubjectSpecificDocRef(currentUserId, collectionName, subject, itemId);
+               } else {
+                   itemRef = doc(db, `users/${currentUserId}/${collectionName}/${itemId}`);
+               }
+               await deleteDoc(itemRef);
+               if (subject && currentActiveSubject === subject && displayFunction) {
+                    displayFunction(subject);
+               } else if (!subject && displayFunction) {
+                   displayFunction(); // For non-subject specific lists like planner
+               }
+           } catch (error) {
+               console.error(`Error deleting ${itemTypeName}:`, error);
+               alert(`Failed to delete ${itemTypeName}.`);
+           }
+       };
       const loadQuizPage = () => {
           populateSubjectDropdown(quizSubjectSelect);
           if(quizContentWrapper) quizContentWrapper.classList.add('hidden');
@@ -1784,7 +1567,9 @@
       };
       const validateQuizForm = () => {
           if (saveQuizQuestionBtn && quizQuestionInput && quizAnswerInput && currentActiveSubject) {
-              saveQuizQuestionBtn.disabled = quizQuestionInput.value.trim() === '' || quizAnswerInput.value.trim() === '';
+              const hasQuestion = quizQuestionInput.value.trim() !== '' || (quizQuestionFileInput && quizQuestionFileInput.files.length > 0);
+              const hasAnswer = quizAnswerInput.value.trim() !== '' || (quizAnswerFileInput && quizAnswerFileInput.files.length > 0);
+              saveQuizQuestionBtn.disabled = !(hasQuestion && hasAnswer);
           } else if (saveQuizQuestionBtn) {
               saveQuizQuestionBtn.disabled = true;
           }
@@ -1803,6 +1588,26 @@
               startQuizButton.disabled = true;
           }
       };
+       const renderFilePreview = (url, altText = "Uploaded file") => {
+           if (!url) return '';
+           const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+           if (imageExtensions.test(url)) {
+               return `<img src="${escapeHtml(url)}" alt="${escapeHtml(altText)}" class="quiz-file-preview inline-block" loading="lazy">`;
+           } else {
+                let filename = 'Attached File';
+                try {
+                    const decodedUrl = decodeURIComponent(url);
+                    const pathPart = decodedUrl.split('?')[0];
+                    const lastSlashIndex = pathPart.lastIndexOf('%2F');
+                    filename = lastSlashIndex >= 0 ? pathPart.substring(lastSlashIndex + 3) : pathPart.substring(pathPart.lastIndexOf('/')+1);
+                    filename = filename.replace(/_\d{13,}$/, ''); // Remove timestamp suffix if pattern matches _ followed by 13 digits
+                } catch (e) { /* Ignore decoding errors */ }
+                return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-primary dark:text-primary-dark hover:underline">
+                            <i data-lucide="paperclip" class="h-3 w-3"></i>
+                            <span>${escapeHtml(filename)}</span>
+                         </a>`;
+           }
+       };
       const displaySavedQuizQuestions = async (subject) => {
           if (!currentUserId || !quizItemsList || !db) return;
            quizItemsList.innerHTML = createLoadingMessage(`Loading ${subject} questions...`);
@@ -1811,7 +1616,6 @@
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
               quizItemsList.innerHTML = '';
-
               if (items.length === 0) {
                   quizItemsList.innerHTML = createLoadingMessage(`No questions saved for ${subject} yet.`);
               } else {
@@ -1819,10 +1623,16 @@
                       const div = document.createElement('div');
                       div.className = `quiz-item list-item flex justify-between items-start p-3 rounded-lg border bg-white dark:bg-slate-800 shadow-sm space-x-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 ${getSubjectColor(subject).replace('border-l-4', 'border')} list-item-appear`;
                       div.style.animationDelay = `${index * 0.05}s`;
+                      const questionPreview = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate">Q: ${escapeHtml(item.question)}</p>` : '';
+                      const questionFilePreview = item.questionFileUrl ? `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file')}</div>` : '';
+                      const answerPreviewText = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : '';
+                       const answerFilePreview = item.answerFileUrl ? `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file')}</div>` : '';
                       div.innerHTML = `
                           <div class="flex-grow text-sm overflow-hidden">
-                              <p class="font-medium text-text dark:text-text-dark mb-1 truncate">Q: ${escapeHtml(item.question)}</p>
-                              <p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>
+                              ${questionPreview}
+                              ${questionFilePreview}
+                              ${answerPreviewText}
+                              ${answerFilePreview}
                           </div>
                           <button title="Delete Question" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleDeleteQuizItem('${escapeHtml(subject)}', '${item.id}')">
                               <i data-lucide="trash-2" class="h-4 w-4"></i>
@@ -1838,47 +1648,121 @@
               toggleQuizButtons();
           }
       };
+      const uploadFile = async (file, subject) => {
+          if (!file || !currentUserId || !subject || !storage) return null;
+          const timestamp = Date.now();
+          const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_'); // Basic sanitization
+          const fileName = `${cleanFileName}_${timestamp}`;
+          const storagePath = `quizFiles/${currentUserId}/${subject}/${fileName}`;
+          const storageRef = ref(storage, storagePath);
+          try {
+              const snapshot = await uploadBytes(storageRef, file);
+              const downloadURL = await getDownloadURL(snapshot.ref);
+              return downloadURL;
+          } catch (error) {
+              console.error("File upload error:", error);
+              alert(`Failed to upload file: ${file.name}. Error: ${error.message}`);
+              return null;
+          }
+      };
       const handleSaveQuizQuestion = async () => {
-          if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db) return;
+          if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db || !storage) return;
           validateQuizForm();
           if (saveQuizQuestionBtn.disabled) return;
-
-          const question = quizQuestionInput.value.trim();
-          const answer = quizAnswerInput.value.trim();
-          const newItem = { question, answer, createdAt: serverTimestamp() };
-
+          const questionText = quizQuestionInput.value.trim();
+          const answerText = quizAnswerInput.value.trim();
+          const questionFile = quizQuestionFileInput.files[0];
+          const answerFile = quizAnswerFileInput.files[0];
           saveQuizQuestionBtn.disabled = true;
-          saveQuizQuestionBtn.textContent = 'Adding...';
-
+          saveQuizQuestionBtn.textContent = 'Saving...';
+          let questionFileUrl = null;
+          let answerFileUrl = null;
           try {
+            if (questionFile) {
+                  saveQuizQuestionBtn.textContent = 'Uploading Q file...';
+                  questionFileUrl = await uploadFile(questionFile, currentActiveSubject);
+                  if (!questionFileUrl) throw new Error("Question file upload failed.");
+              }
+              if (answerFile) {
+                  saveQuizQuestionBtn.textContent = 'Uploading A file...';
+                  answerFileUrl = await uploadFile(answerFile, currentActiveSubject);
+                  if (!answerFileUrl) throw new Error("Answer file upload failed.");
+              }
+
+              saveQuizQuestionBtn.textContent = 'Saving Data...';
+              const newItem = {
+                  question: questionText,
+                  answer: answerText,
+                  createdAt: serverTimestamp()
+              };
+              if (questionFileUrl) newItem.questionFileUrl = questionFileUrl;
+              if (answerFileUrl) newItem.answerFileUrl = answerFileUrl;
+
               await addDoc(getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject), newItem);
+
               quizQuestionInput.value = '';
               quizAnswerInput.value = '';
+              quizQuestionFileInput.value = ''; // Clear file input
+              quizAnswerFileInput.value = ''; // Clear file input
               if (addQuizDetails) addQuizDetails.open = false;
-              displaySavedQuizQuestions(currentActiveSubject);
+              displaySavedQuizQuestions(currentActiveSubject); // Refresh the list
+
           } catch (error) {
               console.error("Error saving quiz question:", error);
-              alert("Failed to save question.");
+              alert(`Failed to save question. ${error.message}`);
+              // Attempt to delete already uploaded files if Firestore save failed
+              if (questionFileUrl) { try { await deleteObject(ref(storage, questionFileUrl)); console.log("Cleaned up question file"); } catch (e) { console.warn("Could not clean up question file", e)} }
+              if (answerFileUrl) { try { await deleteObject(ref(storage, answerFileUrl)); console.log("Cleaned up answer file"); } catch (e) { console.warn("Could not clean up answer file", e)} }
           } finally {
               saveQuizQuestionBtn.disabled = false;
               saveQuizQuestionBtn.textContent = 'Add Question';
-              validateQuizForm();
+              validateQuizForm(); // Re-validate after clearing
           }
       };
-      window.handleDeleteQuizItem = async (subject, itemId) => {
-          if (!currentUserId || !subject || !itemId || !db) return;
-          if (!confirm(`Are you sure you want to delete this quiz question for ${subject}?`)) return;
-          try {
-              await deleteDoc(getSubjectSpecificDocRef(currentUserId, 'quizItems', subject, itemId));
-              console.log(`Quiz item ${itemId} deleted for ${subject}.`);
-              if (currentActiveSubject === subject && getElement('quiz').classList.contains('active')) {
-                  displaySavedQuizQuestions(subject);
-              }
-          } catch (error) {
-              console.error("Error deleting quiz item:", error);
-              alert("Failed to delete question.");
-          }
-      };
+
+       window.handleDeleteQuizItem = async (subject, itemId) => {
+           if (!currentUserId || !subject || !itemId || !db || !storage) return;
+           if (!confirm(`Are you sure you want to delete this quiz question for ${subject}? This will also delete any attached files.`)) return;
+
+           const itemRef = getSubjectSpecificDocRef(currentUserId, 'quizItems', subject, itemId);
+           try {
+               const docSnap = await getDoc(itemRef);
+               if (!docSnap.exists()) {
+                   console.warn(`Quiz item ${itemId} not found for deletion.`);
+                   return; // Item already deleted or never existed
+               }
+               const data = docSnap.data();
+
+               // Attempt to delete associated files first
+               const deletePromises = [];
+               if (data.questionFileUrl) {
+                    try {
+                        const fileRef = ref(storage, data.questionFileUrl);
+                        deletePromises.push(deleteObject(fileRef).then(() => console.log(`Deleted question file: ${data.questionFileUrl}`)).catch(e => console.warn(`Failed to delete question file ${data.questionFileUrl}:`, e)));
+                    } catch (e) { console.warn(`Error creating ref for question file ${data.questionFileUrl}:`, e); }
+               }
+               if (data.answerFileUrl) {
+                    try {
+                       const fileRef = ref(storage, data.answerFileUrl);
+                       deletePromises.push(deleteObject(fileRef).then(() => console.log(`Deleted answer file: ${data.answerFileUrl}`)).catch(e => console.warn(`Failed to delete answer file ${data.answerFileUrl}:`, e)));
+                    } catch (e) { console.warn(`Error creating ref for answer file ${data.answerFileUrl}:`, e); }
+               }
+
+               // Wait for file deletions (allow continuing even if some fail)
+               await Promise.allSettled(deletePromises);
+
+               // Delete the Firestore document
+               await deleteDoc(itemRef);
+
+               if (currentActiveSubject === subject && getElement('quiz').classList.contains('active')) {
+                   displaySavedQuizQuestions(subject); // Refresh list
+               }
+           } catch (error) {
+               console.error("Error deleting quiz item or its files:", error);
+               alert("Failed to delete question. Associated files might still exist.");
+           }
+       };
+
       const startQuizMode = async () => {
           if (!currentUserId || !currentActiveSubject || !db) return;
           try {
@@ -1893,45 +1777,43 @@
                   currentQuizPool: shuffleArray([...allQuestions]), incorrectlyAnswered: [],
                   currentQuestionIndex: 0, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null
               };
-              console.log("Starting Quiz - Initial State:", quizState);
-
               if (addQuizDetails) addQuizDetails.style.display = 'none';
               if (quizListContainer) quizListContainer.classList.add('hidden');
               if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden');
               if (quizModeInterface) quizModeInterface.classList.remove('hidden');
               if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz";
-
               displayCurrentQuizQuestion();
           } catch (error) {
               console.error("Error starting quiz:", error);
               alert("Could not start the quiz due to an error.");
           }
       };
+
       const stopQuizMode = () => {
           if (!quizState.active) return;
-          console.log("Stopping quiz mode.");
           quizState.active = false;
           if (quizModeInterface) quizModeInterface.classList.add('hidden');
           if (currentActiveSubject) {
-              if (addQuizDetails) addQuizDetails.style.display = 'block';
-              if (quizListContainer) quizListContainer.classList.remove('hidden');
+              if (addQuizDetails) addQuizDetails.style.display = 'block'; // Show add form again
+              if (quizListContainer) quizListContainer.classList.remove('hidden'); // Show list again
           }
           if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
           quizState.isAnswerVisible = false;
           if (quizState.buttonTimeout) clearTimeout(quizState.buttonTimeout);
           quizState.buttonTimeout = null;
-
-          toggleQuizButtons();
-           quizState = { active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null };
+          toggleQuizButtons(); // Re-enable/disable start button based on list
+           quizState = { active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null }; // Reset state
       };
+
       const updateQuizProgressDisplay = () => {
           if (!quizProgress || !quizState.active) return;
           const remainingInPool = Math.max(0, quizState.currentQuizPool.length - quizState.currentQuestionIndex);
           const totalInitial = quizState.initialQuestions.length;
           quizProgress.textContent = `Round ${quizState.round} | Remaining: ${remainingInPool} | Mastered: ${quizState.totalMastered}/${totalInitial}`;
       };
+
       const displayCurrentQuizQuestion = () => {
-           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons) return;
+           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons || !quizQuestionFileDisplay || !quizAnswerTextDisplay || !quizAnswerFileDisplay) return;
 
            quizCorrectAnswerDisplay.style.display = 'none';
            quizState.isAnswerVisible = false;
@@ -1953,26 +1835,43 @@
                 return;
            }
 
-           quizQuestionDisplay.innerHTML = `<p class="text-text dark:text-text-dark text-lg">${escapeHtml(questionData.question)}</p>`;
-           quizCorrectAnswerDisplay.innerHTML = `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="whitespace-pre-wrap">${escapeHtml(questionData.answer)}</span>`;
+           quizQuestionDisplay.innerHTML = ''; // Clear previous question text/file
+           if (questionData.question) {
+               const p = document.createElement('p');
+               p.className = 'text-text dark:text-text-dark text-lg';
+               p.textContent = escapeHtml(questionData.question);
+               quizQuestionDisplay.appendChild(p);
+           } else {
+               // Add placeholder if only file exists for question
+               const p = document.createElement('p');
+               p.className = 'italic text-muted dark:text-muted-dark text-base';
+               p.textContent = '(Question in attached file)';
+               quizQuestionDisplay.appendChild(p);
+           }
+
+           quizQuestionFileDisplay.innerHTML = questionData.questionFileUrl ? renderFilePreview(questionData.questionFileUrl, 'Question file') : '';
+           quizAnswerTextDisplay.innerHTML = questionData.answer ? `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="whitespace-pre-wrap">${escapeHtml(questionData.answer)}</span>` : '';
+           quizAnswerFileDisplay.innerHTML = questionData.answerFileUrl ? renderFilePreview(questionData.answerFileUrl, 'Answer file') : '';
 
            updateQuizProgressDisplay();
 
            if (quizCorrectBtn) quizCorrectBtn.disabled = true;
            if (quizIncorrectBtn) quizIncorrectBtn.disabled = true;
 
-           safelyCreateIcons();
+           safelyCreateIcons(); // Render any icons (like paperclip)
       };
+
       const revealQuizAnswer = () => {
           if (!quizState.active || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons) return;
           quizCorrectAnswerDisplay.style.display = 'block';
           quizRevealBtnContainer.style.display = 'none';
           quizJudgmentButtons.style.display = 'flex';
           quizState.isAnswerVisible = true;
-
           if (quizCorrectBtn) quizCorrectBtn.disabled = false;
           if (quizIncorrectBtn) quizIncorrectBtn.disabled = false;
+           safelyCreateIcons(); // Re-render icons in answer if needed (e.g., paperclip)
       };
+
       const handleQuizAnswer = (isCorrect) => {
            if (!quizState.active || !quizState.isAnswerVisible || quizState.buttonTimeout) return;
 
@@ -1983,15 +1882,23 @@
            if (quizIncorrectBtn) quizIncorrectBtn.disabled = true;
 
            if (isCorrect) {
-               console.log(`Question ${currentQuestion.id} marked CORRECT`);
-               // Check if this question ID was previously marked incorrect in earlier rounds
-               const wasIncorrectBefore = quizState.initialQuestions.find(q => q.id === currentQuestion.id && quizState.incorrectlyAnswered.some(iq => iq.id === q.id));
-               if (!wasIncorrectBefore) { // Only count as mastered if it wasn't wrong before in this session
-                   quizState.totalMastered++;
+               const wasIncorrectBefore = quizState.incorrectlyAnswered.find(iq => iq.id === currentQuestion.id); // Check if it's in the *current* incorrect pool for this round
+               if (!wasIncorrectBefore) { // Only count as mastered if it wasn't wrong before *in this specific quiz session*
+                   // Find original question to ensure we don't double-count mastery across sessions if needed (simple approach here counts mastery within the session)
+                   const originalQuestion = quizState.initialQuestions.find(q => q.id === currentQuestion.id);
+                    // Prevent double counting totalMastered if it was marked incorrect in a previous round of *this* quiz attempt
+                   if (!quizState.incorrectlyAnswered.some(iq => iq.id === currentQuestion.id)) {
+                       // Check if it was ever marked incorrect in *previous* rounds to avoid double counting
+                        const wasEverIncorrect = quizState.incorrectlyAnswered.length > 0 && quizState.round > 1 && quizState.initialQuestions.find(q => q.id === currentQuestion.id && quizState.incorrectlyAnswered.some(prevIncorrect => prevIncorrect.id === q.id));
+                        // Only increment if it wasn't marked incorrect in prior rounds OR if it's the first round
+                        if(quizState.round === 1 || !wasEverIncorrect) {
+                            quizState.totalMastered++;
+                        }
+                   }
                }
                quizCorrectBtn?.classList.add('quiz-feedback-correct');
            } else {
-               console.log(`Question ${currentQuestion.id} marked INCORRECT`);
+                // Add to incorrectlyAnswered list for the *next* round if not already there
                 if (!quizState.incorrectlyAnswered.find(iq => iq.id === currentQuestion.id)) {
                    quizState.incorrectlyAnswered.push(currentQuestion);
                 }
@@ -2001,13 +1908,13 @@
            quizState.buttonTimeout = setTimeout(() => {
                quizState.buttonTimeout = null;
                quizState.currentQuestionIndex++;
-               displayCurrentQuizQuestion();
-           }, 800);
+               displayCurrentQuizQuestion(); // Move to next question or end round
+           }, 800); // Short delay for feedback animation
       };
+
       const handleQuizRoundEnd = () => {
-           console.log(`Round ${quizState.round} ended. Incorrectly answered: ${quizState.incorrectlyAnswered.length}`);
            if (quizState.incorrectlyAnswered.length === 0) {
-               console.log("Quiz Complete! All questions mastered.");
+               // Quiz Complete
                if(quizCompletionMessage) {
                    quizCompletionMessage.textContent = `🎉 Well done! You've mastered all ${quizState.initialQuestions.length} questions for ${quizState.currentSubject}!`;
                    quizCompletionMessage.classList.remove('hidden');
@@ -2016,49 +1923,36 @@
                if (quizRevealBtnContainer) quizRevealBtnContainer.style.display = 'none';
                if (quizJudgmentButtons) quizJudgmentButtons.style.display = 'none';
                if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
-               if (stopQuizButton) stopQuizButton.textContent = "Finish Session";
+                if (quizQuestionFileDisplay) quizQuestionFileDisplay.innerHTML = ''; // Clear file display
+               if (stopQuizButton) stopQuizButton.textContent = "Finish Session"; // Or "Back to List"
            } else {
-               console.log(`Starting round ${quizState.round + 1} with ${quizState.incorrectlyAnswered.length} questions.`);
+               // Start Next Round
                quizState.round++;
-               quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]);
-               quizState.incorrectlyAnswered = [];
+               quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]); // Use only incorrect ones
+               quizState.incorrectlyAnswered = []; // Clear for the new round
                quizState.currentQuestionIndex = 0;
+               alert(`Round ${quizState.round} starting with ${quizState.currentQuizPool.length} remaining question(s).`);
                displayCurrentQuizQuestion();
            }
       };
 
-
-      // --- *** Setup Global Event Listeners (Revised Structure) *** ---
       const setupGlobalEventListeners = () => {
-          // *** ADD THIS CHECK ***
           if (eventListenersAttached) {
-              console.log("Event listeners already attached. Skipping setup.");
               return;
           }
-          console.log("Attaching global event listeners...");
-
-          // Theme Toggle
           themeToggle?.addEventListener('click', toggleTheme);
           themeToggleMobile?.addEventListener('click', toggleTheme);
-
-          // Authentication
           loginButton?.addEventListener('click', handleLogin);
           passwordInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
           logoutButton?.addEventListener('click', handleLogout);
           logoutButtonMobile?.addEventListener('click', handleLogout);
           changePasswordButton?.addEventListener('click', handleChangePassword);
-
-          // Mobile Menu
           mobileMenuButton?.addEventListener('click', openMobileMenu);
           mobileCloseButton?.addEventListener('click', closeMobileMenu);
           mobileOverlay?.addEventListener('click', closeMobileMenu);
-
-          // Navigation Links (Desktop & Mobile)
           document.querySelectorAll('a.nav-link[data-page], a.mobile-nav-link[data-page]').forEach(link => {
               link.addEventListener('click', (e) => { e.preventDefault(); window.navigateToPage(e.currentTarget.dataset.page); });
           });
-
-          // Dashboard Interactions (Event Delegation)
           getElement('dashboard')?.addEventListener('click', (e) => {
               const pomodoroBtn = e.target.closest('#start-pomodoro-dashboard-btn');
               const quickLink = e.target.closest('#quick-links-list a.quick-link');
@@ -2067,8 +1961,6 @@
               else if (quickLink) { e.preventDefault(); window.navigateToPage(quickLink.dataset.page, quickLink.dataset.subject || null); }
               else if (examItem) window.navigateToPage(examItem.dataset.page, examItem.dataset.subject);
           });
-
-          // Resources Page Interactions
           subjectTabsContainer?.addEventListener('click', (e) => {
               const tab = e.target.closest('.subject-tab');
               if (tab && tab.dataset.subject) handleSubjectSelection(tab.dataset.subject, 'resources');
@@ -2078,8 +1970,6 @@
           resourceUrlInput?.addEventListener('input', validateResourceForm);
           resourceNoteInput?.addEventListener('input', validateResourceForm);
           saveResourceBtn?.addEventListener('click', handleSaveResource);
-
-          // Pomodoro Page Interactions
           startPauseButton?.addEventListener('click', () => { if (timerState === 'running') pauseTimer(); else startTimer(); });
           resetButton?.addEventListener('click', () => resetTimer());
           modeButtons.forEach(btn => {
@@ -2088,83 +1978,65 @@
           workDurationInput?.addEventListener('change', () => handleDurationChange('work'));
           shortBreakDurationInput?.addEventListener('change', () => handleDurationChange('shortBreak'));
           longBreakDurationInput?.addEventListener('change', () => handleDurationChange('longBreak'));
-
-          // Tracker Page Interactions
+          pomodoroSubjectSelect?.addEventListener('change', () => {
+             // Update the selected subject if timer is not running
+             if (timerState !== 'running' && timerMode === 'work') {
+                 workSessionSubject = pomodoroSubjectSelect.value;
+             }
+          });
           trackerSubjectSelect?.addEventListener('change', (e) => handleSubjectSelection(e.target.value, 'tracker'));
           trackerDescriptionInput?.addEventListener('input', validateTrackerForm);
           saveTrackerItemBtn?.addEventListener('click', handleSaveTrackerItem);
-
-          // Planner Page Interactions
           plannerDateInput?.addEventListener('input', validatePlannerForm);
           plannerTimeInput?.addEventListener('input', validatePlannerForm);
           plannerSubjectSelect?.addEventListener('change', validatePlannerForm);
           plannerTopicInput?.addEventListener('input', validatePlannerForm);
           savePlannerItemBtn?.addEventListener('click', handleSavePlannerItem);
-
-          // Quiz Page Interactions
           quizSubjectSelect?.addEventListener('change', (e) => handleSubjectSelection(e.target.value, 'quiz'));
           quizQuestionInput?.addEventListener('input', validateQuizForm);
           quizAnswerInput?.addEventListener('input', validateQuizForm);
+          quizQuestionFileInput?.addEventListener('input', validateQuizForm); // Validate on file change
+          quizAnswerFileInput?.addEventListener('input', validateQuizForm); // Validate on file change
           saveQuizQuestionBtn?.addEventListener('click', handleSaveQuizQuestion);
           startQuizButton?.addEventListener('click', startQuizMode);
           stopQuizButton?.addEventListener('click', stopQuizMode);
           quizRevealAnswerBtn?.addEventListener('click', revealQuizAnswer);
           quizCorrectBtn?.addEventListener('click', () => handleQuizAnswer(true));
           quizIncorrectBtn?.addEventListener('click', () => handleQuizAnswer(false));
-
-          // *** SET THE FLAG AFTER ATTACHING ***
           eventListenersAttached = true;
-          console.log("Global event listeners attached.");
-      }; // End of setupGlobalEventListeners
+      };
 
-
-      // --- INITIALIZATION ---
       const initializeAppHub = () => {
-          // Apply saved theme or default to light
           applyTheme(localStorage.getItem('theme') || 'light');
-
-          // *** CALL LISTENER SETUP HERE ***
-          // This ensures listeners for login, theme etc. are attached immediately
           setupGlobalEventListeners();
-
-          // Firebase auth state listener (onAuthStateChanged) handles the rest of the startup flow
-          console.log("App hub initialized, waiting for auth state...");
+          // Auth listener handles the rest
       };
 
       const initializePostLogin = (user) => {
-          console.log(`Initializing post-login for user: ${user.uid}`);
-          if (!db) {
-              console.error("Database not ready during post-login initialization!");
+          if (!db || !storage) {
+              console.error("Database or Storage not ready during post-login initialization!");
               return;
           }
-
           if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
           if (countdownInterval) clearInterval(countdownInterval);
           if (pomodoroInterval) clearInterval(pomodoroInterval);
           countdownInterval = null;
           pomodoroInterval = null;
-
           try {
               loadTimetable();
               populateSubjectDropdown(getElement('pomodoro-subject'));
               populateSubjectDropdown(getElement('tracker-subject-select'));
               populateSubjectDropdown(getElement('planner-subject-select'));
               populateSubjectDropdown(getElement('quiz-subject-select'));
-              setTimerMode('work', false);
+              setTimerMode('work', false); // Initialize timer display
               loadResources();
               loadTracker();
               loadPlanner();
               loadQuizPage();
-              loadDashboard();
-
-              // *** REMOVED REDUNDANT CALL ***
-              // setupGlobalEventListeners(); // Listeners are already attached by initializeAppHub
-
-              showPage('dashboard');
-              countdownInterval = setInterval(updateTimetableCountdowns, 30000);
+              loadDashboard(); // Load initial dashboard data
+              showPage('dashboard'); // Start on dashboard
+              countdownInterval = setInterval(updateTimetableCountdowns, 30000); // Start countdown updates
               safelyCreateIcons();
-              console.log("Post-login initialization complete.");
-
           } catch (error) {
               console.error("Error during post-login initialization:", error);
               const dashboardPage = getElement('dashboard');
@@ -2177,15 +2049,16 @@
           }
       };
 
-      // --- Make essential functions globally accessible ---
+      // Make functions globally accessible if called directly via onclick etc.
       window.navigateToPage = _navigateToPage;
-      // Delete functions are already assigned to window.
+      window.handleGenericDeleteItem = handleGenericDeleteItem;
+      window.handleDeleteQuizItem = handleDeleteQuizItem; // Keep specific one for quiz due to file deletion
 
-      // Start the application
+      // Start the application initialization process
       initializeAppHub();
 
     </script>
-
 </body>
 </html>
-```
+
+
