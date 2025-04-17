@@ -1649,76 +1649,150 @@
           }
       };
       const uploadFile = async (file, subject) => {
-          if (!file || !currentUserId || !subject || !storage) return null;
-          const timestamp = Date.now();
-          const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_'); // Basic sanitization
-          const fileName = `${cleanFileName}_${timestamp}`;
-          const storagePath = `quizFiles/${currentUserId}/${subject}/${fileName}`;
-          const storageRef = ref(storage, storagePath);
-          try {
-              const snapshot = await uploadBytes(storageRef, file);
-              const downloadURL = await getDownloadURL(snapshot.ref);
-              return downloadURL;
-          } catch (error) {
-              console.error("File upload error:", error);
-              alert(`Failed to upload file: ${file.name}. Error: ${error.message}`);
-              return null;
-          }
-      };
-      const handleSaveQuizQuestion = async () => {
-          if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db || !storage) return;
-          validateQuizForm();
-          if (saveQuizQuestionBtn.disabled) return;
-          const questionText = quizQuestionInput.value.trim();
-          const answerText = quizAnswerInput.value.trim();
-          const questionFile = quizQuestionFileInput.files[0];
-          const answerFile = quizAnswerFileInput.files[0];
-          saveQuizQuestionBtn.disabled = true;
-          saveQuizQuestionBtn.textContent = 'Saving...';
-          let questionFileUrl = null;
-          let answerFileUrl = null;
-          try {
+      // --- START DEBUG LOGS ---
+      console.log("--- Attempting File Upload ---");
+      console.log("File Object:", file); // Log the file object itself
+      console.log("Subject:", subject);
+      console.log("Current User ID:", currentUserId);
+      console.log("Storage Initialized:", !!storage); // Check if storage object exists
+      if (!file || !currentUserId || !subject || !storage) {
+          console.error("Upload pre-check failed: Missing file, userId, subject, or storage instance.");
+          return null; // Prevent further execution if basic checks fail
+      }
+      // --- END DEBUG LOGS ---
+
+      const timestamp = Date.now();
+      // Use more robust sanitization - replace multiple non-alphanumerics with single underscore
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]+/g, '_');
+      const fileName = `${cleanFileName}_${timestamp}`;
+      const storagePath = `quizFiles/${currentUserId}/${subject}/${fileName}`;
+
+      // --- Log the final path ---
+      console.log("Calculated Storage Path:", storagePath);
+
+      const storageRef = ref(storage, storagePath);
+
+      try {
+          console.log(`Uploading to: ${storagePath}`); // Log before actual upload
+          const snapshot = await uploadBytes(storageRef, file);
+          console.log("Upload successful, getting download URL for:", snapshot.ref.fullPath); // Log success
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          console.log("Download URL:", downloadURL); // Log the URL
+          return downloadURL;
+      } catch (error) {
+          // --- More Detailed Error Logging ---
+          console.error("Firebase Storage Upload Error Object:", error);
+          console.error("Error Code:", error.code); // Specific Firebase error code
+          console.error("Error Message:", error.message);
+          console.error(`Failed to upload file: ${file.name} to path: ${storagePath}`);
+          alert(`Upload Failed: ${error.code} - ${error.message}. Check console for details.`); // Inform user
+          // --- End Detailed Error Logging ---
+          return null;
+      }
+  };
+    const handleSaveQuizQuestion = async () => {
+        // --- START DEBUG LOGS ---
+        console.log("--- handleSaveQuizQuestion triggered ---");
+        console.log("Current User ID:", currentUserId);
+        console.log("Current Active Subject:", currentActiveSubject);
+        console.log("DB Initialized:", !!db);
+        console.log("Storage Initialized:", !!storage);
+        if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db || !storage) {
+            console.error("Save pre-check failed: Missing userId, subject, button, db, or storage.");
+            return;
+        }
+        // --- END DEBUG LOGS ---
+
+        validateQuizForm(); // Ensure form is valid before proceeding
+        if (saveQuizQuestionBtn.disabled) {
+            console.log("Save button is disabled, aborting save.");
+            return;
+        }
+
+        const questionText = quizQuestionInput.value.trim();
+        const answerText = quizAnswerInput.value.trim();
+        const questionFile = quizQuestionFileInput.files[0];
+        const answerFile = quizAnswerFileInput.files[0];
+
+        // --- Log selected files ---
+        console.log("Question File Selected:", questionFile ? questionFile.name : "None");
+        console.log("Answer File Selected:", answerFile ? answerFile.name : "None");
+
+
+        saveQuizQuestionBtn.disabled = true;
+        saveQuizQuestionBtn.textContent = 'Saving...';
+
+        let questionFileUrl = null;
+        let answerFileUrl = null;
+
+        try {
             if (questionFile) {
-                  saveQuizQuestionBtn.textContent = 'Uploading Q file...';
-                  questionFileUrl = await uploadFile(questionFile, currentActiveSubject);
-                  if (!questionFileUrl) throw new Error("Question file upload failed.");
-              }
-              if (answerFile) {
-                  saveQuizQuestionBtn.textContent = 'Uploading A file...';
-                  answerFileUrl = await uploadFile(answerFile, currentActiveSubject);
-                  if (!answerFileUrl) throw new Error("Answer file upload failed.");
-              }
+                console.log("Attempting to upload question file...");
+                saveQuizQuestionBtn.textContent = 'Uploading Q file...';
+                questionFileUrl = await uploadFile(questionFile, currentActiveSubject);
+                if (!questionFileUrl) throw new Error("Question file upload returned null URL."); // More specific error
+                console.log("Question file upload SUCCESSFUL.");
+            } else {
+                console.log("No question file to upload.");
+            }
 
-              saveQuizQuestionBtn.textContent = 'Saving Data...';
-              const newItem = {
-                  question: questionText,
-                  answer: answerText,
-                  createdAt: serverTimestamp()
-              };
-              if (questionFileUrl) newItem.questionFileUrl = questionFileUrl;
-              if (answerFileUrl) newItem.answerFileUrl = answerFileUrl;
+            if (answerFile) {
+                console.log("Attempting to upload answer file...");
+                saveQuizQuestionBtn.textContent = 'Uploading A file...';
+                answerFileUrl = await uploadFile(answerFile, currentActiveSubject);
+                if (!answerFileUrl) throw new Error("Answer file upload returned null URL."); // More specific error
+                console.log("Answer file upload SUCCESSFUL.");
+            } else {
+                console.log("No answer file to upload.");
+            }
 
-              await addDoc(getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject), newItem);
+            // Only proceed to Firestore if uploads were successful (or not needed)
+            console.log("Uploads complete (or skipped). Proceeding to Firestore save.");
+            saveQuizQuestionBtn.textContent = 'Saving Data...';
+            const newItem = {
+                question: questionText,
+                answer: answerText,
+                createdAt: serverTimestamp()
+            };
+            if (questionFileUrl) newItem.questionFileUrl = questionFileUrl;
+            if (answerFileUrl) newItem.answerFileUrl = answerFileUrl;
 
-              quizQuestionInput.value = '';
-              quizAnswerInput.value = '';
-              quizQuestionFileInput.value = ''; // Clear file input
-              quizAnswerFileInput.value = ''; // Clear file input
-              if (addQuizDetails) addQuizDetails.open = false;
-              displaySavedQuizQuestions(currentActiveSubject); // Refresh the list
+            console.log("Data to save in Firestore:", newItem);
+            const docRef = await addDoc(getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject), newItem);
+            console.log("Firestore document saved successfully with ID:", docRef.id);
 
-          } catch (error) {
-              console.error("Error saving quiz question:", error);
-              alert(`Failed to save question. ${error.message}`);
-              // Attempt to delete already uploaded files if Firestore save failed
-              if (questionFileUrl) { try { await deleteObject(ref(storage, questionFileUrl)); console.log("Cleaned up question file"); } catch (e) { console.warn("Could not clean up question file", e)} }
-              if (answerFileUrl) { try { await deleteObject(ref(storage, answerFileUrl)); console.log("Cleaned up answer file"); } catch (e) { console.warn("Could not clean up answer file", e)} }
-          } finally {
-              saveQuizQuestionBtn.disabled = false;
-              saveQuizQuestionBtn.textContent = 'Add Question';
-              validateQuizForm(); // Re-validate after clearing
-          }
-      };
+            // Clear form only on complete success
+            quizQuestionInput.value = '';
+            quizAnswerInput.value = '';
+            quizQuestionFileInput.value = '';
+            quizAnswerFileInput.value = '';
+            if (addQuizDetails) addQuizDetails.open = false;
+            displaySavedQuizQuestions(currentActiveSubject); // Refresh the list
+
+        } catch (error) {
+            console.error("Error during handleSaveQuizQuestion:", error);
+            alert(`Failed to save question. ${error.message}. Check console.`);
+
+            // Attempt to delete already uploaded files if Firestore save failed or subsequent upload failed
+            console.log("Attempting cleanup of potentially uploaded files due to error...");
+            if (questionFileUrl) { // Only try cleanup if URL was obtained
+                try {
+                    await deleteObject(ref(storage, questionFileUrl));
+                    console.log("Cleaned up orphaned question file:", questionFileUrl);
+                } catch (e) { console.warn("Could not clean up orphaned question file:", e)}
+            }
+            if (answerFileUrl) { // Only try cleanup if URL was obtained
+                try {
+                    await deleteObject(ref(storage, answerFileUrl));
+                    console.log("Cleaned up orphaned answer file:", answerFileUrl);
+                } catch (e) { console.warn("Could not clean up orphaned answer file:", e)}
+            }
+        } finally {
+            saveQuizQuestionBtn.disabled = false;
+            saveQuizQuestionBtn.textContent = 'Add Question';
+            validateQuizForm(); // Re-validate after clearing or on error
+        }
+    };
 
        window.handleDeleteQuizItem = async (subject, itemId) => {
            if (!currentUserId || !subject || !itemId || !db || !storage) return;
