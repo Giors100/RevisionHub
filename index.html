@@ -44,7 +44,7 @@
         }
     </script>
     <style>
-        /* Styles (no major changes needed here, added quiz feedback styles) */
+        /* Styles */
         :root {
              --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
              --ease-snap: cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -135,8 +135,12 @@
              overflow: hidden;
              padding: 1rem;
              border-top: 1px solid #e2e8f0;
+             /* FIX: Apply dark mode styling using a standard class approach */
              /* Use dark: within the nested selector */
-             .dark & { border-top-color: #475569; }
+             /* .dark & { border-top-color: #475569; } */ /* Removed nested syntax */
+        }
+        .dark details > div > div { /* Applied dark style separately */
+             border-top-color: #475569;
         }
          .subject-tab[aria-selected="true"] { color: var(--color-primary-DEFAULT); border-color: var(--color-primary-DEFAULT); font-weight: 600; background-color: transparent; }
         .dark .subject-tab[aria-selected="true"] { color: var(--color-primary-dark); border-color: var(--color-primary-dark); background-color: transparent; }
@@ -148,8 +152,30 @@
         @keyframes shakeHorizontal { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
         #quiz-correct-answer-display { display: none; }
         #quiz-correct-answer-display.visible { display: block; animation: contentFadeInShort 0.3s var(--ease-smooth); }
-        .quiz-file-preview { max-width: 80px; max-height: 60px; margin-top: 4px; border-radius: 4px; border: 1px solid #e2e8f0; object-fit: cover; }
+        /* Style for small previews in the LIST view */
+        .quiz-file-preview {
+            max-width: 80px;
+            max-height: 60px;
+            margin-top: 4px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            object-fit: cover;
+            vertical-align: middle; /* Align better with text */
+        }
         .dark .quiz-file-preview { border-color: #475569; }
+        /* NEW STYLE: For large previews in the active QUIZ MODE */
+        .quiz-mode-image-display {
+            display: block; /* Make it a block element */
+            max-width: 90%; /* Allow it to take most of the width */
+            max-height: 400px; /* Limit vertical height */
+            height: auto; /* Maintain aspect ratio */
+            margin: 1rem auto; /* Center the image */
+            border-radius: 0.5rem; /* Slightly larger radius */
+            border: 1px solid #e2e8f0;
+            object-fit: contain; /* Show the whole image */
+        }
+        .dark .quiz-mode-image-display { border-color: #475569; }
+
         .analytics-item { border-left: 3px solid; padding-left: 0.75rem; }
         .pomodoro-mode-btn.active {
             background-color: theme('colors.primary.DEFAULT');
@@ -441,8 +467,11 @@
                          <!-- Question Display Area -->
                          <div id="quiz-question-display" class="p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg mb-4 min-h-[120px] bg-background dark:bg-slate-800/50 text-text dark:text-text-dark flex flex-col items-center justify-center text-center text-lg space-y-2">
                              <p class="italic text-muted dark:text-muted-dark">Loading question...</p>
-                             <div id="quiz-question-file-display"></div>
+                             <!-- Image/File will be appended here by JS -->
                          </div>
+                         <!-- Location for Question File Display (Now Part of quiz-question-display logic) -->
+                         <div id="quiz-question-file-display" class="text-center"></div>
+
                          <!-- Reveal Answer Button -->
                          <div id="quiz-reveal-button-container" class="mb-3 text-center">
                             <button id="quiz-reveal-answer-btn" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg text-sm btn-animated flex items-center space-x-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500">
@@ -452,7 +481,7 @@
                          <!-- Correct Answer Display Area (hidden until revealed) -->
                          <div id="quiz-correct-answer-display" class="p-3 bg-slate-100 dark:bg-slate-700 rounded-md text-sm mb-4 space-y-2" style="display: none;">
                             <div id="quiz-answer-text-display"></div>
-                            <div id="quiz-answer-file-display"></div>
+                            <div id="quiz-answer-file-display" class="text-center"></div> <!-- Center potential image/link -->
                          </div>
                          <!-- Judgment Buttons (hidden until revealed) -->
                          <div id="quiz-judgment-buttons" class="mt-4 flex justify-center gap-4" style="display: none;">
@@ -491,48 +520,36 @@
       import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
       // --- Firebase Configuration ---
-      // IMPORTANT: Keep this configuration secure if possible, but for client-side web apps,
-      // rely on Firebase Security Rules (Firestore & Storage) for data protection.
       const firebaseConfig = {
         apiKey: "AIzaSyAt3uFOLLQXjt2p0LERjvizePMfg9S74Mk", // Replace with your actual API key
         authDomain: "studentpage-97bb5.firebaseapp.com",
-        // databaseURL: "https://studentpage-97bb5-default-rtdb.europe-west1.firebasedatabase.app", // RTDB URL - Not used in this code
         projectId: "studentpage-97bb5",
         storageBucket: "studentpage-97bb5.appspot.com",
         messagingSenderId: "613071061381",
         appId: "1:613071061381:web:124051538e7e0dfec344ec",
-        measurementId: "G-WC262FYLJH" // Optional: For Google Analytics
+        measurementId: "G-WC262FYLJH"
       };
 
       // --- Global Variables ---
       let app, auth, db, storage;
       let currentUserId = null;
-      let isInitialized = false; // App initialized post-login
+      let isInitialized = false;
       let eventListenersAttached = false;
-      let countdownInterval = null; // For updating timetable countdowns
-      let pomodoroInterval = null; // For the Pomodoro timer decrement
-      let currentActiveSubject = null; // Tracks selected subject in Resources/Tracker/Quiz
-      let quizState = { // State for the Quiz Challenge mode
-          active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [],
-          currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null
-      };
-      let targetSubjectParam = null; // For navigating directly to a subject view
-      const DEFAULT_TITLE = "Giorgi's GCSE Revision Hub"; // Store default title
+      let countdownInterval = null;
+      let pomodoroInterval = null;
+      let currentActiveSubject = null;
+      let quizState = { active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null };
+      let targetSubjectParam = null;
+      const DEFAULT_TITLE = "Giorgi's GCSE Revision Hub";
 
       // --- Static Data ---
-      // Exam Data (Sorted)
       const examData = [ { subject: "English Literature", paper: "Paper 1", date: "2025-05-12T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computer Systems Written", date: "2025-05-12T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Biology", paper: "Paper 1", date: "2025-05-13T13:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Geography", paper: "Paper 1", date: "2025-05-14T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Mathematics", paper: "Option H: Non-Calculator", date: "2025-05-15T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Chemistry", paper: "Paper 1", date: "2025-05-19T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Literature", paper: "Paper 2", date: "2025-05-20T08:45:00", duration: "2h 15m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computational Thinking, Algorithms & Programming", date: "2025-05-20T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Physics", paper: "Paper 1", date: "2025-05-22T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Language", paper: "Paper 1", date: "2025-05-23T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Mathematics", paper: "Option H: Calculator", date: "2025-06-04T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M2" }, { subject: "English Language", paper: "Paper 2", date: "2025-06-06T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 2", date: "2025-06-06T13:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Biology", paper: "Paper 2", date: "2025-06-09T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Listening", date: "2025-06-10T08:45:00", duration: "0h 45m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Spanish", paper: "Reading", date: "2025-06-10T09:50:00", duration: "1h 00m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Mathematics", paper: "Option H: Calculator P3", date: "2025-06-11T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 3", date: "2025-06-12T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Chemistry", paper: "Paper 2", date: "2025-06-13T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Physics", paper: "Paper 2", date: "2025-06-16T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Writing", date: "2025-06-17T08:45:00", duration: "1h 15m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "J3" } ].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-      // Motivational Quotes
       const motivationalQuotes = [ "Believe you can and you're halfway there.", "The secret to getting ahead is getting started.", "Don't watch the clock; do what it does. Keep going.", "Success is not final, failure is not fatal: It is the courage to continue that counts.", "The expert in anything was once a beginner.", "Strive for progress, not perfection.", "Your limitation—it's only your imagination.", "Push yourself, because no one else is going to do it for you.", "Great things never come from comfort zones.", "The harder you work for something, the greater you'll feel when you achieve it.", "Focus on the step in front of you, not the whole staircase.", "Small steps every day lead to big results." ];
-
-      // Dynamically get subjects from exam data
       const subjects = [...new Set(examData.map(exam => exam.subject))].sort();
 
       // --- DOM Element References ---
-      // Using a function for cleaner access and null safety potential
       const getElement = (id) => document.getElementById(id);
-
+      // ... (all getElement calls remain the same)
       const loginOverlay = getElement('login-overlay');
       const appWrapper = getElement('app-wrapper');
       const emailInput = getElement('email-input');
@@ -615,7 +632,7 @@
       const startQuizButton = getElement('start-quiz-button');
       const quizModeInterface = getElement('quiz-mode-interface');
       const quizQuestionDisplay = getElement('quiz-question-display');
-      const quizQuestionFileDisplay = getElement('quiz-question-file-display');
+      const quizQuestionFileDisplay = getElement('quiz-question-file-display'); // Kept for consistency, but content now goes into quizQuestionDisplay
       const quizRevealBtnContainer = getElement('quiz-reveal-button-container');
       const quizRevealAnswerBtn = getElement('quiz-reveal-answer-btn');
       const quizCorrectAnswerDisplay = getElement('quiz-correct-answer-display');
@@ -629,18 +646,11 @@
       const quizCompletionMessage = getElement('quiz-completion-message');
 
       // --- Pomodoro State Variables ---
-      let pomodoroState = {
-            totalSeconds: 0,
-            currentSeconds: 0,
-            timerState: 'stopped', // 'stopped', 'running', 'paused'
-            timerMode: 'work', // 'work', 'shortBreak', 'longBreak'
-            pomodoroCycle: 0, // Tracks completed work sessions
-            workSessionSubject: '', // Subject for the current/last work session
-            timerEndTime: null // Timestamp for when the current interval should end (for persistence)
-      };
+      let pomodoroState = { totalSeconds: 0, currentSeconds: 0, timerState: 'stopped', timerMode: 'work', pomodoroCycle: 0, workSessionSubject: '', timerEndTime: null };
       const POMODORO_STORAGE_KEY = 'pomodoroState';
 
       // --- Utility Functions ---
+      // ... (safelyCreateIcons, formatGeneralDate, formatPlannerDateTime, formatExamDate, formatMinutes, formatCountdown, getSubjectColor, getSubjectColorRGB, shuffleArray, escapeHtml, applyStaggerAnimation remain the same) ...
       const safelyCreateIcons = () => {
           if (typeof lucide !== 'undefined' && lucide.createIcons) {
               try {
@@ -756,6 +766,7 @@
           });
       };
 
+
       // --- Firebase Initialization ---
       try {
           app = initializeApp(firebaseConfig);
@@ -765,7 +776,6 @@
           console.log("Firebase Initialized Successfully.");
       } catch (error) {
           console.error("Firebase Initialization Error:", error);
-          // Display error on login screen if elements exist
           if (loginError) {
               loginError.textContent = "Firebase connection failed. Check config or network.";
               loginError.classList.remove('hidden');
@@ -777,7 +787,8 @@
       }
 
       // --- Firebase Helper Functions ---
-      const getUserDataRef = (userId, path) => {
+      // ... (getUserDataRef, getUserCollectionRef, getSubjectSpecificCollectionRef, getSubjectSpecificDocRef remain the same) ...
+        const getUserDataRef = (userId, path) => {
           if (!userId || !db) { console.error("Cannot get user data ref: Missing userId or db"); return null; }
           return doc(db, `users/${userId}/${path}`);
       }
@@ -795,7 +806,8 @@
       }
 
       // --- Authentication ---
-      onAuthStateChanged(auth, (user) => {
+      // ... (onAuthStateChanged, handleLogin, handleLogout, handleChangePassword remain the same) ...
+        onAuthStateChanged(auth, (user) => {
           if (user && db && storage) {
               currentUserId = user.uid;
               console.log("User authenticated:", currentUserId);
@@ -825,10 +837,9 @@
                   loginError.textContent = '';
                   loginError.classList.add('hidden');
               }
-              // Ensure title is reset on logout
               document.title = DEFAULT_TITLE;
           }
-          safelyCreateIcons(); // Create icons after auth state changes
+          safelyCreateIcons();
       });
 
       const handleLogin = async () => {
@@ -854,7 +865,6 @@
           loginButton.textContent = 'Logging in...';
           try {
               await signInWithEmailAndPassword(auth, email, password);
-              // onAuthStateChanged will handle the UI update
           } catch (error) {
               console.error("Login Error:", error);
               let errorMessage = "Login failed. Please check details and try again.";
@@ -877,12 +887,11 @@
       const handleLogout = async () => {
           if (!auth) return;
           console.log("Attempting logout...");
-          stopPomodoroTimer(true); // Stop and clear timer state on logout
-          if (quizState.active) stopQuizMode(); // Stop quiz if active
+          stopPomodoroTimer(true);
+          if (quizState.active) stopQuizMode();
           try {
               await signOut(auth);
-              // onAuthStateChanged handles UI reset
-              closeMobileMenu(); // Ensure mobile menu is closed
+              closeMobileMenu();
               console.log("Logout successful.");
           } catch (error) {
               console.error("Logout Error:", error);
@@ -942,8 +951,10 @@
             }
       };
 
+
       // --- UI and Navigation ---
-      const applyTheme = (theme) => {
+      // ... (applyTheme, toggleTheme, setActiveLink, showPage, _navigateToPage, openMobileMenu, closeMobileMenu, createLoadingMessage, clearDynamicContentAndIntervals remain the same) ...
+        const applyTheme = (theme) => {
           if (!htmlElement) return;
           htmlElement.classList.remove('light', 'dark');
           htmlElement.classList.add(theme);
@@ -998,50 +1009,42 @@
 
           setActiveLink(pageId);
           window.scrollTo(0, 0);
-          safelyCreateIcons(); // Ensure icons are rendered on page change
+          safelyCreateIcons();
 
-          // Handle direct navigation with subject parameter
           if (targetSubjectParam && targetSubjectParam.page === pageId) {
               handleSubjectSelection(targetSubjectParam.subject, pageId);
-              targetSubjectParam = null; // Consume the parameter
+              targetSubjectParam = null;
           }
 
-          // Refresh dashboard data specifically if navigating to it
           if (pageId === 'dashboard' && currentUserId) {
               loadDashboard();
           }
-
-          // Stop quiz mode if navigating away from the quiz page
-          if (pageId !== 'quiz' && quizState.active) {
+           if (pageId !== 'quiz' && quizState.active) {
               stopQuizMode();
           }
       };
 
-      // Public navigation function accessible via window scope
       const _navigateToPage = (pageId, param = null) => {
           console.log(`Navigating to page: ${pageId}` + (param ? ` with param: ${param}` : ''));
           targetSubjectParam = (param && ['resources', 'tracker', 'quiz'].includes(pageId)) ? { page: pageId, subject: param } : null;
-
-          // Reset current subject if navigating away from subject-specific pages
-          if (!['resources', 'tracker', 'quiz'].includes(pageId)) {
+           if (!['resources', 'tracker', 'quiz'].includes(pageId)) {
               currentActiveSubject = null;
           }
-
           showPage(pageId);
           closeMobileMenu();
       };
-      window.navigateToPage = _navigateToPage; // Make it globally accessible
+      window.navigateToPage = _navigateToPage;
 
       const openMobileMenu = () => {
           mobileMenu?.classList.add('open');
           mobileOverlay?.classList.remove('hidden');
-          setTimeout(() => mobileOverlay?.classList.add('visible'), 10); // Start transition after display
+          setTimeout(() => mobileOverlay?.classList.add('visible'), 10);
       };
 
       const closeMobileMenu = () => {
           mobileOverlay?.classList.remove('visible');
           mobileMenu?.classList.remove('open');
-          setTimeout(() => mobileOverlay?.classList.add('hidden'), 350); // Hide after transition
+          setTimeout(() => mobileOverlay?.classList.add('hidden'), 350);
       };
 
       const createLoadingMessage = (text, isTableRow = false, colspan = 1) => {
@@ -1062,14 +1065,12 @@
 
        const clearDynamicContentAndIntervals = () => {
           console.log("Clearing dynamic content and intervals...");
-          // Stop timers
           if (countdownInterval) clearInterval(countdownInterval);
           if (pomodoroInterval) clearInterval(pomodoroInterval);
           countdownInterval = null;
           pomodoroInterval = null;
-          document.title = DEFAULT_TITLE; // Reset title
+          document.title = DEFAULT_TITLE;
 
-          // Clear UI Elements
           const upcomingList = getElement('upcoming-exams-list');
           const pomodoroSummary = getElement('pomodoro-summary');
           const pomodoroAnalytics = getElement('pomodoro-analytics');
@@ -1102,7 +1103,6 @@
           if (addQuizDetails) { addQuizDetails.style.display = 'none'; addQuizDetails.removeAttribute('open'); }
           if (quizModeInterface) quizModeInterface.classList.add('hidden');
 
-          // Reset Forms
           if (currentPasswordInput) currentPasswordInput.value = '';
           if (newPasswordInput) newPasswordInput.value = '';
           if (changePasswordMessage) changePasswordMessage.textContent = '';
@@ -1112,10 +1112,8 @@
           if (resourceTypeSelect) resourceTypeSelect.value = 'link';
           if (trackerDescriptionInput) trackerDescriptionInput.value = '';
           if (trackerStatusSelect) trackerStatusSelect.value = 'To Review';
-          // Quiz form fields are cleared when subject changes or question is saved
 
-          // Reset State Variables
-          resetPomodoroTimer(true); // Reset timer state and clear storage
+          resetPomodoroTimer(true);
           quizState = { active: false, currentSubject: null, initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null };
           currentActiveSubject = null;
           targetSubjectParam = null;
@@ -1124,8 +1122,9 @@
       };
 
       // --- Dashboard Loading ---
-      const loadDashboard = async () => {
-          if (!currentUserId || !db || !getElement('dashboard')?.classList.contains('active')) return; // Only load if dashboard is active
+      // ... (loadDashboard remains mostly the same, but be mindful of the analytics display if keys were sanitized) ...
+        const loadDashboard = async () => {
+          if (!currentUserId || !db || !getElement('dashboard')?.classList.contains('active')) return;
           console.log("Loading dashboard data...");
 
           const upcomingList = getElement('upcoming-exams-list');
@@ -1135,17 +1134,17 @@
 
           // Upcoming Exams
           if (upcomingList) {
-              upcomingList.innerHTML = createLoadingMessage('Loading exams...'); // Placeholder
+              upcomingList.innerHTML = createLoadingMessage('Loading exams...');
               try {
                   const now = new Date();
                   const futureExams = examData.filter(exam => new Date(exam.date) > now).slice(0, 5);
-                   upcomingList.innerHTML = ''; // Clear placeholder
+                   upcomingList.innerHTML = '';
                   if (futureExams.length > 0) {
                       futureExams.forEach((exam, index) => {
                           const div = document.createElement('div');
                           div.className = `upcoming-exam-item p-3 rounded-lg border-l-4 ${getSubjectColor(exam.subject)} bg-background dark:bg-slate-800/50 shadow-sm list-item list-item-appear cursor-pointer hover:shadow-md dark:hover:shadow-widget-hover-dark`;
                           div.style.animationDelay = `${index * 0.07}s`;
-                          div.dataset.page = "resources"; // Navigate to resources for the subject
+                          div.dataset.page = "resources";
                           div.dataset.subject = exam.subject;
                           div.setAttribute('role', 'button');
                           div.setAttribute('tabindex', '0');
@@ -1172,7 +1171,7 @@
                   if (!logColl) throw new Error("Could not get pomodoroLogs collection ref.");
                   const logQuery = query(logColl, orderBy("timestamp", "desc"), limit(5));
                   const logSnapshot = await getDocs(logQuery);
-                  pomodoroSummaryEl.innerHTML = ''; // Clear placeholder
+                  pomodoroSummaryEl.innerHTML = '';
                   if (logSnapshot.empty) {
                       pomodoroSummaryEl.innerHTML = createLoadingMessage('No recent study sessions.');
                   } else {
@@ -1199,12 +1198,13 @@
                     const analyticsRef = getUserDataRef(currentUserId, 'stats/pomodoroAnalytics');
                     if (!analyticsRef) throw new Error("Could not get pomodoroAnalytics doc ref.");
                     const analyticsDoc = await getDoc(analyticsRef);
-                    pomodoroAnalyticsEl.innerHTML = ''; // Clear placeholder
+                    pomodoroAnalyticsEl.innerHTML = '';
                     if (analyticsDoc.exists()) {
                         const data = analyticsDoc.data();
                         const totalMins = data.totalMinutes || 0;
                         const totalSessions = data.totalSessions || 0;
-                        const subjectMins = data.subjectMinutes || {};
+                        // Ensure subjectMinutes exists and is an object before proceeding
+                        const subjectMins = (data.subjectMinutes && typeof data.subjectMinutes === 'object') ? data.subjectMinutes : {};
                         let analyticsHTML = `<div class="space-y-3">`;
                         analyticsHTML += `<div class="flex justify-between items-baseline">
                                             <span class="text-sm text-muted dark:text-muted-dark">Total Study Time:</span>
@@ -1215,23 +1215,20 @@
                                             <span class="text-lg font-semibold text-text dark:text-text-dark">${totalSessions}</span>
                                          </div>`;
 
-                        // --- Important: Use the *original* subject names for display ---
-                        // Sort by minutes descending
-                        const sortedSubjects = Object.entries(subjectMins)
-                            // Map back to original names if needed (assuming sanitized keys are stored)
-                            // This part depends on how you store vs display. If you store sanitized keys,
-                            // you might need a way to map them back. For simplicity now, we assume
-                            // the keys in subjectMinutes *are* the display names (which requires the fix wasn't needed, or subjects didn't have bad chars)
-                            // OR, if you implemented the fix, the keys are sanitized. Displaying sanitized keys might be acceptable.
-                            // Let's assume keys are displayable for now.
-                            .sort(([,a],[,b]) => b-a);
+                        // Sort entries from subjectMins
+                        const sortedSubjects = Object.entries(subjectMins).sort(([,a],[,b]) => b-a);
 
                         if(sortedSubjects.length > 0) {
                             analyticsHTML += `<hr class="border-slate-200 dark:border-slate-700 my-3">`;
                             analyticsHTML += `<h4 class="text-sm font-medium text-muted dark:text-muted-dark mb-2">Time per Subject:</h4><div class="space-y-2">`;
                             sortedSubjects.forEach(([subjectKey, mins]) => {
-                                // Use the subjectKey for color lookup (assuming it's displayable or sanitized version)
-                                const colorBorderClass = getSubjectColor(subjectKey).split(' ')[0];
+                                // IMPORTANT: subjectKey here is potentially SANITIZED (e.g., "Maths_Stats").
+                                // The getSubjectColor function expects ORIGINAL names (e.g., "Maths/Stats").
+                                // This WILL cause the color lookup to fail if names were sanitized.
+                                // For now, getSubjectColor has a fallback, so it won't crash, but colors might be wrong.
+                                // A better long-term solution is to store original names alongside minutes in analytics.
+                                const colorBorderClass = getSubjectColor(subjectKey).split(' ')[0]; // Will use fallback color if sanitized key not found
+                                // Display the potentially sanitized key. Could try to 'unsanitize' or map back if needed, but complex.
                                 analyticsHTML += `<div class="analytics-item flex justify-between items-center text-sm ${colorBorderClass}">
                                                     <span class="text-text dark:text-text-dark">${escapeHtml(subjectKey)}</span>
                                                     <span class="font-medium text-muted dark:text-muted-dark">${formatMinutes(mins)}</span>
@@ -1262,10 +1259,11 @@
       };
 
       // --- Timetable ---
-      const loadTimetable = () => {
+      // ... (loadTimetable, updateTimetableCountdowns remain the same) ...
+        const loadTimetable = () => {
           const tbody = getElement('timetable-body');
           if (!tbody) { console.error("Timetable tbody missing!"); return; }
-          tbody.innerHTML = ''; // Clear previous content
+          tbody.innerHTML = '';
           let lastDateStr = null;
           if (!examData || examData.length === 0) {
               tbody.innerHTML = createLoadingMessage('Timetable data unavailable.', true, 6);
@@ -1277,7 +1275,7 @@
                   const currentDate = new Date(exam.date);
                   if (isNaN(currentDate.getTime())) {
                       console.warn("Skipping exam with invalid date:", exam);
-                      return; // Skip this row if date is invalid
+                      return;
                   }
                   const currentDateStr = currentDate.toDateString();
                   if (lastDateStr && currentDateStr !== lastDateStr) {
@@ -1306,14 +1304,12 @@
               }
           });
           safelyCreateIcons();
-          updateTimetableCountdowns(); // Initial update
+          updateTimetableCountdowns();
           console.log("Timetable loaded.");
       };
 
       const updateTimetableCountdowns = () => {
-           // Only update if app is visible and user is logged in
            if (!appWrapper || appWrapper.classList.contains('hidden') || !currentUserId) return;
-
            document.querySelectorAll('.countdown-cell[data-date]').forEach(cell => {
                 if (cell instanceof HTMLElement && cell.dataset.date) {
                     cell.innerHTML = formatCountdown(cell.dataset.date);
@@ -1326,55 +1322,50 @@
              });
       };
 
+
       // --- Content Switching Animation ---
-      const animateContentSwitch = async (containerElement, displayFunction, subject) => {
+      // ... (animateContentSwitch remains the same) ...
+        const animateContentSwitch = async (containerElement, displayFunction, subject) => {
           if (!containerElement) return;
-          // Fade out current content
           containerElement.classList.add('content-fade-out');
-          await new Promise(resolve => setTimeout(resolve, 150)); // Wait for fade out
+          await new Promise(resolve => setTimeout(resolve, 150));
 
-          // Load and display new content
-          containerElement.innerHTML = ''; // Clear after fade out
+          containerElement.innerHTML = '';
           containerElement.classList.remove('content-fade-out');
-          await displayFunction(subject); // Load the new data
+          await displayFunction(subject);
 
-          // Fade in new content
           containerElement.classList.add('content-fade-in');
-          // Remove class after animation finishes to allow re-triggering
           setTimeout(() => containerElement.classList.remove('content-fade-in'), 300);
       };
 
-      // --- Subject Selection Logic (Used by Resources, Tracker, Quiz) ---
-      const handleSubjectSelection = (subject, context) => {
+
+      // --- Subject Selection Logic ---
+      // ... (handleSubjectSelection remains the same) ...
+        const handleSubjectSelection = (subject, context) => {
           const isValidSubject = subjects.includes(subject);
           console.log(`Subject selected: ${subject} (Valid: ${isValidSubject}) in context: ${context}`);
           currentActiveSubject = isValidSubject ? subject : null;
 
-          // Show/hide the "Add" details sections based on subject validity
           const toggleDetailsVisibility = (detailsId) => {
               const detailsElement = getElement(detailsId);
               if (detailsElement) {
                   detailsElement.style.display = isValidSubject ? 'block' : 'none';
-                  // Close details if subject becomes invalid
                   if (!isValidSubject && detailsElement.hasAttribute('open')) {
                       detailsElement.removeAttribute('open');
-                      // Also potentially clear form fields within the details here if desired
                   }
               }
           };
 
-          // Update UI based on context
           if (context === 'resources') {
-              setActiveSubjectTab(currentActiveSubject); // Highlight the tab
+              setActiveSubjectTab(currentActiveSubject);
               toggleDetailsVisibility('add-resource-details');
               if (isValidSubject) {
-                  // Reset add resource form
                   if(resourceTitleInput) resourceTitleInput.value = '';
                   if(resourceUrlInput) resourceUrlInput.value = '';
                   if(resourceNoteInput) resourceNoteInput.value = '';
                   if(resourceTypeSelect) resourceTypeSelect.value = 'link';
-                  toggleResourceTypeFields(); // Show/hide URL/Note fields
-                  validateResourceForm(); // Enable/disable save button
+                  toggleResourceTypeFields();
+                  validateResourceForm();
                   animateContentSwitch(resourceContent, displayResources, currentActiveSubject);
               } else {
                   if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.');
@@ -1382,7 +1373,6 @@
           } else if (context === 'tracker') {
               toggleDetailsVisibility('add-tracker-details');
               if (isValidSubject) {
-                   // Reset add tracker form
                    if(trackerDescriptionInput) trackerDescriptionInput.value = '';
                    if(trackerStatusSelect) trackerStatusSelect.value = 'To Review';
                    validateTrackerForm();
@@ -1391,34 +1381,33 @@
                    if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.');
               }
           } else if (context === 'quiz') {
-              stopQuizMode(); // Ensure quiz mode is off when changing subject
+              stopQuizMode();
               toggleDetailsVisibility('add-quiz-details');
-               if (quizContentWrapper) quizContentWrapper.classList.toggle('hidden', !isValidSubject); // Show/hide the whole quiz area
+               if (quizContentWrapper) quizContentWrapper.classList.toggle('hidden', !isValidSubject);
               if (isValidSubject) {
-                  // Reset add quiz form
                   if(quizQuestionInput) quizQuestionInput.value = '';
                   if(quizAnswerInput) quizAnswerInput.value = '';
-                  if(quizQuestionFileInput) quizQuestionFileInput.value = ''; // Clear file inputs
+                  if(quizQuestionFileInput) quizQuestionFileInput.value = '';
                   if(quizAnswerFileInput) quizAnswerFileInput.value = '';
                   validateQuizForm();
-                  // Use animateContentSwitch for the list display part
                   animateContentSwitch(quizItemsList, displaySavedQuizQuestions, currentActiveSubject);
               } else {
                    if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.');
-                   toggleQuizButtons(); // Disable start button if no subject
+                   toggleQuizButtons();
               }
           }
       };
 
+
       // --- Resources ---
-      const loadResources = () => {
+      // ... (loadResources, toggleResourceTypeFields, validateResourceForm, setActiveSubjectTab, displayResources, handleSaveResource remain the same) ...
+       const loadResources = () => {
            if (!subjectTabsContainer) { console.error("Resource subject tabs container not found."); return; }
-           subjectTabsContainer.innerHTML = ''; // Clear existing tabs
+           subjectTabsContainer.innerHTML = '';
             if (!subjects || subjects.length === 0) {
                 subjectTabsContainer.innerHTML = '<p class="text-sm text-muted p-2">No subjects defined.</p>';
                 return;
             }
-            // Create tabs
             subjects.forEach(subject => {
                 const button = document.createElement('button');
                 button.setAttribute('role', 'tab');
@@ -1429,10 +1418,9 @@
                 subjectTabsContainer.appendChild(button);
             });
 
-            // Initial state
             if (addResourceDetails) addResourceDetails.style.display = 'none';
             if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.');
-            validateResourceForm(); // Ensure button is initially disabled correctly
+            validateResourceForm();
             console.log("Resources tab initialized.");
       };
 
@@ -1441,10 +1429,9 @@
            const isLink = resourceTypeSelect.value === 'link';
            resourceUrlWrapper.classList.toggle('visible', isLink);
            resourceNoteWrapper.classList.toggle('visible', !isLink);
-           // Clear the hidden input field
            if (isLink && resourceNoteInput) resourceNoteInput.value = '';
            else if (!isLink && resourceUrlInput) resourceUrlInput.value = '';
-           validateResourceForm(); // Re-validate after type change
+           validateResourceForm();
       };
 
       const validateResourceForm = () => {
@@ -1452,14 +1439,14 @@
                 if(saveResourceBtn) saveResourceBtn.disabled = true;
                 return;
             }
-            let isValid = !!currentActiveSubject && resourceTitleInput.value.trim() !== ''; // Must have active subject and title
+            let isValid = !!currentActiveSubject && resourceTitleInput.value.trim() !== '';
             if (isValid) {
                  if (resourceTypeSelect.value === 'link') {
-                     isValid = resourceUrlInput && resourceUrlInput.value.trim() !== '' && resourceUrlInput.checkValidity(); // Use browser URL validation
+                     isValid = resourceUrlInput && resourceUrlInput.value.trim() !== '' && resourceUrlInput.checkValidity();
                  } else if (resourceTypeSelect.value === 'note') {
                      isValid = resourceNoteInput && resourceNoteInput.value.trim() !== '';
                  } else {
-                     isValid = false; // Should not happen with select options
+                     isValid = false;
                  }
             }
             saveResourceBtn.disabled = !isValid;
@@ -1497,7 +1484,7 @@
                 const snapshot = await getDocs(q);
                 const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                resourceContent.innerHTML = ''; // Clear loading message
+                resourceContent.innerHTML = '';
                 if (items.length === 0) {
                      resourceContent.innerHTML = createLoadingMessage(`No resources saved for ${subject} yet.`);
                 } else {
@@ -1505,7 +1492,6 @@
                      ul.className = 'space-y-3';
                      items.forEach((item, index) => {
                         const li = document.createElement('li');
-                        // Ensure item.subject exists or use the 'subject' parameter
                         const itemSubject = item.subject || subject;
                         li.className = `resource-item list-item flex justify-between items-start p-3 rounded-lg border bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 ${getSubjectColor(itemSubject).replace('border-l-4', 'border')}`;
 
@@ -1526,7 +1512,7 @@
                                          <p class="text-xs text-muted dark:text-muted-dark mt-1 whitespace-pre-wrap">${escapeHtml(item.noteContent || '')}</p>
                                      </div>
                                  </div>`;
-                         } else { // Fallback for unknown type or missing data
+                         } else {
                              contentHtml = `<p class="font-medium text-sm text-text dark:text-text-dark">${escapeHtml(item.title)}</p>`;
                          }
                          li.innerHTML = `
@@ -1537,7 +1523,7 @@
                          ul.appendChild(li);
                      });
                      resourceContent.appendChild(ul);
-                     applyStaggerAnimation(ul.children); // Apply animation after adding to DOM
+                     applyStaggerAnimation(ul.children);
                      safelyCreateIcons();
                 }
            } catch (error) {
@@ -1545,14 +1531,14 @@
                 resourceContent.innerHTML = createLoadingMessage(`Error loading resources for ${subject}. Check console.`);
            }
       };
-       window.displayResources = displayResources; // Make globally accessible for onclick
+       window.displayResources = displayResources;
 
       const handleSaveResource = async () => {
            if (!currentUserId || !currentActiveSubject || !saveResourceBtn || !db) {
                alert("Cannot save resource: Missing user, subject, or database connection.");
                return;
             }
-           validateResourceForm(); // Ensure validation passes
+           validateResourceForm();
            if (saveResourceBtn.disabled) return;
 
            const type = resourceTypeSelect.value;
@@ -1560,12 +1546,7 @@
            const url = resourceUrlInput.value.trim();
            const noteContent = resourceNoteInput.value.trim();
 
-           const newResource = {
-                title,
-                type,
-                createdAt: serverTimestamp(),
-                subject: currentActiveSubject // Store subject for potential future use/queries
-            };
+           const newResource = { title, type, createdAt: serverTimestamp(), subject: currentActiveSubject };
            if (type === 'link') newResource.url = url;
            else if (type === 'note') newResource.noteContent = noteContent;
 
@@ -1576,50 +1557,44 @@
                 if (!collRef) throw new Error("Could not get resources collection ref.");
                 await addDoc(collRef, newResource);
                 console.log("Resource saved successfully.");
-                // Reset form and close details
                 if (resourceTitleInput) resourceTitleInput.value = '';
                 if (resourceUrlInput) resourceUrlInput.value = '';
                 if (resourceNoteInput) resourceNoteInput.value = '';
                 if (resourceTypeSelect) resourceTypeSelect.value = 'link';
                 toggleResourceTypeFields();
-                if (addResourceDetails) addResourceDetails.open = false; // Close the details section
-                displayResources(currentActiveSubject); // Refresh the list
+                if (addResourceDetails) addResourceDetails.open = false;
+                displayResources(currentActiveSubject);
            } catch (error) {
                 console.error("Error saving resource:", error);
                 alert("Failed to save resource. Please try again.");
            } finally {
-                saveResourceBtn.disabled = false; // Re-enable button regardless of outcome
+                saveResourceBtn.disabled = false;
                 saveResourceBtn.textContent = 'Add Resource';
-                validateResourceForm(); // Re-validate form state
+                validateResourceForm();
            }
       };
 
-      // --- Pomodoro Timer Logic (with Persistence) ---
 
-      const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r') || '45') : 283;
+      // --- Pomodoro Timer Logic ---
+      // ... (Most Pomodoro functions remain the same: loadPomodoroState, savePomodoroState, stopPomodoroTimer, updatePomodoroUIState, updateTimerDisplay, setActiveModeButton, handleDurationChange, setTimerMode, addPomodoroLogAndAnalytics, startPomodoroTimerInterval, handlePomodoroCompletion, startTimer, pauseTimer, resetTimer) ...
+        const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r') || '45') : 283;
       if (progressRing) {
           progressRing.style.strokeDasharray = `${ringCircumference} ${ringCircumference}`;
           progressRing.style.strokeDashoffset = ringCircumference;
       }
 
-      // Load state from localStorage
       const loadPomodoroState = () => {
           try {
               const savedState = localStorage.getItem(POMODORO_STORAGE_KEY);
               if (savedState) {
                    const parsedState = JSON.parse(savedState);
-                   // Basic validation of saved state properties
                    if (parsedState && typeof parsedState.currentSeconds === 'number' && typeof parsedState.totalSeconds === 'number') {
                        pomodoroState = { ...pomodoroState, ...parsedState };
                        console.log("Pomodoro state loaded from localStorage:", pomodoroState);
 
-                       // Restore input values if they exist
-                       if (workDurationInput) workDurationInput.value = Math.round(pomodoroState.totalSeconds / 60) || 25; // Default if needed
-                       // TODO: Restore break durations if you save them per-mode
+                       if (workDurationInput) workDurationInput.value = Math.round(pomodoroState.totalSeconds / 60) || 25;
                         if (pomodoroSubjectSelect && pomodoroState.timerMode === 'work') pomodoroSubjectSelect.value = pomodoroState.workSessionSubject || "";
 
-
-                       // Handle resuming a running timer
                        if (pomodoroState.timerState === 'running' && pomodoroState.timerEndTime) {
                            const now = Date.now();
                            const remainingSeconds = Math.max(0, Math.round((pomodoroState.timerEndTime - now) / 1000));
@@ -1627,23 +1602,23 @@
 
                            if (remainingSeconds > 0) {
                                console.log(`Resuming running timer with ${remainingSeconds}s left.`);
-                               startPomodoroTimerInterval(); // Restart the interval
+                               startPomodoroTimerInterval();
                                updatePomodoroUIState('running');
                            } else {
                                console.log("Timer finished while tab was inactive.");
-                               handlePomodoroCompletion(true); // Handle completion logic (true = from load)
-                               savePomodoroState(); // Save the new 'stopped' state
+                               handlePomodoroCompletion(true);
+                               savePomodoroState();
                            }
                        } else if (pomodoroState.timerState === 'paused') {
                             console.log("Restoring paused timer state.");
                             updatePomodoroUIState('paused');
-                            updateTimerDisplay(); // Show paused time
-                       } else { // Stopped state
+                            updateTimerDisplay();
+                       } else {
                            console.log("Restoring stopped timer state.");
-                           setTimerMode(pomodoroState.timerMode || 'work', false); // Ensure UI matches mode
+                           setTimerMode(pomodoroState.timerMode || 'work', false);
                            updatePomodoroUIState('stopped');
                        }
-                       return true; // State was loaded
+                       return true;
                    } else {
                        console.warn("Invalid Pomodoro state found in localStorage.");
                        localStorage.removeItem(POMODORO_STORAGE_KEY);
@@ -1651,22 +1626,19 @@
               }
           } catch (e) {
               console.error("Error loading Pomodoro state from localStorage:", e);
-              localStorage.removeItem(POMODORO_STORAGE_KEY); // Clear corrupted state
+              localStorage.removeItem(POMODORO_STORAGE_KEY);
           }
-          return false; // No valid state loaded
+          return false;
       };
 
-      // Save state to localStorage
       const savePomodoroState = () => {
           try {
               localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(pomodoroState));
-              // console.log("Pomodoro state saved:", pomodoroState); // Can be verbose
           } catch (e) {
               console.error("Error saving Pomodoro state to localStorage:", e);
           }
       };
 
-       // Clears interval AND pomodoro state from local storage
        const stopPomodoroTimer = (clearStorage = false) => {
            if (pomodoroInterval) {
                clearInterval(pomodoroInterval);
@@ -1674,9 +1646,9 @@
                console.log("Pomodoro interval cleared.");
            }
            pomodoroState.timerState = 'stopped';
-           pomodoroState.timerEndTime = null; // Clear end time on stop/reset
-           updatePomodoroUIState('stopped'); // Reflect stopped state in UI
-           document.title = DEFAULT_TITLE; // Reset tab title
+           pomodoroState.timerEndTime = null;
+           updatePomodoroUIState('stopped');
+           document.title = DEFAULT_TITLE;
 
            if (clearStorage) {
                try {
@@ -1684,34 +1656,30 @@
                    console.log("Pomodoro localStorage cleared.");
                } catch (e) { console.error("Error clearing Pomodoro state from localStorage:", e);}
            } else {
-               savePomodoroState(); // Save the stopped state if not clearing fully
+               savePomodoroState();
            }
        };
 
-        // Centralized UI updater for timer state changes
         const updatePomodoroUIState = (newState) => {
-            if (!startPauseButton || !pomodoroSubjectSelect) return; // Guard against missing elements
+            if (!startPauseButton || !pomodoroSubjectSelect) return;
 
             const isRunning = newState === 'running';
             const isPaused = newState === 'paused';
-            const isStopped = newState === 'stopped';
 
-            // Update button text and icon
             if (isRunning) {
                 startPauseButton.innerHTML = `<i data-lucide="pause" class="h-5 w-5"></i> <span>Pause</span>`;
             } else if (isPaused) {
                 startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Resume</span>`;
-            } else { // Stopped
+            } else {
                 startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Start</span>`;
             }
 
-            // Disable mode buttons and subject select while running or paused
             const disableControls = isRunning || isPaused;
             modeButtons.forEach(btn => { if (btn) btn.disabled = disableControls; });
-            pomodoroSubjectSelect.disabled = disableControls || pomodoroState.timerMode !== 'work'; // Also disable if not in work mode
-            if(startPauseButton) startPauseButton.disabled = false; // Start/Pause/Resume is always enabled unless mid-transition
+            pomodoroSubjectSelect.disabled = disableControls || pomodoroState.timerMode !== 'work';
+            if(startPauseButton) startPauseButton.disabled = false;
 
-            safelyCreateIcons(); // Update icons if changed
+            safelyCreateIcons();
         };
 
 
@@ -1727,14 +1695,12 @@
            const offset = ringCircumference * (1 - progress);
            progressRing.style.strokeDashoffset = Math.max(0, Math.min(ringCircumference, offset));
 
-           // Update tab title if timer is running
            if (pomodoroState.timerState === 'running') {
                 let modeLabel = "Focus";
                 if (pomodoroState.timerMode === 'shortBreak') modeLabel = "Short Break";
                 else if (pomodoroState.timerMode === 'longBreak') modeLabel = "Long Break";
                 document.title = `${timeString} - ${modeLabel} | ${DEFAULT_TITLE}`;
            } else {
-               // Reset title if paused or stopped (unless already default)
                if (document.title !== DEFAULT_TITLE) {
                    document.title = DEFAULT_TITLE;
                }
@@ -1746,11 +1712,9 @@
            modeButtons.forEach(btn => {
                if (btn) btn.classList.toggle('active', btn.dataset.mode === activeMode);
            });
-           // Show/hide subject dropdown based on mode
            if (pomodoroSubjectWrapper) {
                pomodoroSubjectWrapper.style.display = activeMode === 'work' ? 'block' : 'none';
            }
-            // Ensure subject select is enabled/disabled correctly based on mode AND timer state
             if(pomodoroSubjectSelect) {
                 pomodoroSubjectSelect.disabled = activeMode !== 'work' || pomodoroState.timerState !== 'stopped';
             }
@@ -1758,21 +1722,18 @@
 
 
        const handleDurationChange = (mode) => {
-           // Update duration only if timer is stopped and it's the current mode
            if (pomodoroState.timerState !== 'running' && pomodoroState.timerMode === mode) {
                console.log(`Duration changed for mode: ${mode}`);
-               setTimerMode(mode, false); // Re-apply mode settings with new duration
+               setTimerMode(mode, false);
            }
        };
 
-        // Sets the timer mode, updates UI, resets time, saves state
-       const setTimerMode = (mode, fromInteraction = false) => {
+        const setTimerMode = (mode, fromInteraction = false) => {
            if (!timerStatus || !progressRing || !workDurationInput || !shortBreakDurationInput || !longBreakDurationInput || !pomodoroModeTitle) {
                console.error("Cannot set timer mode: Missing essential UI elements.");
                return;
            }
 
-           // Prevent mode switching while timer is running via button click
            if (pomodoroState.timerState === 'running' && fromInteraction) {
                const buttonToShake = modeButtons.find(btn => btn?.dataset.mode === mode);
                buttonToShake?.classList.add('shake-horizontal');
@@ -1781,11 +1742,9 @@
                return;
            }
 
-           // Stop any existing timer interval *before* changing mode settings
-           stopPomodoroTimer(false); // Stop interval, update UI to stopped, but don't clear storage yet
+           stopPomodoroTimer(false);
 
            pomodoroState.timerMode = mode;
-           // Load cycle count from state (or default to 0)
            pomodoroState.pomodoroCycle = parseInt(localStorage.getItem('pomodoroCycle') || '0');
 
 
@@ -1795,7 +1754,6 @@
                     durationInput = workDurationInput;
                     title = 'Focus Session';
                     if(timerStatus) timerStatus.textContent = 'Work';
-                    // Restore subject selection if switching back to work mode
                     if (pomodoroSubjectSelect && pomodoroState.workSessionSubject) {
                         pomodoroSubjectSelect.value = pomodoroState.workSessionSubject;
                     }
@@ -1814,36 +1772,33 @@
                     break;
                default:
                     console.error("Invalid timer mode requested:", mode);
-                    // Optionally default to 'work'
                     durationInput = workDurationInput;
                     pomodoroState.timerMode = 'work';
                     title = 'Focus Session';
                      if(timerStatus) timerStatus.textContent = 'Work';
            }
 
-           let newDuration = parseInt(durationInput?.value || '25'); // Default 25 if input missing/invalid
+           let newDuration = parseInt(durationInput?.value || '25');
            pomodoroState.totalSeconds = (!isNaN(newDuration) && newDuration > 0) ? newDuration * 60 : (25 * 60);
            pomodoroState.currentSeconds = pomodoroState.totalSeconds;
-           pomodoroState.timerState = 'stopped'; // Explicitly set stopped state
-           pomodoroState.timerEndTime = null; // Clear end time
+           pomodoroState.timerState = 'stopped';
+           pomodoroState.timerEndTime = null;
 
            if(pomodoroModeTitle) pomodoroModeTitle.textContent = title;
-           setActiveModeButton(mode); // Update button styles and subject visibility
-           updateTimerDisplay(); // Show the initial time for the new mode
+           setActiveModeButton(mode);
+           updateTimerDisplay();
 
-           // Update ring color
            if (progressRing) {
                progressRing.classList.remove('text-primary', 'dark:text-primary-dark', 'text-emerald-500', 'dark:text-emerald-400', 'text-sky-500', 'dark:text-sky-400');
                progressRing.classList.add(...ringColorClass.split(' '));
            }
 
-           updatePomodoroUIState('stopped'); // Ensure buttons/controls are in the correct state
-           savePomodoroState(); // Save the newly set mode and time
+           updatePomodoroUIState('stopped');
+           savePomodoroState();
            console.log(`Timer mode set to: ${mode}, Duration: ${pomodoroState.totalSeconds}s`);
        };
 
 
-      // Firestore logging for completed work sessions
       const addPomodoroLogAndAnalytics = async (subject, durationMinutes) => {
             if (!currentUserId || !subject || !db) {
                 console.error("Cannot log Pomodoro: Missing userId, subject, or DB connection.");
@@ -1854,19 +1809,15 @@
                 return;
             }
 
-            // *** Sanitize the subject name for use as a Firestore map key ***
-            const sanitizedSubjectKey = subject.replace(/[.*$#[\]/]/g, '_'); // Replace Firestore reserved chars + $ with underscore
+            const sanitizedSubjectKey = subject.replace(/[.*$#[\]/]/g, '_');
 
             if (!sanitizedSubjectKey) {
                 console.error("Cannot log Pomodoro: Subject name resulted in empty key after sanitization:", subject);
-                // Maybe log with a default key like 'Uncategorized' or skip logging analytics for this subject?
-                // For now, we'll just skip the analytics part if sanitization fails badly.
-                 // Still log the session itself though.
                  try {
                      const logColl = getUserCollectionRef(currentUserId, 'pomodoroLogs');
                       if (logColl) {
                          await addDoc(logColl, {
-                             subject: subject, // Log original name here
+                             subject: subject,
                              durationMinutes,
                              timestamp: serverTimestamp()
                          });
@@ -1890,62 +1841,58 @@
             try {
                 const batch = writeBatch(db);
 
-                // 1. Add a log entry with the original subject name
                 batch.set(doc(logCollRef), {
-                    subject: subject, // Store the original name for display
+                    subject: subject,
                     durationMinutes,
                     timestamp: serverTimestamp()
                 });
 
-                // 2. Update analytics using the SANITIZED key
                 const updateData = {
                     totalSessions: increment(1),
                     totalMinutes: increment(durationMinutes),
-                    // Use the sanitized key here!
                     [`subjectMinutes.${sanitizedSubjectKey}`]: increment(durationMinutes)
                 };
-                batch.set(analyticsRef, updateData, { merge: true }); // Use set with merge for atomicity
+                batch.set(analyticsRef, updateData, { merge: true });
 
                 await batch.commit();
                 console.log("Pomodoro log and analytics updated successfully via batch.");
 
-                // Refresh dashboard if it's currently visible
                 if (getElement('dashboard')?.classList.contains('active')) {
                     loadDashboard();
                 }
             } catch (error) {
                 console.error("Error logging Pomodoro using batch write:", error);
                  console.error("Attempted data:", { subject, sanitizedSubjectKey, durationMinutes });
-                // Optionally alert the user or try logging just the session without analytics as a fallback
             }
       };
 
 
-      // Starts the timer interval
       const startPomodoroTimerInterval = () => {
-           if (pomodoroInterval) clearInterval(pomodoroInterval); // Clear any existing interval first
+           if (pomodoroInterval) clearInterval(pomodoroInterval);
 
            pomodoroState.timerState = 'running';
-           // Calculate end time based on *current* remaining seconds
            pomodoroState.timerEndTime = Date.now() + pomodoroState.currentSeconds * 1000;
-           savePomodoroState(); // Save state immediately on start
+           savePomodoroState();
            updatePomodoroUIState('running');
 
            pomodoroInterval = setInterval(() => {
                 if (pomodoroState.currentSeconds <= 0) {
-                    handlePomodoroCompletion(false); // Handle normally (not from load)
+                    handlePomodoroCompletion(false);
                 } else {
-                    pomodoroState.currentSeconds--;
-                    updateTimerDisplay(); // Update UI every second
-                    // Optimization: Save state less frequently (e.g., every 10s) if needed, but saving every second is simpler for resume accuracy
-                    // savePomodoroState(); // Saving every second might be excessive, consider saving on pause/stop/completion only or less frequently.
-                     // Let's save only when state changes significantly (start, pause, stop, complete, mode change)
+                    // Calculate remaining time more accurately based on end time
+                    const now = Date.now();
+                    const remainingMillis = pomodoroState.timerEndTime - now;
+                    pomodoroState.currentSeconds = Math.max(0, Math.round(remainingMillis / 1000));
+                    updateTimerDisplay();
+
+                    if(pomodoroState.currentSeconds <= 0) {
+                        handlePomodoroCompletion(false); // Handle completion if time runs out
+                    }
                 }
            }, 1000);
             console.log("Pomodoro interval started.");
       };
 
-       // Called when timer reaches 0, handles logging and mode switching
        const handlePomodoroCompletion = (fromLoad = false) => {
             if (pomodoroInterval) clearInterval(pomodoroInterval);
             pomodoroInterval = null;
@@ -1958,45 +1905,33 @@
 
             console.log(`Pomodoro finished mode: ${finishedMode}`);
 
-            // If a work session finished
             if (finishedMode === 'work' && pomodoroState.workSessionSubject && workDuration > 0) {
                 pomodoroState.pomodoroCycle++;
-                try { // Store cycle count persistently
-                    localStorage.setItem('pomodoroCycle', pomodoroState.pomodoroCycle.toString());
-                } catch (e) { console.warn("Could not save pomodoro cycle to localStorage", e);}
+                try { localStorage.setItem('pomodoroCycle', pomodoroState.pomodoroCycle.toString()); }
+                catch (e) { console.warn("Could not save pomodoro cycle to localStorage", e);}
 
-                // Log the completed session to Firestore
                 addPomodoroLogAndAnalytics(pomodoroState.workSessionSubject, workDuration);
 
-                // Determine next mode (long break every 4 cycles)
                 nextMode = (pomodoroState.pomodoroCycle % 4 === 0) ? 'longBreak' : 'shortBreak';
                 alertMessage = `Focus session complete! Time for a ${nextMode === 'longBreak' ? 'long' : 'short'} break.`;
 
-            } else if (finishedMode !== 'work') { // If a break finished
+            } else if (finishedMode !== 'work') {
                  alertMessage = "Break's over! Time to get back to focus.";
                  nextMode = 'work';
             }
 
-            // Don't alert if handling completion just after loading the page
             if (alertMessage && !fromLoad) {
-                alert(alertMessage); // User feedback
-                // Consider adding a sound notification here as well
+                alert(alertMessage);
             }
 
-             // Reset subject tracking for the next work session
              pomodoroState.workSessionSubject = '';
-
-            // Switch to the next mode
-            setTimerMode(nextMode, false); // This updates UI, state, and saves
+             setTimerMode(nextMode, false);
         };
 
 
-       // --- Public Timer Controls ---
-
         const startTimer = () => {
-            if (pomodoroState.timerState === 'running') return; // Already running
+            if (pomodoroState.timerState === 'running') return;
 
-            // If starting a work session, ensure a subject is selected
             if (pomodoroState.timerMode === 'work') {
                 const selectedSubject = pomodoroSubjectSelect?.value;
                 if (!selectedSubject) {
@@ -2004,16 +1939,14 @@
                     pomodoroSubjectSelect?.focus();
                     return;
                 }
-                pomodoroState.workSessionSubject = selectedSubject; // Store subject for logging on completion
+                pomodoroState.workSessionSubject = selectedSubject;
             } else {
-                pomodoroState.workSessionSubject = ''; // Clear subject if starting a break
+                pomodoroState.workSessionSubject = '';
             }
 
-            // Ensure there's time remaining (e.g., after reset or duration change)
             if (pomodoroState.currentSeconds <= 0) {
                 console.log("Timer at 0, resetting duration before start.");
-                setTimerMode(pomodoroState.timerMode, false); // Re-apply mode settings to reset time
-                // Check again if duration is still 0 (user set it to 0/invalid)
+                setTimerMode(pomodoroState.timerMode, false);
                 if (pomodoroState.currentSeconds <= 0) {
                    alert("Timer duration is set to 0. Please adjust settings.");
                    return;
@@ -2025,39 +1958,35 @@
         };
 
         const pauseTimer = () => {
-            if (pomodoroState.timerState !== 'running') return; // Can only pause if running
+            if (pomodoroState.timerState !== 'running') return;
 
             console.log("Pausing timer...");
             if (pomodoroInterval) clearInterval(pomodoroInterval);
             pomodoroInterval = null;
             pomodoroState.timerState = 'paused';
-             pomodoroState.timerEndTime = null; // Clear end time when paused
+             pomodoroState.timerEndTime = null;
 
-            updatePomodoroUIState('paused'); // Update buttons etc.
-            savePomodoroState(); // Save the paused state
-            document.title = DEFAULT_TITLE; // Reset tab title when paused
+            updatePomodoroUIState('paused');
+            savePomodoroState();
+            document.title = DEFAULT_TITLE;
         };
 
-
-        // Resets the current mode's timer to its full duration
         const resetTimer = (silent = false) => {
              console.log("Resetting timer...");
-             stopPomodoroTimer(false); // Stop interval, update UI, keep storage but mark as stopped
-
-             // Re-apply the current mode to reset the time display based on duration inputs
+             stopPomodoroTimer(false);
              setTimerMode(pomodoroState.timerMode, false);
-
-             if (!silent) {
-                 // Optionally provide feedback, though setTimerMode updates the display
-             }
         };
+        // Expose reset function if needed by other parts, e.g., on logout
+        window.resetPomodoroTimer = resetTimer;
+
 
       // --- Tracker ---
+      // ... (loadTracker, validateTrackerForm, displayTrackerItems, handleSaveTrackerItem remain the same) ...
       const loadTracker = () => {
           populateSubjectDropdown(trackerSubjectSelect);
-          if(addTrackerDetails) addTrackerDetails.style.display = 'none'; // Hide form initially
+          if(addTrackerDetails) addTrackerDetails.style.display = 'none';
           if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject to view items.');
-          validateTrackerForm(); // Ensure button is disabled initially
+          validateTrackerForm();
           console.log("Tracker page initialized.");
       };
 
@@ -2065,7 +1994,7 @@
           if (saveTrackerItemBtn && trackerDescriptionInput) {
               saveTrackerItemBtn.disabled = !currentActiveSubject || trackerDescriptionInput.value.trim() === '';
           } else if (saveTrackerItemBtn) {
-               saveTrackerItemBtn.disabled = true; // Disable if elements missing
+               saveTrackerItemBtn.disabled = true;
           }
       };
 
@@ -2082,20 +2011,18 @@
               const q = query(collRef, orderBy("createdAt", "desc"));
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-              trackerItemsList.innerHTML = ''; // Clear loading
+              trackerItemsList.innerHTML = '';
               if (items.length === 0) {
                   trackerItemsList.innerHTML = createLoadingMessage(`No items tracked for ${subject} yet.`);
               } else {
                   const getStatusClass = (status) => {
-                       // Use optional chaining and provide default status key
                       const statusKey = status?.toLowerCase().replace(/\s+/g,'') || 'review';
-                      // Access Tailwind config safely
                       const statusClasses = tailwind?.config?.theme?.extend?.colors?.status;
-                      return statusClasses?.[statusKey] || 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 font-medium'; // Default fallback
+                      return statusClasses?.[statusKey] || 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 font-medium';
                   };
                   items.forEach((item, index) => {
                       const div = document.createElement('div');
-                      const itemSubject = item.subject || subject; // Use subject from item if available, else context
+                      const itemSubject = item.subject || subject;
                       div.className = `tracker-item list-item flex justify-between items-start p-3 rounded-lg border bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 ${getSubjectColor(itemSubject).replace('border-l-4', 'border')} list-item-appear`;
                       div.style.animationDelay = `${index * 0.05}s`;
                       div.innerHTML = `
@@ -2108,19 +2035,17 @@
                               <button title="Delete Item" class="list-delete-btn p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('trackerItems', '${escapeHtml(subject)}', '${item.id}', 'tracker item', window.displayTrackerItems)">
                                   <i data-lucide="trash-2" class="h-4 w-4"></i>
                               </button>
-                              <!-- Add Edit button later if needed -->
                           </div>`;
                       trackerItemsList.appendChild(div);
                   });
                   safelyCreateIcons();
-                  // applyStaggerAnimation is implicitly handled by list-item-appear + delay now
               }
           } catch (error) {
               console.error(`Error loading tracker items for ${subject}:`, error);
               trackerItemsList.innerHTML = createLoadingMessage(`Error loading items for ${subject}. Check console.`);
           }
       };
-      window.displayTrackerItems = displayTrackerItems; // Make accessible for onclick
+      window.displayTrackerItems = displayTrackerItems;
 
       const handleSaveTrackerItem = async () => {
           if (!currentUserId || !currentActiveSubject || !saveTrackerItemBtn || !db || !trackerDescriptionInput || !trackerStatusSelect) {
@@ -2132,12 +2057,7 @@
 
           const description = trackerDescriptionInput.value.trim();
           const status = trackerStatusSelect.value;
-          const newItem = {
-              description,
-              status,
-              createdAt: serverTimestamp(),
-              subject: currentActiveSubject
-           };
+          const newItem = { description, status, createdAt: serverTimestamp(), subject: currentActiveSubject };
 
           saveTrackerItemBtn.disabled = true;
           saveTrackerItemBtn.textContent = 'Adding...';
@@ -2146,54 +2066,51 @@
               if (!collRef) throw new Error("Could not get trackerItems collection ref.");
               await addDoc(collRef, newItem);
               console.log("Tracker item saved.");
-              // Reset form and close details
               trackerDescriptionInput.value = '';
-              trackerStatusSelect.value = 'To Review'; // Reset status dropdown
+              trackerStatusSelect.value = 'To Review';
               if (addTrackerDetails) addTrackerDetails.open = false;
-              displayTrackerItems(currentActiveSubject); // Refresh list
+              displayTrackerItems(currentActiveSubject);
           } catch (error) {
               console.error("Error saving tracker item:", error);
               alert("Failed to save tracker item.");
           } finally {
               saveTrackerItemBtn.disabled = false;
               saveTrackerItemBtn.textContent = 'Add Item';
-              validateTrackerForm(); // Re-validate
+              validateTrackerForm();
           }
       };
 
       // --- Planner ---
-      const loadPlanner = () => {
+      // ... (loadPlanner, validatePlannerForm, handleSavePlannerItem, displayPlannerItems remain the same) ...
+        const loadPlanner = () => {
           if (!plannerDateInput || !plannerTimeInput || !plannerSubjectSelect || !plannerTopicInput || !savePlannerItemBtn || !plannerItemsList) {
              console.error("Planner page elements missing.");
              return;
             }
           populateSubjectDropdown(plannerSubjectSelect);
-          displayPlannerItems(); // Load existing items
+          displayPlannerItems();
 
-          // Set default date/time to now
           try {
               const now = new Date();
-              // Adjust for timezone offset to get local date/time in ISO format parts
               const localISODate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-              const localISOTime = now.toTimeString().substring(0, 5); // HH:MM format
+              const localISOTime = now.toTimeString().substring(0, 5);
               plannerDateInput.value = localISODate;
               plannerTimeInput.value = localISOTime;
           } catch (e) { console.warn("Could not set default date/time for planner:", e); }
 
-          validatePlannerForm(); // Initial validation
+          validatePlannerForm();
           console.log("Planner page initialized.");
       };
 
       const validatePlannerForm = () => {
           if (savePlannerItemBtn && plannerDateInput && plannerTimeInput && plannerSubjectSelect && plannerTopicInput) {
-              // Check validity using built-in browser checks too if needed
               const isValid = plannerDateInput.value &&
                               plannerTimeInput.value &&
                               plannerSubjectSelect.value &&
                               plannerTopicInput.value.trim();
               savePlannerItemBtn.disabled = !isValid;
           } else if (savePlannerItemBtn) {
-              savePlannerItemBtn.disabled = true; // Disable if elements missing
+              savePlannerItemBtn.disabled = true;
           }
       };
 
@@ -2211,16 +2128,10 @@
           const topic = plannerTopicInput.value.trim();
           let dateTimeString;
 
-          // Combine date and time into a valid ISO string or Firestore Timestamp
           try {
-              // Important: Ensure the date/time is parsed correctly according to local timezone
               const combined = new Date(`${date}T${time}:00`);
               if (isNaN(combined.getTime())) throw new Error("Invalid date/time combination");
-              // Store as ISO string - Firestore will handle conversion if needed, or use Timestamp()
-              // dateTimeString = combined.toISOString();
-              // Using Firestore Timestamp might be more robust across timezones if querying across them
-              // For simplicity and local sorting, ISO string is often sufficient if always displayed locally.
-               dateTimeString = combined.toISOString(); // Let's stick with ISO string for now
+               dateTimeString = combined.toISOString();
 
           } catch (e) {
               console.error("Invalid date/time format:", e);
@@ -2228,12 +2139,7 @@
               return;
           }
 
-          const newItem = {
-              dateTime: dateTimeString, // Store as ISO string
-              subject,
-              topic,
-              createdAt: serverTimestamp()
-           };
+          const newItem = { dateTime: dateTimeString, subject, topic, createdAt: serverTimestamp() };
 
           savePlannerItemBtn.disabled = true;
           savePlannerItemBtn.textContent = 'Scheduling...';
@@ -2242,11 +2148,10 @@
                if (!collRef) throw new Error("Could not get plannerItems collection ref.");
               await addDoc(collRef, newItem);
               console.log("Planner item saved.");
-              await displayPlannerItems(); // Refresh list
-              // Reset relevant fields (keep date/time potentially for adding multiple in sequence?)
+              await displayPlannerItems();
               if(plannerSubjectSelect) plannerSubjectSelect.value = '';
               if(plannerTopicInput) plannerTopicInput.value = '';
-              validatePlannerForm(); // Re-validate
+              validatePlannerForm();
           } catch (e) {
               console.error("Error saving planner item:", e);
               alert("Failed to schedule session.");
@@ -2266,22 +2171,19 @@
               const collRef = getUserCollectionRef(currentUserId, 'plannerItems');
               if (!collRef) throw new Error("Could not get plannerItems collection ref.");
 
-              // Query ordered by the dateTime string (lexicographical sort, usually works for ISO)
               const q = query(collRef, orderBy("dateTime", "asc"));
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-              plannerItemsList.innerHTML = ''; // Clear loading
+              plannerItemsList.innerHTML = '';
               if (items.length === 0) {
                   plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled yet.');
               } else {
-                  // Group items by date for better display
                   const groupedByDate = items.reduce((acc, item) => {
                       try {
                           if (!item.dateTime) throw new Error("Missing dateTime field");
                           const d = new Date(item.dateTime);
                           if (isNaN(d.getTime())) throw new Error("Invalid stored date string");
-                          // Format date for grouping (e.g., "Monday, 21 April 2025")
                           const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                           if (!acc[dateStr]) acc[dateStr] = [];
                           acc[dateStr].push(item);
@@ -2289,12 +2191,10 @@
                       return acc;
                   }, {});
 
-                  // Sort the dates chronologically
                   const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
                        try {
-                           // Function to parse "Weekday, DD Month YYYY" back to Date
                            const parseDisplayDate = (str) => {
-                                const parts = str.split(', ')[1]?.split(' '); // "DD Month YYYY"
+                                const parts = str.split(', ')[1]?.split(' ');
                                 if (!parts || parts.length !== 3) return new Date(NaN);
                                 const day = parseInt(parts[0]);
                                 const year = parseInt(parts[2]);
@@ -2305,13 +2205,11 @@
                            }
                            const dateA = parseDisplayDate(a);
                            const dateB = parseDisplayDate(b);
-                            // Fallback if parsing fails
                            if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return 0;
                            return dateA - dateB;
-                       } catch { return 0; } // Should not happen with correct localeString format
+                       } catch { return 0; }
                   });
 
-                  // Render items grouped by date
                   sortedDates.forEach(dateStr => {
                       const dateHeader = document.createElement('h4');
                       dateHeader.className = 'text-lg font-semibold mt-5 mb-2 text-text dark:text-text-dark border-b pb-1 dark:border-slate-600';
@@ -2320,7 +2218,6 @@
 
                       const list = document.createElement('ul');
                       list.className = 'space-y-3';
-                      // Sort items within the same day by time
                       const sortedItems = groupedByDate[dateStr].sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
 
                       sortedItems.forEach((item, index) => {
@@ -2329,7 +2226,6 @@
                           li.className = `planner-item list-item flex justify-between items-center p-3 rounded-lg border-l-4 bg-card dark:bg-card-dark shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 ${getSubjectColor(itemSubject)} list-item-appear`;
                           li.style.animationDelay = `${index * 0.05}s`;
                           const formattedDateTime = item.dateTime ? formatPlannerDateTime(item.dateTime) : 'Invalid time';
-                          // Check if the session is in the past
                            const isPast = item.dateTime ? new Date(item.dateTime) < new Date() : false;
 
                           li.innerHTML = `
@@ -2353,10 +2249,10 @@
               plannerItemsList.innerHTML = createLoadingMessage('Error loading scheduled sessions. Check console.');
           }
       };
-      window.displayPlannerItems = displayPlannerItems; // Make accessible for onclick
-
+      window.displayPlannerItems = displayPlannerItems;
 
       // --- Generic Delete Function ---
+      // ... (handleGenericDeleteItem, handleDeleteQuizItemFiles remain the same) ...
       window.handleGenericDeleteItem = async (collectionName, subject, itemId, itemTypeName, displayFunction) => {
            if (!currentUserId || !itemId || !db) {
                alert(`Cannot delete ${itemTypeName}: Missing user ID or DB connection.`);
@@ -2368,10 +2264,9 @@
 
            try {
                let itemRef;
-               // Determine if it's subject-specific or top-level collection
-               if (subject && ['resources', 'trackerItems', 'quizItems'].includes(collectionName)) { // Add quizItems here
+               if (subject && ['resources', 'trackerItems', 'quizItems'].includes(collectionName)) {
                    itemRef = getSubjectSpecificDocRef(currentUserId, collectionName, subject, itemId);
-               } else if (!subject && ['plannerItems'].includes(collectionName)) { // Planner is top-level
+               } else if (!subject && ['plannerItems'].includes(collectionName)) {
                    itemRef = doc(db, `users/${currentUserId}/${collectionName}/${itemId}`);
                } else {
                    throw new Error(`Invalid collection/subject combination for deletion: ${collectionName}, ${subject}`);
@@ -2379,24 +2274,20 @@
 
                if (!itemRef) throw new Error("Could not construct document reference for deletion.");
 
-               // Special handling for quiz items to delete associated files
                if (collectionName === 'quizItems') {
-                   await handleDeleteQuizItemFiles(subject, itemId); // Call file deletion helper first
+                   await handleDeleteQuizItemFiles(subject, itemId);
                }
 
-               // Delete the Firestore document
                await deleteDoc(itemRef);
                console.log(`${itemTypeName} deleted successfully from Firestore.`);
 
-               // Refresh the relevant list display
                if (typeof displayFunction === 'function') {
                    if (subject && currentActiveSubject === subject) {
-                        displayFunction(subject); // Refresh subject-specific list
+                        displayFunction(subject);
                    } else if (!subject) {
-                       displayFunction(); // Refresh non-subject specific list (like planner)
+                       displayFunction();
                    }
                }
-               // Also update quiz start button state if a quiz item was deleted
                 if (collectionName === 'quizItems' && currentActiveSubject === subject) {
                     await toggleQuizButtons();
                 }
@@ -2407,7 +2298,6 @@
            }
        };
 
-       // Helper specifically for deleting quiz files (called by generic delete)
        const handleDeleteQuizItemFiles = async (subject, itemId) => {
            if (!currentUserId || !subject || !itemId || !db || !storage) {
                console.warn("Cannot delete quiz files: Missing required context.");
@@ -2420,22 +2310,18 @@
                 const docSnap = await getDoc(itemRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    const deletePromises = [];
 
-                    // Function to attempt file deletion
                     const tryDeleteFile = async (fileUrl, fileType) => {
                         if (!fileUrl) return;
                         try {
-                            // Check if it's a storage URL before attempting deletion
                             if (fileUrl.includes('firebasestorage.googleapis.com')) {
-                                const fileRef = ref(storage, fileUrl); // Get ref from URL
+                                const fileRef = ref(storage, fileUrl);
                                 await deleteObject(fileRef);
                                 console.log(`Deleted quiz ${fileType} file: ${fileUrl}`);
                             } else {
                                 console.log(`Skipping deletion for non-storage URL: ${fileUrl}`);
                             }
                         } catch (e) {
-                            // Log warning but don't block Firestore deletion if file delete fails
                             if (e.code === 'storage/object-not-found') {
                                 console.log(`Quiz ${fileType} file already deleted or not found: ${fileUrl}`);
                             } else {
@@ -2444,27 +2330,27 @@
                         }
                     };
 
-                    // Attempt deletion for both question and answer files
                     await tryDeleteFile(data.questionFileUrl, 'question');
                     await tryDeleteFile(data.answerFileUrl, 'answer');
 
                 } else {
                      console.log(`Quiz item ${itemId} not found in Firestore, cannot delete files.`);
                 }
-                                      } catch(error) {
-                               console.error(`Error retrieving quiz item ${itemId} to delete files:`, error);
-                               // Don't throw, allow Firestore deletion to proceed if file fetch fails
-                           }
-                       }; // End of handleDeleteQuizItemFiles
+           } catch(error) {
+                console.error(`Error retrieving quiz item ${itemId} to delete files:`, error);
+           }
+       };
+
 
       // --- Quiz ---
-      const loadQuizPage = () => {
+      // ... (loadQuizPage, validateQuizForm, toggleQuizButtons remain the same) ...
+        const loadQuizPage = () => {
           populateSubjectDropdown(quizSubjectSelect);
-          if(quizContentWrapper) quizContentWrapper.classList.add('hidden'); // Hide content until subject selected
-          if(quizModeInterface) quizModeInterface.classList.add('hidden'); // Hide quiz mode
-          if (addQuizDetails) addQuizDetails.style.display = 'none'; // Hide add form
-          validateQuizForm(); // Initial validation state
-          toggleQuizButtons(); // Disable start button initially
+          if(quizContentWrapper) quizContentWrapper.classList.add('hidden');
+          if(quizModeInterface) quizModeInterface.classList.add('hidden');
+          if (addQuizDetails) addQuizDetails.style.display = 'none';
+          validateQuizForm();
+          toggleQuizButtons();
           console.log("Quiz page initialized.");
       };
 
@@ -2473,68 +2359,63 @@
               if (saveQuizQuestionBtn) saveQuizQuestionBtn.disabled = true;
               return;
           }
-          // A question needs either text OR a file. An answer needs either text OR a file. Subject must be selected.
           const hasQuestion = quizQuestionInput.value.trim() !== '' || quizQuestionFileInput.files.length > 0;
           const hasAnswer = quizAnswerInput.value.trim() !== '' || quizAnswerFileInput.files.length > 0;
           saveQuizQuestionBtn.disabled = !(currentActiveSubject && hasQuestion && hasAnswer);
       };
 
-      // Checks if there are any questions for the selected subject to enable/disable the start button
       const toggleQuizButtons = async () => {
           if (!startQuizButton || !currentActiveSubject || !currentUserId || !db) {
               if (startQuizButton) startQuizButton.disabled = true;
               return;
           }
-          // Disable button initially while checking
           startQuizButton.disabled = true;
           try {
               const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject);
                if (!collRef) throw new Error("Could not get quizItems collection ref.");
-
-              // Check if *any* document exists. Limit 1 is efficient.
               const q = query(collRef, limit(1));
               const snapshot = await getDocs(q);
-              startQuizButton.disabled = snapshot.empty; // Enable only if not empty
+              startQuizButton.disabled = snapshot.empty;
               console.log(`Quiz start button for ${currentActiveSubject} ${snapshot.empty ? 'disabled' : 'enabled'}.`);
           } catch (error) {
               console.error("Error checking for quiz questions:", error);
-              startQuizButton.disabled = true; // Keep disabled on error
+              startQuizButton.disabled = true;
           }
       };
 
-       const renderFilePreview = (url, altText = "Uploaded file") => {
+       // MODIFIED: Added context argument
+       const renderFilePreview = (url, altText = "Uploaded file", context = 'list') => {
            if (!url) return '';
-            // Simple check for common image extensions
-           const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i; // Added (\?|$) to handle potential query params
+           const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i;
            let displayHtml = '';
 
            if (imageExtensions.test(url)) {
-               displayHtml = `<img src="${escapeHtml(url)}" alt="${escapeHtml(altText)}" class="quiz-file-preview inline-block border border-slate-300 dark:border-slate-600 rounded" loading="lazy">`;
+                // Choose class based on context
+                const imgClass = context === 'quiz' ? 'quiz-mode-image-display' : 'quiz-file-preview';
+                displayHtml = `<img src="${escapeHtml(url)}" alt="${escapeHtml(altText)}" class="${imgClass} inline-block border border-slate-300 dark:border-slate-600 rounded" loading="lazy">`;
            } else {
-               // Try to extract a meaningful filename
-                let filename = 'Attached File';
+               let filename = 'Attached File';
                 try {
-                    // Decode URL, remove query parameters, get last path segment
                     const decodedUrl = decodeURIComponent(url);
                     const pathPart = decodedUrl.split('?')[0];
                     const segments = pathPart.split('/');
                     const lastSegment = segments[segments.length - 1];
-                     // Remove potential timestamp suffix like _1678886400000 before extension
                     filename = lastSegment.replace(/(_\d{13,})(?=\.[^.]+$)/, '');
-                } catch (e) { console.warn("Could not parse filename from URL:", url, e); /* Ignore errors, use default */ }
+                } catch (e) { console.warn("Could not parse filename from URL:", url, e); }
 
+                // Links are the same size regardless of context for now
                 displayHtml = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-primary dark:text-primary-dark hover:underline">
                             <i data-lucide="paperclip" class="h-3 w-3"></i>
                             <span>${escapeHtml(filename)}</span>
                          </a>`;
            }
-            // Create a container to ensure icons are rendered if needed
             const container = document.createElement('div');
             container.innerHTML = displayHtml;
-            safelyCreateIcons(); // Call icons after setting innerHTML
-            return container.innerHTML; // Return the processed HTML
+            safelyCreateIcons(); // Render icons (like paperclip) if needed
+            return container.innerHTML;
        };
 
+      // displaySavedQuizQuestions now uses default context for renderFilePreview
       const displaySavedQuizQuestions = async (subject) => {
           if (!currentUserId || !quizItemsList || !db) {
                if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Cannot load questions: Not logged in or DB unavailable.');
@@ -2548,34 +2429,34 @@
               const q = query(collRef, orderBy("createdAt", "desc"));
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-              quizItemsList.innerHTML = ''; // Clear loading
+              quizItemsList.innerHTML = '';
               if (items.length === 0) {
                   quizItemsList.innerHTML = createLoadingMessage(`No questions saved for ${subject} yet.`);
               } else {
                   items.forEach((item, index) => {
                       const div = document.createElement('div');
                       const itemSubject = item.subject || subject;
+// Continuing from the displaySavedQuizQuestions function...
                       div.className = `quiz-item list-item flex justify-between items-start p-3 rounded-lg border bg-white dark:bg-slate-800 shadow-sm space-x-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 ${getSubjectColor(itemSubject).replace('border-l-4', 'border')} list-item-appear`;
                       div.style.animationDelay = `${index * 0.05}s`;
 
-                      // Question Part
-                       let questionHtml = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate" title="${escapeHtml(item.question)}">Q: ${escapeHtml(item.question)}</p>` : '';
+                      // Question Part - Using context 'list' for small previews
+                      let questionHtml = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate" title="${escapeHtml(item.question)}">Q: ${escapeHtml(item.question)}</p>` : '';
                       if (item.questionFileUrl) {
-                          questionHtml += `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file')}</div>`;
+                          questionHtml += `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file', 'list')}</div>`; // Context: list
                       }
-                      if (!questionHtml) { // Fallback if neither text nor file
+                      if (!questionHtml) {
                           questionHtml = `<p class="font-medium text-text dark:text-text-dark mb-1 italic text-muted dark:text-muted-dark">(No question text/file)</p>`;
                       }
 
-                      // Answer Part
-                       let answerHtml = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1" title="${escapeHtml(item.answer)}">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : '';
+                      // Answer Part - Using context 'list' for small previews
+                      let answerHtml = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1" title="${escapeHtml(item.answer)}">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : '';
                        if (item.answerFileUrl) {
-                           answerHtml += `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file')}</div>`;
+                           answerHtml += `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file', 'list')}</div>`; // Context: list
                        }
-                       if (!answerHtml) { // Fallback if neither text nor file
+                       if (!answerHtml) {
                           answerHtml = `<p class="text-xs text-muted dark:text-muted-dark mt-1 italic">(No answer text/file)</p>`;
                        }
-
 
                       div.innerHTML = `
                           <div class="flex-grow text-sm overflow-hidden">
@@ -2609,12 +2490,11 @@
           }
 
           const timestamp = Date.now();
-          // Sanitize filename: replace multiple non-alphanumerics/dots/hyphens with single underscore, keep extension separate
           const nameParts = file.name.split('.');
-          const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : ''; // Get extension
-          const baseName = nameParts.join('.'); // Rejoin potential dots in name
-          const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_-]+/g, '_'); // Sanitize base name
-          const safeFileName = `${cleanBaseName}_${timestamp}${extension}`; // Add timestamp before extension
+          const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
+          const baseName = nameParts.join('.');
+          const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_-]+/g, '_');
+          const safeFileName = `${cleanBaseName}_${timestamp}${extension}`;
 
           const storagePath = `quizFiles/${currentUserId}/${subject}/${safeFileName}`;
           console.log("Calculated Storage Path:", storagePath);
@@ -2626,13 +2506,12 @@
               console.log("Upload successful, getting download URL for:", snapshot.ref.fullPath);
               const downloadURL = await getDownloadURL(snapshot.ref);
               console.log("Upload successful. Download URL:", downloadURL);
-              return downloadURL; // Return the public URL
+              return downloadURL;
           } catch (error) {
               console.error("Firebase Storage Upload Error:", error);
               console.error("Error Code:", error.code);
               console.error("Error Message:", error.message);
               console.error(`Failed to upload file: ${file.name} to path: ${storagePath}`);
-              // Re-throw the error so the calling function knows it failed
               throw new Error(`Upload Failed: ${error.message} (Code: ${error.code})`);
           }
       };
@@ -2645,7 +2524,7 @@
             return;
         }
 
-        validateQuizForm(); // Ensure form is valid before proceeding
+        validateQuizForm();
         if (saveQuizQuestionBtn.disabled) {
             console.log("Save button is disabled, aborting save.");
             return;
@@ -2667,7 +2546,7 @@
         let errorOccurred = false;
 
         try {
-            // Upload Question File (if provided)
+            // Upload Question File
             if (questionFile) {
                 console.log("Attempting to upload question file...");
                 saveQuizQuestionBtn.textContent = 'Uploading Q file...';
@@ -2677,7 +2556,7 @@
                 console.log("No question file to upload.");
             }
 
-            // Upload Answer File (if provided)
+            // Upload Answer File
             if (answerFile) {
                 console.log("Attempting to upload answer file...");
                 saveQuizQuestionBtn.textContent = 'Uploading A file...';
@@ -2687,14 +2566,14 @@
                 console.log("No answer file to upload.");
             }
 
-            // Save to Firestore only if uploads were successful (or not needed)
+            // Save to Firestore
             console.log("Uploads complete (or skipped). Proceeding to Firestore save.");
             saveQuizQuestionBtn.textContent = 'Saving Data...';
             const newItem = {
                 question: questionText,
                 answer: answerText,
                 createdAt: serverTimestamp(),
-                subject: currentActiveSubject // Store subject with the item
+                subject: currentActiveSubject
             };
             if (questionFileUrl) newItem.questionFileUrl = questionFileUrl;
             if (answerFileUrl) newItem.answerFileUrl = answerFileUrl;
@@ -2710,16 +2589,15 @@
             if (quizAnswerInput) quizAnswerInput.value = '';
             if (quizQuestionFileInput) quizQuestionFileInput.value = '';
             if (quizAnswerFileInput) quizAnswerFileInput.value = '';
-            if (addQuizDetails) addQuizDetails.open = false; // Close details section
-            displaySavedQuizQuestions(currentActiveSubject); // Refresh the list
+            if (addQuizDetails) addQuizDetails.open = false;
+            displaySavedQuizQuestions(currentActiveSubject);
 
         } catch (error) {
             errorOccurred = true;
             console.error("Error during handleSaveQuizQuestion:", error);
             alert(`Failed to save question. ${error.message}. Check console.`);
 
-            // --- Cleanup Attempt ---
-            // Try to delete already uploaded files if the process failed midway
+            // Cleanup Attempt
             console.log("Attempting cleanup of potentially uploaded files due to error...");
              const cleanupPromises = [];
             if (questionFileUrl) {
@@ -2728,24 +2606,22 @@
             if (answerFileUrl) {
                  cleanupPromises.push(deleteObject(ref(storage, answerFileUrl)).then(() => console.log("Cleaned up orphaned answer file:", answerFileUrl)).catch(e => console.warn("Could not clean up orphaned answer file:", e)));
             }
-            await Promise.allSettled(cleanupPromises); // Wait for cleanup attempts
+            await Promise.allSettled(cleanupPromises);
             console.log("Cleanup attempt finished.");
 
         } finally {
-            // Re-enable button and reset text unless an error occurred and we want it to stay indicative
             if (!errorOccurred) {
                 saveQuizQuestionBtn.textContent = 'Add Question';
+                saveQuizQuestionBtn.disabled = false;
             } else {
-                 saveQuizQuestionBtn.textContent = 'Save Failed'; // Give visual feedback
-                 // Optionally re-enable after a delay or keep disabled until user interacts
+                 saveQuizQuestionBtn.textContent = 'Save Failed';
                  setTimeout(() => {
                      saveQuizQuestionBtn.textContent = 'Add Question';
-                     saveQuizQuestionBtn.disabled = false; // Re-enable after failure indication
-                     validateQuizForm(); // Re-check validation state
+                     saveQuizQuestionBtn.disabled = false;
+                     validateQuizForm();
                  }, 2000);
             }
-             if (!errorOccurred) saveQuizQuestionBtn.disabled = false; // Only re-enable immediately on success
-            validateQuizForm(); // Re-validate form state
+            if (!errorOccurred) validateQuizForm(); // Re-validate form state
         }
     }; // End of handleSaveQuizQuestion
 
@@ -2771,62 +2647,60 @@
               quizState = {
                   active: true,
                   currentSubject: currentActiveSubject,
-                  initialQuestions: [...allQuestions], // Keep original list for reference
-                  currentQuizPool: shuffleArray([...allQuestions]), // Shuffle for the first round
-                  incorrectlyAnswered: [], // Tracks items answered incorrectly *in this session*
+                  initialQuestions: [...allQuestions],
+                  currentQuizPool: shuffleArray([...allQuestions]),
+                  incorrectlyAnswered: [],
                   currentQuestionIndex: 0,
                   round: 1,
-                  totalMastered: 0, // Tracks items marked correct *and not previously incorrect* in this session
+                  totalMastered: 0,
                   isAnswerVisible: false,
                   buttonTimeout: null
               };
               console.log("Quiz state initialized:", quizState);
 
               // Update UI for quiz mode
-              if (addQuizDetails) addQuizDetails.style.display = 'none'; // Hide add form
-              if (quizListContainer) quizListContainer.classList.add('hidden'); // Hide list
-              if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden'); // Hide completion message
-              if (quizModeInterface) quizModeInterface.classList.remove('hidden'); // Show quiz interface
-              if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz"; // Set initial stop button text
+              if (addQuizDetails) addQuizDetails.style.display = 'none';
+              if (quizListContainer) quizListContainer.classList.add('hidden');
+              if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden');
+              if (quizModeInterface) quizModeInterface.classList.remove('hidden');
+              if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz";
 
-              displayCurrentQuizQuestion(); // Show the first question
+              displayCurrentQuizQuestion();
           } catch (error) {
               console.error("Error starting quiz:", error);
               alert("Could not start the quiz due to an error. Check console.");
-              stopQuizMode(); // Ensure clean state if start fails
+              stopQuizMode();
           }
       };
 
       const stopQuizMode = () => {
           if (!quizState.active && !quizModeInterface?.classList.contains('hidden')) {
-               // If not active but interface is somehow visible, just hide it.
                if (quizModeInterface) quizModeInterface.classList.add('hidden');
                return;
           }
-          if (!quizState.active) return; // Already stopped
+          if (!quizState.active) return;
 
           console.log("Stopping quiz mode.");
           quizState.active = false;
 
           // Update UI back to list/add view
           if (quizModeInterface) quizModeInterface.classList.add('hidden');
-          if (currentActiveSubject) { // Only show these if a subject is still selected
+          if (currentActiveSubject) {
               if (addQuizDetails) addQuizDetails.style.display = 'block';
               if (quizListContainer) quizListContainer.classList.remove('hidden');
           }
-          if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none'; // Hide answer area
+          if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
 
-          // Clear any pending timeouts for button feedback
           if (quizState.buttonTimeout) {
               clearTimeout(quizState.buttonTimeout);
               quizState.buttonTimeout = null;
           }
 
-          toggleQuizButtons(); // Re-evaluate start button state based on list
+          toggleQuizButtons();
 
            // Reset quiz state completely
            quizState = {
-                active: false, currentSubject: quizState.currentSubject, // Keep subject context if needed
+                active: false, currentSubject: quizState.currentSubject,
                 initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [],
                 currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null
             };
@@ -2837,26 +2711,26 @@
           if (!quizProgress || !quizState.active) return;
           const remainingInPool = Math.max(0, quizState.currentQuizPool.length - quizState.currentQuestionIndex);
           const totalInitial = quizState.initialQuestions.length;
-          // Display logic can be adjusted based on desired detail level
           quizProgress.textContent = `Round ${quizState.round} | Remaining: ${remainingInPool} | Mastered: ${quizState.totalMastered}/${totalInitial}`;
       };
 
       const displayCurrentQuizQuestion = () => {
-           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons || !quizQuestionFileDisplay || !quizAnswerTextDisplay || !quizAnswerFileDisplay) {
+           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons || !quizAnswerTextDisplay || !quizAnswerFileDisplay) { // Removed quizQuestionFileDisplay check
                console.error("Cannot display quiz question: Missing required UI elements.");
-               stopQuizMode(); // Stop if UI is broken
+               stopQuizMode();
                return;
            }
 
-            // Reset UI elements for the new question
+            // Reset UI elements
            quizCorrectAnswerDisplay.style.display = 'none';
+           quizCorrectAnswerDisplay.classList.remove('visible'); // Ensure animation class is removed
            quizState.isAnswerVisible = false;
            quizJudgmentButtons.style.display = 'none';
-           quizRevealBtnContainer.style.display = 'block'; // Show "Reveal" button
-           quizCorrectBtn?.classList.remove('quiz-feedback-correct'); // Remove feedback classes
+           quizRevealBtnContainer.style.display = 'block';
+           quizCorrectBtn?.classList.remove('quiz-feedback-correct');
            quizIncorrectBtn?.classList.remove('quiz-feedback-incorrect');
 
-           // Check if round is complete
+           // Check round completion
            if (quizState.currentQuestionIndex >= quizState.currentQuizPool.length) {
                handleQuizRoundEnd();
                return;
@@ -2871,22 +2745,27 @@
            }
            console.log(`Displaying question ID: ${questionData.id}, Index: ${quizState.currentQuestionIndex}, Round: ${quizState.round}`);
 
-
            // --- Display Question ---
            quizQuestionDisplay.innerHTML = ''; // Clear previous content
            let questionContentRendered = false;
+           // Add question text first
            if (questionData.question) {
                const p = document.createElement('p');
-               p.className = 'text-text dark:text-text-dark text-lg';
-               p.textContent = questionData.question; // Already escaped on save, but escape again just in case? Let's trust the save process.
+               // Make text larger in quiz mode
+               p.className = 'text-text dark:text-text-dark text-lg mb-3'; // Added margin-bottom
+               p.textContent = questionData.question;
                quizQuestionDisplay.appendChild(p);
                questionContentRendered = true;
            }
-            // Display question file preview
-           quizQuestionFileDisplay.innerHTML = questionData.questionFileUrl ? renderFilePreview(questionData.questionFileUrl, 'Question file') : '';
-            if(questionData.questionFileUrl) questionContentRendered = true;
+            // Add question file PREVIEW after text - using context 'quiz' for larger display
+           if (questionData.questionFileUrl) {
+               // Pass 'quiz' context here
+               const previewHtml = renderFilePreview(questionData.questionFileUrl, 'Question file', 'quiz');
+               // Append the preview HTML to the display area
+               quizQuestionDisplay.insertAdjacentHTML('beforeend', previewHtml);
+               questionContentRendered = true;
+           }
 
-           // Add placeholder if NO text OR file was present for the question
            if (!questionContentRendered) {
                const p = document.createElement('p');
                p.className = 'italic text-muted dark:text-muted-dark text-base';
@@ -2895,31 +2774,33 @@
            }
 
 
-           // --- Prepare Answer Display (but keep it hidden initially) ---
+           // --- Prepare Answer Display (hidden) ---
            let answerContentRendered = false;
+            // Prepare answer text
            if (questionData.answer) {
                 quizAnswerTextDisplay.innerHTML = `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="whitespace-pre-wrap">${escapeHtml(questionData.answer)}</span>`;
                 answerContentRendered = true;
            } else {
-                quizAnswerTextDisplay.innerHTML = ''; // Clear if no text answer
+                quizAnswerTextDisplay.innerHTML = '';
            }
-           // Render answer file preview
-           quizAnswerFileDisplay.innerHTML = questionData.answerFileUrl ? renderFilePreview(questionData.answerFileUrl, 'Answer file') : '';
-            if(questionData.answerFileUrl) answerContentRendered = true;
+            // Prepare answer file preview - using context 'quiz'
+            quizAnswerFileDisplay.innerHTML = questionData.answerFileUrl
+                ? renderFilePreview(questionData.answerFileUrl, 'Answer file', 'quiz')
+                : '';
+            if (questionData.answerFileUrl) answerContentRendered = true;
 
-            // Add placeholder if NO answer text or file
-            if (!answerContentRendered && quizAnswerTextDisplay) { // Check element exists
+            if (!answerContentRendered && quizAnswerTextDisplay) {
                  quizAnswerTextDisplay.innerHTML = `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="italic text-muted dark:text-muted-dark">(Answer content missing)</span>`;
             }
 
 
-           updateQuizProgressDisplay(); // Update round/remaining counts
+           updateQuizProgressDisplay();
 
-           // Disable judgment buttons until answer is revealed
+           // Disable judgment buttons initially
            if (quizCorrectBtn) quizCorrectBtn.disabled = true;
            if (quizIncorrectBtn) quizIncorrectBtn.disabled = true;
 
-           safelyCreateIcons(); // Render any icons (like paperclip in previews)
+           safelyCreateIcons();
       };
 
       const revealQuizAnswer = () => {
@@ -2930,19 +2811,18 @@
           console.log("Revealing answer.");
           quizCorrectAnswerDisplay.classList.add('visible'); // Use class for animation
           quizCorrectAnswerDisplay.style.display = 'block'; // Ensure display block
-          quizRevealBtnContainer.style.display = 'none'; // Hide reveal button
-          quizJudgmentButtons.style.display = 'flex'; // Show judgment buttons
+          quizRevealBtnContainer.style.display = 'none';
+          quizJudgmentButtons.style.display = 'flex';
           quizState.isAnswerVisible = true;
-          // Enable judgment buttons
           if (quizCorrectBtn) quizCorrectBtn.disabled = false;
           if (quizIncorrectBtn) quizIncorrectBtn.disabled = false;
-           safelyCreateIcons(); // Re-render icons in answer if needed
+           safelyCreateIcons();
       };
 
       const handleQuizAnswer = (isCorrect) => {
            if (!quizState.active || !quizState.isAnswerVisible || quizState.buttonTimeout || !quizCorrectBtn || !quizIncorrectBtn) {
                 console.warn("Cannot handle quiz answer: State invalid or buttons blocked.");
-                return; // Not active, answer not visible, or button timeout active
+                return;
             }
 
            const currentQuestion = quizState.currentQuizPool[quizState.currentQuestionIndex];
@@ -2953,83 +2833,62 @@
 
            console.log(`Handling answer for Q ID: ${currentQuestion.id}, Correct: ${isCorrect}`);
 
-           // Disable buttons immediately to prevent double clicks
            quizCorrectBtn.disabled = true;
            quizIncorrectBtn.disabled = true;
 
            if (isCorrect) {
-               // Check if this question was *ever* marked incorrect *during this quiz session* (across previous rounds)
-               const wasPreviouslyIncorrectInSession = quizState.incorrectlyAnswered.some(q => q.id === currentQuestion.id) ||
-                                                        (quizState.round > 1 && quizState.initialQuestions.find(q => q.id === currentQuestion.id)?.markedIncorrectInPriorRound); // Need to track this if required
-
-
-               // --- Simplified Mastery Logic (counts as mastered if correct NOW, unless it was wrong in a *prior* round) ---
-               // We need a way to track if a question *was* incorrect in a previous round.
-               // Let's add a temporary flag to the question in the initialQuestions array for this session?
                let originalQuestionRef = quizState.initialQuestions.find(q => q.id === currentQuestion.id);
-
-               if (!originalQuestionRef?.markedIncorrectInPriorRound) { // Only count mastery if never marked wrong before in this session
+               if (!originalQuestionRef?.markedIncorrectInPriorRound) {
                   quizState.totalMastered++;
-                  if(originalQuestionRef) originalQuestionRef.masteredInThisSession = true; // Mark as mastered for potential final summary
+                  if(originalQuestionRef) originalQuestionRef.masteredInThisSession = true;
                }
-
-                // Apply visual feedback
                quizCorrectBtn?.classList.add('quiz-feedback-correct');
 
-           } else { // Incorrect Answer
-                // Add to the list for the *next* round, only if it's not already there
+           } else { // Incorrect
                 if (!quizState.incorrectlyAnswered.find(iq => iq.id === currentQuestion.id)) {
                    quizState.incorrectlyAnswered.push(currentQuestion);
-                     // Mark it in the initial list as incorrect for this session's tracking
                      let originalQuestionRef = quizState.initialQuestions.find(q => q.id === currentQuestion.id);
                      if (originalQuestionRef) originalQuestionRef.markedIncorrectInPriorRound = true;
                 }
-
-                // Apply visual feedback
                quizIncorrectBtn?.classList.add('quiz-feedback-incorrect');
            }
 
-            updateQuizProgressDisplay(); // Update mastered count immediately
+            updateQuizProgressDisplay();
 
-           // Set timeout to move to the next question after feedback animation
            quizState.buttonTimeout = setTimeout(() => {
                quizState.buttonTimeout = null;
                quizState.currentQuestionIndex++;
-               displayCurrentQuizQuestion(); // Move to next question or trigger round end
-           }, 800); // Delay duration (adjust as needed)
+               displayCurrentQuizQuestion();
+           }, 800);
       };
 
       const handleQuizRoundEnd = () => {
            console.log(`Quiz round ${quizState.round} ended.`);
            if (quizState.incorrectlyAnswered.length === 0) {
-               // --- Quiz Complete ---
+               // Quiz Complete
                console.log("Quiz completed! All questions mastered.");
                if(quizCompletionMessage) {
                    quizCompletionMessage.textContent = `🎉 Well done! You've mastered all ${quizState.initialQuestions.length} questions for ${quizState.currentSubject}!`;
                    quizCompletionMessage.classList.remove('hidden');
                }
-               // Clear question display area
                if (quizQuestionDisplay) quizQuestionDisplay.innerHTML = '<p class="italic text-muted dark:text-muted-dark">Quiz complete!</p>';
-               if (quizQuestionFileDisplay) quizQuestionFileDisplay.innerHTML = ''; // Clear file display
+               // No need to clear quizQuestionFileDisplay as it's part of quizQuestionDisplay now
 
-               // Hide controls
                if (quizRevealBtnContainer) quizRevealBtnContainer.style.display = 'none';
                if (quizJudgmentButtons) quizJudgmentButtons.style.display = 'none';
                if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
-
-               // Change stop button text
                if (stopQuizButton) stopQuizButton.textContent = "Finish Session";
            } else {
-               // --- Start Next Round ---
+               // Start Next Round
                quizState.round++;
                console.log(`Starting round ${quizState.round} with ${quizState.incorrectlyAnswered.length} incorrect questions.`);
-               quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]); // New pool is only the incorrect ones
-               quizState.incorrectlyAnswered = []; // Clear the list for the *new* round
-               quizState.currentQuestionIndex = 0; // Reset index for the new pool
+               quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]);
+               quizState.incorrectlyAnswered = [];
+               quizState.currentQuestionIndex = 0;
 
                alert(`Round ${quizState.round} starting with ${quizState.currentQuizPool.length} remaining question(s).`);
 
-               displayCurrentQuizQuestion(); // Display the first question of the new round
+               displayCurrentQuizQuestion();
            }
       };
 
@@ -3038,20 +2897,19 @@
 
       const populateSubjectDropdown = (selectElement) => {
           if (!selectElement) return;
-          const currentValue = selectElement.value; // Preserve current selection if possible
-          const placeholder = selectElement.options[0] ? selectElement.options[0].cloneNode(true) : null; // Clone placeholder
-          selectElement.innerHTML = ''; // Clear existing options
-          if (placeholder && placeholder.value === "") selectElement.appendChild(placeholder); // Re-add placeholder if it was valid
-          else { const opt = document.createElement('option'); opt.value = ""; opt.textContent = "-- Select --"; selectElement.appendChild(opt); } // Default placeholder
+          const currentValue = selectElement.value;
+          const placeholder = selectElement.options[0] ? selectElement.options[0].cloneNode(true) : null;
+          selectElement.innerHTML = '';
+          if (placeholder && placeholder.value === "") selectElement.appendChild(placeholder);
+          else { const opt = document.createElement('option'); opt.value = ""; opt.textContent = "-- Select --"; selectElement.appendChild(opt); }
 
-          if (!subjects || subjects.length === 0) return; // No subjects to add
+          if (!subjects || subjects.length === 0) return;
           subjects.forEach(subject => {
               const option = document.createElement('option');
               option.value = subject;
               option.textContent = subject;
               selectElement.appendChild(option);
           });
-           // Try to restore previous selection
            if (subjects.includes(currentValue)) {
                selectElement.value = currentValue;
            }
@@ -3081,7 +2939,7 @@
           mobileCloseButton?.addEventListener('click', closeMobileMenu);
           mobileOverlay?.addEventListener('click', closeMobileMenu);
 
-          // Page Navigation (Desktop & Mobile Links)
+          // Page Navigation
           document.querySelectorAll('a.nav-link[data-page], a.mobile-nav-link[data-page]').forEach(link => {
               link.addEventListener('click', (e) => {
                    e.preventDefault();
@@ -3091,7 +2949,7 @@
                 });
           });
 
-          // Dashboard Click Handling (Event Delegation)
+          // Dashboard Click Handling
           getElement('dashboard')?.addEventListener('click', (e) => {
               const pomodoroBtn = e.target.closest('#start-pomodoro-dashboard-btn');
               const quickLink = e.target.closest('#quick-links-list a.quick-link');
@@ -3106,7 +2964,7 @@
               }
           });
 
-          // Resources Page Event Listener (Tabs & Form)
+          // Resources Page
           subjectTabsContainer?.addEventListener('click', (e) => {
               const tab = e.target.closest('.subject-tab');
               if (tab instanceof HTMLElement && tab.dataset.subject) {
@@ -3119,18 +2977,18 @@
           resourceNoteInput?.addEventListener('input', validateResourceForm);
           saveResourceBtn?.addEventListener('click', handleSaveResource);
 
-          // Pomodoro Page Event Listeners
+          // Pomodoro Page
           startPauseButton?.addEventListener('click', () => {
                if (pomodoroState.timerState === 'running') pauseTimer();
                else startTimer();
            });
-          resetButton?.addEventListener('click', () => resetTimer(false)); // Pass false for non-silent reset
+          resetButton?.addEventListener('click', () => resetTimer(false));
           modeButtons.forEach(btn => {
               btn?.addEventListener('click', () => {
                    if (btn instanceof HTMLElement && btn.dataset.mode) {
                       const mode = btn.dataset.mode;
-                      if (mode !== pomodoroState.timerMode) { // Only switch if mode is different
-                          setTimerMode(mode, true); // Pass true for user interaction
+                      if (mode !== pomodoroState.timerMode) {
+                          setTimerMode(mode, true);
                         }
                     }
                 });
@@ -3139,35 +2997,34 @@
           shortBreakDurationInput?.addEventListener('change', () => handleDurationChange('shortBreak'));
           longBreakDurationInput?.addEventListener('change', () => handleDurationChange('longBreak'));
           pomodoroSubjectSelect?.addEventListener('change', () => {
-             // Update the selected subject in state if timer is stopped and in work mode
              if (pomodoroState.timerState === 'stopped' && pomodoroState.timerMode === 'work') {
                  pomodoroState.workSessionSubject = pomodoroSubjectSelect.value;
-                 savePomodoroState(); // Save the change
+                 savePomodoroState();
              }
           });
 
-          // Tracker Page Event Listeners
+          // Tracker Page
           trackerSubjectSelect?.addEventListener('change', (e) => {
               if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'tracker');
             });
           trackerDescriptionInput?.addEventListener('input', validateTrackerForm);
-          trackerStatusSelect?.addEventListener('change', validateTrackerForm); // Re-validate if status changes? (Probably not needed)
+          trackerStatusSelect?.addEventListener('change', validateTrackerForm);
           saveTrackerItemBtn?.addEventListener('click', handleSaveTrackerItem);
 
-          // Planner Page Event Listeners
+          // Planner Page
           plannerDateInput?.addEventListener('input', validatePlannerForm);
           plannerTimeInput?.addEventListener('input', validatePlannerForm);
           plannerSubjectSelect?.addEventListener('change', validatePlannerForm);
           plannerTopicInput?.addEventListener('input', validatePlannerForm);
           savePlannerItemBtn?.addEventListener('click', handleSavePlannerItem);
 
-          // Quiz Page Event Listeners
+          // Quiz Page
           quizSubjectSelect?.addEventListener('change', (e) => {
                if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'quiz');
            });
           quizQuestionInput?.addEventListener('input', validateQuizForm);
           quizAnswerInput?.addEventListener('input', validateQuizForm);
-          quizQuestionFileInput?.addEventListener('change', validateQuizForm); // Use 'change' for file inputs
+          quizQuestionFileInput?.addEventListener('change', validateQuizForm);
           quizAnswerFileInput?.addEventListener('change', validateQuizForm);
           saveQuizQuestionBtn?.addEventListener('click', handleSaveQuizQuestion);
           startQuizButton?.addEventListener('click', startQuizMode);
@@ -3178,19 +3035,16 @@
 
           eventListenersAttached = true;
           console.log("Global event listeners attached.");
-      }; // End of setupGlobalEventListeners
+      };
 
 
       // Initial setup function run once on script load
       const initializeAppHub = () => {
           console.log("Initializing App Hub...");
-          // Apply theme preference early
           try {
             applyTheme(localStorage.getItem('theme') || 'light');
           } catch(e){ console.warn("Could not apply theme from localStorage", e);}
-          // Set up listeners that work regardless of auth state
           setupGlobalEventListeners();
-          // Firebase onAuthStateChanged listener handles the rest (UI visibility, post-login setup)
           console.log("App Hub main initialization complete. Waiting for auth state...");
       };
 
@@ -3199,66 +3053,55 @@
            console.log("Running post-login initialization for user:", user.uid);
           if (!db || !storage) {
               console.error("Database or Storage not ready during post-login initialization!");
-              // Potentially show an error overlay or message
               return;
           }
 
-          // Set dynamic footer year
           if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
-
-          // Clear any lingering intervals from previous sessions/states
           if (countdownInterval) clearInterval(countdownInterval);
-          // Pomodoro interval is handled by loadPomodoroState
 
           try {
-              // Populate static or semi-static content first
               loadTimetable();
 
-              // Populate dropdowns used across pages
               populateSubjectDropdown(getElement('pomodoro-subject'));
               populateSubjectDropdown(getElement('tracker-subject-select'));
               populateSubjectDropdown(getElement('planner-subject-select'));
               populateSubjectDropdown(getElement('quiz-subject-select'));
 
-              // Initialize Pomodoro timer (load state or set defaults)
-              if (!loadPomodoroState()) { // If no valid state loaded from storage
-                  setTimerMode('work', false); // Initialize to default work mode
+              if (!loadPomodoroState()) {
+                  setTimerMode('work', false);
               }
 
-              // Initialize page-specific content loaders
-              loadResources(); // Sets up tabs, waits for selection
-              loadTracker(); // Sets up select, waits for selection
-              loadPlanner(); // Loads items and sets defaults
-              loadQuizPage(); // Sets up select, waits for selection
-
-              // Load initial dashboard data AFTER other parts are ready
+              loadResources();
+              loadTracker();
+              loadPlanner();
+              loadQuizPage();
               loadDashboard();
-
-              // Start on the dashboard page
               showPage('dashboard');
 
-              // Start periodic updates (like timetable countdowns)
-              countdownInterval = setInterval(updateTimetableCountdowns, 30000); // Update every 30 seconds
-              updateTimetableCountdowns(); // Immediate first update
-
-              // Ensure all icons are rendered after setup
+              countdownInterval = setInterval(updateTimetableCountdowns, 30000);
+              updateTimetableCountdowns();
               safelyCreateIcons();
 
-              console.log("Post-login initialization complete.");s
+              console.log("Post-login initialization complete."); // FIX: Removed extra 's'
 
           } catch (error) {
               console.error("Error during post-login initialization:", error);
-              // Display a prominent error message
               const dashboardPage = getElement('dashboard');
               if (dashboardPage) {
-                   dashboardPage.innerHTML = createLoadingMessage('Error loading application data. Please refresh the page or contact support. Check the console for details.');
-                   setActiveLink('dashboard'); // Ensure nav link is correct even if page fails
+                   // Make the error message more prominent and clear
+                   dashboardPage.innerHTML = `
+                    <div class="p-4 bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-200 text-center">
+                        <h2 class="font-semibold text-lg mb-2">Error Loading Application Data</h2>
+                        <p class="text-sm mb-3">Something went wrong during setup. Please try refreshing the page.</p>
+                        <p class="text-xs">If the problem persists, contact support. Check the browser console (F12) for technical details.</p>
+                        <p class="text-xs mt-1">Error details: ${escapeHtml(error.message)}</p>
+                    </div>`;
+                   setActiveLink('dashboard');
               } else {
                   alert("A critical error occurred while loading the application. Please refresh the page. Check the console for more details.");
               }
-              // Clear intervals to prevent further errors
               if (countdownInterval) clearInterval(countdownInterval);
-              stopPomodoroTimer(true); // Stop pomodoro and clear its state
+              stopPomodoroTimer(true);
           }
       };
 
