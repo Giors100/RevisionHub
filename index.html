@@ -135,9 +135,6 @@
              overflow: hidden;
              padding: 1rem;
              border-top: 1px solid #e2e8f0;
-             /* FIX: Apply dark mode styling using a standard class approach */
-             /* Use dark: within the nested selector */
-             /* .dark & { border-top-color: #475569; } */ /* Removed nested syntax */
         }
         .dark details > div > div { /* Applied dark style separately */
              border-top-color: #475569;
@@ -203,6 +200,8 @@
             border-color: theme('colors.slate.500');
             color: theme('colors.slate.400');
        }
+       /* NEW: Pomodoro Subject Times List Styling */
+       #pomodoro-subject-times .subject-time-item { border-left: 3px solid; padding-left: 0.75rem; }
 
     </style>
 </head>
@@ -371,6 +370,14 @@
                     <div class="flex justify-center space-x-3"> <button id="start-pause-button" class="bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"> <i data-lucide="play" class="h-5 w-5"></i> <span>Start</span> </button> <button id="reset-button" class="bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-500"> <i data-lucide="rotate-ccw" class="h-5 w-5"></i> <span>Reset</span> </button> </div>
                     <!-- Timer Settings -->
                     <details class="mt-8 text-center w-full max-w-xs"> <summary class="cursor-pointer text-sm text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark font-medium list-none flex items-center justify-center space-x-1 focus-visible:ring-1 focus-visible:ring-primary rounded p-1"> <i data-lucide="settings" class="h-4 w-4"></i> <span>Timer Settings</span> <span class="summary-chevron ml-auto"></span> </summary> <div><div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-b-lg border border-t-0 border-slate-200 dark:border-slate-600/50 space-y-3 text-left"> <div> <label for="work-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Work Duration (min):</label> <input type="number" id="work-duration" value="25" min="1" max="90" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> <div> <label for="short-break-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Short Break (min):</label> <input type="number" id="short-break-duration" value="5" min="1" max="30" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> <div> <label for="long-break-duration" class="block text-xs font-medium text-muted dark:text-muted-dark mb-1">Long Break (min):</label> <input type="number" id="long-break-duration" value="15" min="5" max="60" class="w-full p-1.5 border border-slate-300 dark:border-slate-500 rounded-md text-sm bg-white dark:bg-slate-600 focus:ring-primary focus:border-primary"> </div> </div></div> </details>
+
+                    <!-- NEW: Subject Time Display Area -->
+                    <div id="pomodoro-subject-times" class="mt-8 w-full max-w-xs border-t border-slate-200 dark:border-slate-700 pt-6 text-sm">
+                         <h3 class="text-base font-semibold mb-3 text-center text-muted dark:text-muted-dark">Total Time per Subject</h3>
+                         <div class="min-h-[50px] space-y-2">
+                             <!-- Content will be loaded here by JS -->
+                         </div>
+                    </div>
                 </div>
             </section>
 
@@ -524,7 +531,7 @@
         apiKey: "AIzaSyAt3uFOLLQXjt2p0LERjvizePMfg9S74Mk", // Replace with your actual API key
         authDomain: "studentpage-97bb5.firebaseapp.com",
         projectId: "studentpage-97bb5",
-        storageBucket: "studentpage-97bb5.appspot.com",
+        storageBucket: "studentpage-97bb5.firebasestorage.app",
         messagingSenderId: "613071061381",
         appId: "1:613071061381:web:124051538e7e0dfec344ec",
         measurementId: "G-WC262FYLJH"
@@ -549,7 +556,6 @@
 
       // --- DOM Element References ---
       const getElement = (id) => document.getElementById(id);
-      // ... (all getElement calls remain the same)
       const loginOverlay = getElement('login-overlay');
       const appWrapper = getElement('app-wrapper');
       const emailInput = getElement('email-input');
@@ -603,6 +609,7 @@
       const shortBreakModeButton = getElement('short-break-mode-button');
       const longBreakModeButton = getElement('long-break-mode-button');
       const pomodoroModeTitle = getElement('pomodoro-mode-title');
+      const pomodoroSubjectTimesContainer = getElement('pomodoro-subject-times'); // NEW
       const modeButtons = [workModeButton, shortBreakModeButton, longBreakModeButton];
       // Tracker Page Elements
       const trackerSubjectSelect = getElement('tracker-subject-select');
@@ -632,7 +639,7 @@
       const startQuizButton = getElement('start-quiz-button');
       const quizModeInterface = getElement('quiz-mode-interface');
       const quizQuestionDisplay = getElement('quiz-question-display');
-      const quizQuestionFileDisplay = getElement('quiz-question-file-display'); // Kept for consistency, but content now goes into quizQuestionDisplay
+      const quizQuestionFileDisplay = getElement('quiz-question-file-display');
       const quizRevealBtnContainer = getElement('quiz-reveal-button-container');
       const quizRevealAnswerBtn = getElement('quiz-reveal-answer-btn');
       const quizCorrectAnswerDisplay = getElement('quiz-correct-answer-display');
@@ -650,7 +657,6 @@
       const POMODORO_STORAGE_KEY = 'pomodoroState';
 
       // --- Utility Functions ---
-      // ... (safelyCreateIcons, formatGeneralDate, formatPlannerDateTime, formatExamDate, formatMinutes, formatCountdown, getSubjectColor, getSubjectColorRGB, shuffleArray, escapeHtml, applyStaggerAnimation remain the same) ...
       const safelyCreateIcons = () => {
           if (typeof lucide !== 'undefined' && lucide.createIcons) {
               try {
@@ -787,7 +793,6 @@
       }
 
       // --- Firebase Helper Functions ---
-      // ... (getUserDataRef, getUserCollectionRef, getSubjectSpecificCollectionRef, getSubjectSpecificDocRef remain the same) ...
         const getUserDataRef = (userId, path) => {
           if (!userId || !db) { console.error("Cannot get user data ref: Missing userId or db"); return null; }
           return doc(db, `users/${userId}/${path}`);
@@ -806,7 +811,6 @@
       }
 
       // --- Authentication ---
-      // ... (onAuthStateChanged, handleLogin, handleLogout, handleChangePassword remain the same) ...
         onAuthStateChanged(auth, (user) => {
           if (user && db && storage) {
               currentUserId = user.uid;
@@ -953,7 +957,6 @@
 
 
       // --- UI and Navigation ---
-      // ... (applyTheme, toggleTheme, setActiveLink, showPage, _navigateToPage, openMobileMenu, closeMobileMenu, createLoadingMessage, clearDynamicContentAndIntervals remain the same) ...
         const applyTheme = (theme) => {
           if (!htmlElement) return;
           htmlElement.classList.remove('light', 'dark');
@@ -1011,14 +1014,17 @@
           window.scrollTo(0, 0);
           safelyCreateIcons();
 
+          // Handle subject targeting
           if (targetSubjectParam && targetSubjectParam.page === pageId) {
               handleSubjectSelection(targetSubjectParam.subject, pageId);
-              targetSubjectParam = null;
+              targetSubjectParam = null; // Consume the parameter
           }
 
-          if (pageId === 'dashboard' && currentUserId) {
-              loadDashboard();
-          }
+          // Page-specific load actions
+          if (pageId === 'dashboard' && currentUserId) loadDashboard();
+          if (pageId === 'pomodoro' && currentUserId) displayPomodoroSubjectTimes(); // NEW: Load subject times when Pomodoro page shown
+
+          // Stop quiz if navigating away
            if (pageId !== 'quiz' && quizState.active) {
               stopQuizMode();
           }
@@ -1026,14 +1032,16 @@
 
       const _navigateToPage = (pageId, param = null) => {
           console.log(`Navigating to page: ${pageId}` + (param ? ` with param: ${param}` : ''));
+          // Store subject parameter ONLY if targeting a relevant page
           targetSubjectParam = (param && ['resources', 'tracker', 'quiz'].includes(pageId)) ? { page: pageId, subject: param } : null;
+           // Reset currentActiveSubject if navigating away from subject-based pages
            if (!['resources', 'tracker', 'quiz'].includes(pageId)) {
               currentActiveSubject = null;
           }
           showPage(pageId);
           closeMobileMenu();
       };
-      window.navigateToPage = _navigateToPage;
+      window.navigateToPage = _navigateToPage; // Expose for global use
 
       const openMobileMenu = () => {
           mobileMenu?.classList.add('open');
@@ -1076,10 +1084,12 @@
           const pomodoroAnalytics = getElement('pomodoro-analytics');
           const quoteEl = getElement('motivational-quote');
           const timetableBody = getElement('timetable-body');
+          const pomodoroSubjectTimes = getElement('pomodoro-subject-times'); // NEW
 
           if (upcomingList) upcomingList.innerHTML = createLoadingMessage('Loading...');
           if (pomodoroSummary) pomodoroSummary.innerHTML = createLoadingMessage('No sessions logged.');
           if (pomodoroAnalytics) pomodoroAnalytics.innerHTML = createLoadingMessage('Loading analytics...');
+          if (pomodoroSubjectTimes) pomodoroSubjectTimes.querySelector('div').innerHTML = ''; // Clear inner div NEW
           if (quoteEl) quoteEl.textContent = 'Loading quote...';
           if (timetableBody) timetableBody.innerHTML = createLoadingMessage('Loading timetable...', true, 6);
 
@@ -1122,7 +1132,6 @@
       };
 
       // --- Dashboard Loading ---
-      // ... (loadDashboard remains mostly the same, but be mindful of the analytics display if keys were sanitized) ...
         const loadDashboard = async () => {
           if (!currentUserId || !db || !getElement('dashboard')?.classList.contains('active')) return;
           console.log("Loading dashboard data...");
@@ -1191,7 +1200,7 @@
               }
           }
 
-          // Pomodoro Analytics
+          // Pomodoro Analytics (Dashboard)
           if (pomodoroAnalyticsEl) {
               pomodoroAnalyticsEl.innerHTML = createLoadingMessage('Loading analytics...');
                try {
@@ -1203,7 +1212,6 @@
                         const data = analyticsDoc.data();
                         const totalMins = data.totalMinutes || 0;
                         const totalSessions = data.totalSessions || 0;
-                        // Ensure subjectMinutes exists and is an object before proceeding
                         const subjectMins = (data.subjectMinutes && typeof data.subjectMinutes === 'object') ? data.subjectMinutes : {};
                         let analyticsHTML = `<div class="space-y-3">`;
                         analyticsHTML += `<div class="flex justify-between items-baseline">
@@ -1215,20 +1223,17 @@
                                             <span class="text-lg font-semibold text-text dark:text-text-dark">${totalSessions}</span>
                                          </div>`;
 
-                        // Sort entries from subjectMins
                         const sortedSubjects = Object.entries(subjectMins).sort(([,a],[,b]) => b-a);
 
                         if(sortedSubjects.length > 0) {
                             analyticsHTML += `<hr class="border-slate-200 dark:border-slate-700 my-3">`;
                             analyticsHTML += `<h4 class="text-sm font-medium text-muted dark:text-muted-dark mb-2">Time per Subject:</h4><div class="space-y-2">`;
                             sortedSubjects.forEach(([subjectKey, mins]) => {
-                                // IMPORTANT: subjectKey here is potentially SANITIZED (e.g., "Maths_Stats").
-                                // The getSubjectColor function expects ORIGINAL names (e.g., "Maths/Stats").
-                                // This WILL cause the color lookup to fail if names were sanitized.
-                                // For now, getSubjectColor has a fallback, so it won't crash, but colors might be wrong.
-                                // A better long-term solution is to store original names alongside minutes in analytics.
-                                const colorBorderClass = getSubjectColor(subjectKey).split(' ')[0]; // Will use fallback color if sanitized key not found
-                                // Display the potentially sanitized key. Could try to 'unsanitize' or map back if needed, but complex.
+                                // NOTE: subjectKey might be SANITIZED ('_'). Displaying as is.
+                                // Using original subject names (from `subjects` array) if possible for color,
+                                // but might require mapping sanitized keys back if they differ significantly.
+                                const originalSubject = subjects.find(s => s.replace(/[.*$#[\]/]/g, '_') === subjectKey) || subjectKey;
+                                const colorBorderClass = getSubjectColor(originalSubject).split(' ')[0];
                                 analyticsHTML += `<div class="analytics-item flex justify-between items-center text-sm ${colorBorderClass}">
                                                     <span class="text-text dark:text-text-dark">${escapeHtml(subjectKey)}</span>
                                                     <span class="font-medium text-muted dark:text-muted-dark">${formatMinutes(mins)}</span>
@@ -1259,7 +1264,6 @@
       };
 
       // --- Timetable ---
-      // ... (loadTimetable, updateTimetableCountdowns remain the same) ...
         const loadTimetable = () => {
           const tbody = getElement('timetable-body');
           if (!tbody) { console.error("Timetable tbody missing!"); return; }
@@ -1324,7 +1328,6 @@
 
 
       // --- Content Switching Animation ---
-      // ... (animateContentSwitch remains the same) ...
         const animateContentSwitch = async (containerElement, displayFunction, subject) => {
           if (!containerElement) return;
           containerElement.classList.add('content-fade-out');
@@ -1332,7 +1335,7 @@
 
           containerElement.innerHTML = '';
           containerElement.classList.remove('content-fade-out');
-          await displayFunction(subject);
+          await displayFunction(subject); // Assuming displayFunction might be async
 
           containerElement.classList.add('content-fade-in');
           setTimeout(() => containerElement.classList.remove('content-fade-in'), 300);
@@ -1340,7 +1343,6 @@
 
 
       // --- Subject Selection Logic ---
-      // ... (handleSubjectSelection remains the same) ...
         const handleSubjectSelection = (subject, context) => {
           const isValidSubject = subjects.includes(subject);
           console.log(`Subject selected: ${subject} (Valid: ${isValidSubject}) in context: ${context}`);
@@ -1400,7 +1402,6 @@
 
 
       // --- Resources ---
-      // ... (loadResources, toggleResourceTypeFields, validateResourceForm, setActiveSubjectTab, displayResources, handleSaveResource remain the same) ...
        const loadResources = () => {
            if (!subjectTabsContainer) { console.error("Resource subject tabs container not found."); return; }
            subjectTabsContainer.innerHTML = '';
@@ -1531,7 +1532,7 @@
                 resourceContent.innerHTML = createLoadingMessage(`Error loading resources for ${subject}. Check console.`);
            }
       };
-       window.displayResources = displayResources;
+       window.displayResources = displayResources; // Expose for onclick
 
       const handleSaveResource = async () => {
            if (!currentUserId || !currentActiveSubject || !saveResourceBtn || !db) {
@@ -1563,7 +1564,7 @@
                 if (resourceTypeSelect) resourceTypeSelect.value = 'link';
                 toggleResourceTypeFields();
                 if (addResourceDetails) addResourceDetails.open = false;
-                displayResources(currentActiveSubject);
+                displayResources(currentActiveSubject); // Refresh list
            } catch (error) {
                 console.error("Error saving resource:", error);
                 alert("Failed to save resource. Please try again.");
@@ -1576,8 +1577,7 @@
 
 
       // --- Pomodoro Timer Logic ---
-      // ... (Most Pomodoro functions remain the same: loadPomodoroState, savePomodoroState, stopPomodoroTimer, updatePomodoroUIState, updateTimerDisplay, setActiveModeButton, handleDurationChange, setTimerMode, addPomodoroLogAndAnalytics, startPomodoroTimerInterval, handlePomodoroCompletion, startTimer, pauseTimer, resetTimer) ...
-        const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r') || '45') : 283;
+      const ringCircumference = progressRing ? 2 * Math.PI * parseFloat(progressRing.getAttribute('r') || '45') : 283;
       if (progressRing) {
           progressRing.style.strokeDasharray = `${ringCircumference} ${ringCircumference}`;
           progressRing.style.strokeDashoffset = ringCircumference;
@@ -1592,9 +1592,15 @@
                        pomodoroState = { ...pomodoroState, ...parsedState };
                        console.log("Pomodoro state loaded from localStorage:", pomodoroState);
 
-                       if (workDurationInput) workDurationInput.value = Math.round(pomodoroState.totalSeconds / 60) || 25;
-                        if (pomodoroSubjectSelect && pomodoroState.timerMode === 'work') pomodoroSubjectSelect.value = pomodoroState.workSessionSubject || "";
+                       // Restore duration input values (might differ from totalSeconds if changed while stopped)
+                       if (workDurationInput) workDurationInput.value = parsedState.workDuration || 25;
+                       if (shortBreakDurationInput) shortBreakDurationInput.value = parsedState.shortBreakDuration || 5;
+                       if (longBreakDurationInput) longBreakDurationInput.value = parsedState.longBreakDuration || 15;
 
+                       // Restore subject if in work mode
+                       if (pomodoroSubjectSelect && pomodoroState.timerMode === 'work') pomodoroSubjectSelect.value = pomodoroState.workSessionSubject || "";
+
+                       // Restore timer based on saved state and end time
                        if (pomodoroState.timerState === 'running' && pomodoroState.timerEndTime) {
                            const now = Date.now();
                            const remainingSeconds = Math.max(0, Math.round((pomodoroState.timerEndTime - now) / 1000));
@@ -1602,23 +1608,24 @@
 
                            if (remainingSeconds > 0) {
                                console.log(`Resuming running timer with ${remainingSeconds}s left.`);
-                               startPomodoroTimerInterval();
+                               startPomodoroTimerInterval(); // Restart interval
                                updatePomodoroUIState('running');
                            } else {
                                console.log("Timer finished while tab was inactive.");
-                               handlePomodoroCompletion(true);
-                               savePomodoroState();
+                               handlePomodoroCompletion(true); // Trigger completion logic (silent)
+                               savePomodoroState(); // Save the new state after completion
                            }
                        } else if (pomodoroState.timerState === 'paused') {
                             console.log("Restoring paused timer state.");
+                            setTimerMode(pomodoroState.timerMode, false); // Ensure UI (ring color, title) matches mode
                             updatePomodoroUIState('paused');
-                            updateTimerDisplay();
-                       } else {
+                            updateTimerDisplay(); // Display the paused time
+                       } else { // 'stopped'
                            console.log("Restoring stopped timer state.");
-                           setTimerMode(pomodoroState.timerMode || 'work', false);
+                           setTimerMode(pomodoroState.timerMode || 'work', false); // Set mode and reset timer display/UI
                            updatePomodoroUIState('stopped');
                        }
-                       return true;
+                       return true; // State loaded successfully
                    } else {
                        console.warn("Invalid Pomodoro state found in localStorage.");
                        localStorage.removeItem(POMODORO_STORAGE_KEY);
@@ -1628,12 +1635,20 @@
               console.error("Error loading Pomodoro state from localStorage:", e);
               localStorage.removeItem(POMODORO_STORAGE_KEY);
           }
+           // If load failed or no state found, initialize default
           return false;
       };
 
       const savePomodoroState = () => {
           try {
-              localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(pomodoroState));
+              // Include current duration settings in saved state
+              const stateToSave = {
+                  ...pomodoroState,
+                  workDuration: parseInt(workDurationInput?.value || '25'),
+                  shortBreakDuration: parseInt(shortBreakDurationInput?.value || '5'),
+                  longBreakDuration: parseInt(longBreakDurationInput?.value || '15'),
+              };
+              localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(stateToSave));
           } catch (e) {
               console.error("Error saving Pomodoro state to localStorage:", e);
           }
@@ -1648,7 +1663,10 @@
            pomodoroState.timerState = 'stopped';
            pomodoroState.timerEndTime = null;
            updatePomodoroUIState('stopped');
-           document.title = DEFAULT_TITLE;
+           // Reset title only if it's currently showing a timer
+           if (document.title !== DEFAULT_TITLE) {
+               document.title = DEFAULT_TITLE;
+           }
 
            if (clearStorage) {
                try {
@@ -1656,7 +1674,7 @@
                    console.log("Pomodoro localStorage cleared.");
                } catch (e) { console.error("Error clearing Pomodoro state from localStorage:", e);}
            } else {
-               savePomodoroState();
+               savePomodoroState(); // Save the stopped state
            }
        };
 
@@ -1670,14 +1688,19 @@
                 startPauseButton.innerHTML = `<i data-lucide="pause" class="h-5 w-5"></i> <span>Pause</span>`;
             } else if (isPaused) {
                 startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Resume</span>`;
-            } else {
+            } else { // stopped
                 startPauseButton.innerHTML = `<i data-lucide="play" class="h-5 w-5"></i> <span>Start</span>`;
             }
 
             const disableControls = isRunning || isPaused;
             modeButtons.forEach(btn => { if (btn) btn.disabled = disableControls; });
+            // Also disable duration inputs when running/paused
+            if(workDurationInput) workDurationInput.disabled = disableControls;
+            if(shortBreakDurationInput) shortBreakDurationInput.disabled = disableControls;
+            if(longBreakDurationInput) longBreakDurationInput.disabled = disableControls;
+
             pomodoroSubjectSelect.disabled = disableControls || pomodoroState.timerMode !== 'work';
-            if(startPauseButton) startPauseButton.disabled = false;
+            if(startPauseButton) startPauseButton.disabled = false; // Start/Pause/Resume is always enabled unless mid-action
 
             safelyCreateIcons();
         };
@@ -1695,12 +1718,14 @@
            const offset = ringCircumference * (1 - progress);
            progressRing.style.strokeDashoffset = Math.max(0, Math.min(ringCircumference, offset));
 
+           // Update Tab Title
            if (pomodoroState.timerState === 'running') {
                 let modeLabel = "Focus";
                 if (pomodoroState.timerMode === 'shortBreak') modeLabel = "Short Break";
                 else if (pomodoroState.timerMode === 'longBreak') modeLabel = "Long Break";
                 document.title = `${timeString} - ${modeLabel} | ${DEFAULT_TITLE}`;
            } else {
+               // Reset title if it's currently showing a timer value
                if (document.title !== DEFAULT_TITLE) {
                    document.title = DEFAULT_TITLE;
                }
@@ -1722,9 +1747,13 @@
 
 
        const handleDurationChange = (mode) => {
+           // Only reset the timer if the duration for the *current* inactive mode is changed
            if (pomodoroState.timerState !== 'running' && pomodoroState.timerMode === mode) {
-               console.log(`Duration changed for mode: ${mode}`);
-               setTimerMode(mode, false);
+               console.log(`Duration changed for current mode: ${mode}. Resetting timer.`);
+               setTimerMode(mode, false); // This will read the new value and update totalSeconds
+           } else {
+               // If changing duration for a *different* mode, just save the new value for later
+               savePomodoroState();
            }
        };
 
@@ -1734,6 +1763,7 @@
                return;
            }
 
+            // Prevent switching mode if timer is running *and* it was a direct button click
            if (pomodoroState.timerState === 'running' && fromInteraction) {
                const buttonToShake = modeButtons.find(btn => btn?.dataset.mode === mode);
                buttonToShake?.classList.add('shake-horizontal');
@@ -1742,7 +1772,7 @@
                return;
            }
 
-           stopPomodoroTimer(false);
+           stopPomodoroTimer(false); // Stop current interval/state but keep localStorage
 
            pomodoroState.timerMode = mode;
            pomodoroState.pomodoroCycle = parseInt(localStorage.getItem('pomodoroCycle') || '0');
@@ -1778,23 +1808,23 @@
                      if(timerStatus) timerStatus.textContent = 'Work';
            }
 
-           let newDuration = parseInt(durationInput?.value || '25');
-           pomodoroState.totalSeconds = (!isNaN(newDuration) && newDuration > 0) ? newDuration * 60 : (25 * 60);
+           let newDuration = parseInt(durationInput?.value || (mode === 'work' ? '25' : (mode === 'shortBreak' ? '5' : '15')));
+           pomodoroState.totalSeconds = (!isNaN(newDuration) && newDuration > 0) ? newDuration * 60 : (25 * 60); // Fallback duration
            pomodoroState.currentSeconds = pomodoroState.totalSeconds;
-           pomodoroState.timerState = 'stopped';
+           pomodoroState.timerState = 'stopped'; // Explicitly set to stopped
            pomodoroState.timerEndTime = null;
 
            if(pomodoroModeTitle) pomodoroModeTitle.textContent = title;
            setActiveModeButton(mode);
-           updateTimerDisplay();
+           updateTimerDisplay(); // Update clock and ring to full
 
            if (progressRing) {
                progressRing.classList.remove('text-primary', 'dark:text-primary-dark', 'text-emerald-500', 'dark:text-emerald-400', 'text-sky-500', 'dark:text-sky-400');
                progressRing.classList.add(...ringColorClass.split(' '));
            }
 
-           updatePomodoroUIState('stopped');
-           savePomodoroState();
+           updatePomodoroUIState('stopped'); // Ensure buttons/inputs are enabled
+           savePomodoroState(); // Save the newly set mode and duration
            console.log(`Timer mode set to: ${mode}, Duration: ${pomodoroState.totalSeconds}s`);
        };
 
@@ -1809,6 +1839,7 @@
                 return;
             }
 
+            // Use original subject name for logging, sanitize only for Firestore field key
             const sanitizedSubjectKey = subject.replace(/[.*$#[\]/]/g, '_');
 
             if (!sanitizedSubjectKey) {
@@ -1817,7 +1848,7 @@
                      const logColl = getUserCollectionRef(currentUserId, 'pomodoroLogs');
                       if (logColl) {
                          await addDoc(logColl, {
-                             subject: subject,
+                             subject: subject, // Log original name
                              durationMinutes,
                              timestamp: serverTimestamp()
                          });
@@ -1841,12 +1872,14 @@
             try {
                 const batch = writeBatch(db);
 
+                // Log entry with original subject name
                 batch.set(doc(logCollRef), {
                     subject: subject,
                     durationMinutes,
                     timestamp: serverTimestamp()
                 });
 
+                // Update analytics using sanitized key
                 const updateData = {
                     totalSessions: increment(1),
                     totalMinutes: increment(durationMinutes),
@@ -1857,8 +1890,13 @@
                 await batch.commit();
                 console.log("Pomodoro log and analytics updated successfully via batch.");
 
+                // Refresh dashboard if visible
                 if (getElement('dashboard')?.classList.contains('active')) {
                     loadDashboard();
+                }
+                // Refresh Pomodoro page subject times if visible (NEW)
+                if (getElement('pomodoro')?.classList.contains('active')) {
+                     displayPomodoroSubjectTimes();
                 }
             } catch (error) {
                 console.error("Error logging Pomodoro using batch write:", error);
@@ -1866,72 +1904,140 @@
             }
       };
 
+      // NEW: Function to display subject times on Pomodoro page
+      const displayPomodoroSubjectTimes = async () => {
+          const container = pomodoroSubjectTimesContainer?.querySelector('div');
+          if (!currentUserId || !db || !container) {
+                if (container) container.innerHTML = createLoadingMessage('Cannot load times: Missing user/DB.');
+                return;
+            }
+          container.innerHTML = createLoadingMessage('Loading subject times...');
+          try {
+              const analyticsRef = getUserDataRef(currentUserId, 'stats/pomodoroAnalytics');
+              if (!analyticsRef) throw new Error("Could not get pomodoroAnalytics doc ref.");
+              const analyticsDoc = await getDoc(analyticsRef);
+              container.innerHTML = ''; // Clear loading message
+
+              if (analyticsDoc.exists()) {
+                   const data = analyticsDoc.data();
+                   const subjectMins = (data.subjectMinutes && typeof data.subjectMinutes === 'object') ? data.subjectMinutes : {};
+                   const sortedSubjects = Object.entries(subjectMins).sort(([,a],[,b]) => b-a);
+
+                   if (sortedSubjects.length > 0) {
+                        sortedSubjects.forEach(([subjectKey, mins]) => {
+                           // Attempt to find original subject name for color, fallback to key
+                           const originalSubject = subjects.find(s => s.replace(/[.*$#[\]/]/g, '_') === subjectKey) || subjectKey;
+                           const colorBorderClass = getSubjectColor(originalSubject).split(' ')[0];
+                           const div = document.createElement('div');
+                           div.className = `subject-time-item flex justify-between items-center text-sm ${colorBorderClass}`;
+                           div.innerHTML = `
+                                <span class="text-text dark:text-text-dark">${escapeHtml(subjectKey)}</span>
+                                <span class="font-medium text-muted dark:text-muted-dark">${formatMinutes(mins)}</span>
+                            `;
+                           container.appendChild(div);
+                        });
+                   } else {
+                        container.innerHTML = createLoadingMessage('No time tracked yet.');
+                   }
+              } else {
+                   container.innerHTML = createLoadingMessage('No time tracked yet.');
+              }
+              safelyCreateIcons(); // If any icons were used (though unlikely here)
+          } catch(error) {
+               console.error("Error loading Pomodoro subject times:", error);
+               container.innerHTML = createLoadingMessage('Error loading times.');
+          }
+      };
+
 
       const startPomodoroTimerInterval = () => {
-           if (pomodoroInterval) clearInterval(pomodoroInterval);
+           if (pomodoroInterval) clearInterval(pomodoroInterval); // Clear any existing interval
 
            pomodoroState.timerState = 'running';
-           pomodoroState.timerEndTime = Date.now() + pomodoroState.currentSeconds * 1000;
-           savePomodoroState();
-           updatePomodoroUIState('running');
+           // Set end time ONLY if it's not already set (e.g., resuming from pause)
+           if (!pomodoroState.timerEndTime || pomodoroState.timerState === 'stopped') { // Check if stopped too
+               pomodoroState.timerEndTime = Date.now() + pomodoroState.currentSeconds * 1000;
+           }
+           savePomodoroState(); // Save the running state and potentially new end time
+           updatePomodoroUIState('running'); // Update buttons etc.
+           updateTimerDisplay(); // Initial display update
 
            pomodoroInterval = setInterval(() => {
-                if (pomodoroState.currentSeconds <= 0) {
-                    handlePomodoroCompletion(false);
-                } else {
-                    // Calculate remaining time more accurately based on end time
-                    const now = Date.now();
-                    const remainingMillis = pomodoroState.timerEndTime - now;
-                    pomodoroState.currentSeconds = Math.max(0, Math.round(remainingMillis / 1000));
-                    updateTimerDisplay();
+                // Calculate remaining time based on the fixed end time
+                const now = Date.now();
+                const remainingMillis = pomodoroState.timerEndTime - now;
+                pomodoroState.currentSeconds = Math.max(0, Math.round(remainingMillis / 1000));
 
-                    if(pomodoroState.currentSeconds <= 0) {
-                        handlePomodoroCompletion(false); // Handle completion if time runs out
-                    }
+                updateTimerDisplay(); // Update clock, ring, and title
+
+                if (pomodoroState.currentSeconds <= 0) {
+                    handlePomodoroCompletion(false); // Trigger completion logic
                 }
-           }, 1000);
-            console.log("Pomodoro interval started.");
+           }, 1000); // Tick every second
+            console.log("Pomodoro interval started/resumed.");
       };
 
        const handlePomodoroCompletion = (fromLoad = false) => {
             if (pomodoroInterval) clearInterval(pomodoroInterval);
             pomodoroInterval = null;
-            pomodoroState.timerState = 'stopped';
-            pomodoroState.timerEndTime = null;
             const finishedMode = pomodoroState.timerMode;
-            const workDuration = parseInt(workDurationInput?.value || '25');
+            const workDuration = parseInt(workDurationInput?.value || '25'); // Get duration *at time of completion*
             let nextMode = 'work';
             let alertMessage = '';
 
             console.log(`Pomodoro finished mode: ${finishedMode}`);
 
-            if (finishedMode === 'work' && pomodoroState.workSessionSubject && workDuration > 0) {
+            // Log and update cycle only if a work session finished
+            if (finishedMode === 'work') {
                 pomodoroState.pomodoroCycle++;
                 try { localStorage.setItem('pomodoroCycle', pomodoroState.pomodoroCycle.toString()); }
                 catch (e) { console.warn("Could not save pomodoro cycle to localStorage", e);}
 
-                addPomodoroLogAndAnalytics(pomodoroState.workSessionSubject, workDuration);
+                // Log only if a subject was selected and duration was positive
+                if (pomodoroState.workSessionSubject && workDuration > 0) {
+                     addPomodoroLogAndAnalytics(pomodoroState.workSessionSubject, workDuration); // Log occurs here
+                } else {
+                    console.warn("Work session finished but no subject selected or duration zero, not logging.");
+                }
 
+                // Determine next mode
                 nextMode = (pomodoroState.pomodoroCycle % 4 === 0) ? 'longBreak' : 'shortBreak';
                 alertMessage = `Focus session complete! Time for a ${nextMode === 'longBreak' ? 'long' : 'short'} break.`;
 
-            } else if (finishedMode !== 'work') {
+            } else { // Break finished
                  alertMessage = "Break's over! Time to get back to focus.";
                  nextMode = 'work';
             }
 
+            // Show alert only if triggered naturally, not from background load completion
             if (alertMessage && !fromLoad) {
-                alert(alertMessage);
+                 // Optional: Add sound effect here
+                 alert(alertMessage);
             }
 
-             pomodoroState.workSessionSubject = '';
-             setTimerMode(nextMode, false);
+             // Reset state for the next mode
+            pomodoroState.workSessionSubject = ''; // Clear subject for breaks/next work session
+            setTimerMode(nextMode, false); // Set up the next timer (reads duration, updates UI)
+            // Note: savePomodoroState() is called within setTimerMode()
+
+            // NEW: Ensure subject times are refreshed on the Pomodoro page if it's active
+            if (!fromLoad && getElement('pomodoro')?.classList.contains('active')) {
+                 displayPomodoroSubjectTimes();
+             }
         };
 
 
         const startTimer = () => {
-            if (pomodoroState.timerState === 'running') return;
+            if (pomodoroState.timerState === 'running') return; // Already running
 
+            // If resuming from pause, just restart the interval
+            if (pomodoroState.timerState === 'paused') {
+                console.log("Resuming timer...");
+                startPomodoroTimerInterval();
+                return;
+            }
+
+            // --- Starting a fresh timer (state is 'stopped') ---
             if (pomodoroState.timerMode === 'work') {
                 const selectedSubject = pomodoroSubjectSelect?.value;
                 if (!selectedSubject) {
@@ -1941,47 +2047,52 @@
                 }
                 pomodoroState.workSessionSubject = selectedSubject;
             } else {
-                pomodoroState.workSessionSubject = '';
+                pomodoroState.workSessionSubject = ''; // Ensure subject is clear for breaks
             }
 
+            // Ensure timer isn't starting at 0
             if (pomodoroState.currentSeconds <= 0) {
                 console.log("Timer at 0, resetting duration before start.");
-                setTimerMode(pomodoroState.timerMode, false);
-                if (pomodoroState.currentSeconds <= 0) {
-                   alert("Timer duration is set to 0. Please adjust settings.");
+                setTimerMode(pomodoroState.timerMode, false); // Reset to full duration of current mode
+                if (pomodoroState.currentSeconds <= 0) { // Check again after reset
+                   alert("Timer duration is invalid (0 or less). Please adjust settings.");
                    return;
                 }
             }
 
             console.log("Starting timer...");
-            startPomodoroTimerInterval();
+            startPomodoroTimerInterval(); // This sets state to 'running' and saves
         };
 
         const pauseTimer = () => {
-            if (pomodoroState.timerState !== 'running') return;
+            if (pomodoroState.timerState !== 'running') return; // Can only pause if running
 
             console.log("Pausing timer...");
             if (pomodoroInterval) clearInterval(pomodoroInterval);
             pomodoroInterval = null;
             pomodoroState.timerState = 'paused';
-             pomodoroState.timerEndTime = null;
+            // Keep pomodoroState.currentSeconds as it is
+            pomodoroState.timerEndTime = null; // Clear end time as it's no longer running towards it
 
             updatePomodoroUIState('paused');
-            savePomodoroState();
-            document.title = DEFAULT_TITLE;
+            savePomodoroState(); // Save the paused state
+            document.title = DEFAULT_TITLE; // Reset tab title
         };
 
         const resetTimer = (silent = false) => {
              console.log("Resetting timer...");
-             stopPomodoroTimer(false);
+             stopPomodoroTimer(false); // Stop any interval, set state to 'stopped', save
+             // Reset the timer to the full duration of the *current* mode
              setTimerMode(pomodoroState.timerMode, false);
+             if (!silent) {
+                 console.log("Timer reset to full duration for mode:", pomodoroState.timerMode);
+             }
         };
         // Expose reset function if needed by other parts, e.g., on logout
         window.resetPomodoroTimer = resetTimer;
 
 
       // --- Tracker ---
-      // ... (loadTracker, validateTrackerForm, displayTrackerItems, handleSaveTrackerItem remain the same) ...
       const loadTracker = () => {
           populateSubjectDropdown(trackerSubjectSelect);
           if(addTrackerDetails) addTrackerDetails.style.display = 'none';
@@ -2045,7 +2156,7 @@
               trackerItemsList.innerHTML = createLoadingMessage(`Error loading items for ${subject}. Check console.`);
           }
       };
-      window.displayTrackerItems = displayTrackerItems;
+      window.displayTrackerItems = displayTrackerItems; // Expose for onclick
 
       const handleSaveTrackerItem = async () => {
           if (!currentUserId || !currentActiveSubject || !saveTrackerItemBtn || !db || !trackerDescriptionInput || !trackerStatusSelect) {
@@ -2069,7 +2180,7 @@
               trackerDescriptionInput.value = '';
               trackerStatusSelect.value = 'To Review';
               if (addTrackerDetails) addTrackerDetails.open = false;
-              displayTrackerItems(currentActiveSubject);
+              displayTrackerItems(currentActiveSubject); // Refresh list
           } catch (error) {
               console.error("Error saving tracker item:", error);
               alert("Failed to save tracker item.");
@@ -2081,15 +2192,15 @@
       };
 
       // --- Planner ---
-      // ... (loadPlanner, validatePlannerForm, handleSavePlannerItem, displayPlannerItems remain the same) ...
         const loadPlanner = () => {
           if (!plannerDateInput || !plannerTimeInput || !plannerSubjectSelect || !plannerTopicInput || !savePlannerItemBtn || !plannerItemsList) {
              console.error("Planner page elements missing.");
              return;
             }
           populateSubjectDropdown(plannerSubjectSelect);
-          displayPlannerItems();
+          displayPlannerItems(); // Load existing items
 
+          // Set default date/time
           try {
               const now = new Date();
               const localISODate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
@@ -2128,10 +2239,15 @@
           const topic = plannerTopicInput.value.trim();
           let dateTimeString;
 
+          // Combine date and time into an ISO string for reliable sorting/storage
           try {
+              // Check for minimal validity before creating Date object
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
+                  throw new Error("Invalid date or time format entered.");
+              }
               const combined = new Date(`${date}T${time}:00`);
               if (isNaN(combined.getTime())) throw new Error("Invalid date/time combination");
-               dateTimeString = combined.toISOString();
+               dateTimeString = combined.toISOString(); // Store as UTC ISO string
 
           } catch (e) {
               console.error("Invalid date/time format:", e);
@@ -2148,10 +2264,11 @@
                if (!collRef) throw new Error("Could not get plannerItems collection ref.");
               await addDoc(collRef, newItem);
               console.log("Planner item saved.");
-              await displayPlannerItems();
+              await displayPlannerItems(); // Refresh list
+              // Clear only subject/topic after successful save
               if(plannerSubjectSelect) plannerSubjectSelect.value = '';
               if(plannerTopicInput) plannerTopicInput.value = '';
-              validatePlannerForm();
+              validatePlannerForm(); // Re-validate (will likely disable button)
           } catch (e) {
               console.error("Error saving planner item:", e);
               alert("Failed to schedule session.");
@@ -2171,6 +2288,7 @@
               const collRef = getUserCollectionRef(currentUserId, 'plannerItems');
               if (!collRef) throw new Error("Could not get plannerItems collection ref.");
 
+              // Fetch items ordered by the stored dateTime (ISO string)
               const q = query(collRef, orderBy("dateTime", "asc"));
               const snapshot = await getDocs(q);
               const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -2179,36 +2297,43 @@
               if (items.length === 0) {
                   plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled yet.');
               } else {
+                   // Group by Local Date String for display purposes
                   const groupedByDate = items.reduce((acc, item) => {
                       try {
                           if (!item.dateTime) throw new Error("Missing dateTime field");
-                          const d = new Date(item.dateTime);
+                           // Parse the ISO string back to a Date object
+                           const d = new Date(item.dateTime);
                           if (isNaN(d.getTime())) throw new Error("Invalid stored date string");
-                          const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                           // Format for display using local timezone
+                           const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                           if (!acc[dateStr]) acc[dateStr] = [];
                           acc[dateStr].push(item);
                       } catch (e) { console.warn("Skipping planner item with invalid date:", item.id, item.dateTime, e); }
                       return acc;
                   }, {});
 
-                  const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+                    // Sort the Display Dates (These are strings like "Monday, 1 January 2024")
+                    // We need to parse them back to dates for correct sorting
+                   const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
                        try {
+                           // Helper to parse "Weekday, D Month YYYY" back to a comparable Date
                            const parseDisplayDate = (str) => {
-                                const parts = str.split(', ')[1]?.split(' ');
+                                const parts = str.split(', ')[1]?.split(' '); // "D Month YYYY"
                                 if (!parts || parts.length !== 3) return new Date(NaN);
                                 const day = parseInt(parts[0]);
                                 const year = parseInt(parts[2]);
                                 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                                 const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase());
                                 if (isNaN(day) || isNaN(year) || monthIndex === -1) return new Date(NaN);
-                                return new Date(year, monthIndex, day);
+                                // Use UTC to avoid timezone shifts during comparison
+                                return new Date(Date.UTC(year, monthIndex, day));
                            }
                            const dateA = parseDisplayDate(a);
                            const dateB = parseDisplayDate(b);
-                           if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return 0;
+                           if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return 0; // Keep original order if parse fails
                            return dateA - dateB;
-                       } catch { return 0; }
-                  });
+                       } catch { return 0; } // Fallback if parsing fails
+                   });
 
                   sortedDates.forEach(dateStr => {
                       const dateHeader = document.createElement('h4');
@@ -2218,6 +2343,7 @@
 
                       const list = document.createElement('ul');
                       list.className = 'space-y-3';
+                       // Sort items within the same day by their exact time (using original dateTime ISO string)
                       const sortedItems = groupedByDate[dateStr].sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
 
                       sortedItems.forEach((item, index) => {
@@ -2226,7 +2352,7 @@
                           li.className = `planner-item list-item flex justify-between items-center p-3 rounded-lg border-l-4 bg-card dark:bg-card-dark shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 ${getSubjectColor(itemSubject)} list-item-appear`;
                           li.style.animationDelay = `${index * 0.05}s`;
                           const formattedDateTime = item.dateTime ? formatPlannerDateTime(item.dateTime) : 'Invalid time';
-                           const isPast = item.dateTime ? new Date(item.dateTime) < new Date() : false;
+                          const isPast = item.dateTime ? new Date(item.dateTime) < new Date() : false;
 
                           li.innerHTML = `
                               <div class="flex-grow mr-3 ${isPast ? 'opacity-60' : ''}">
@@ -2249,10 +2375,10 @@
               plannerItemsList.innerHTML = createLoadingMessage('Error loading scheduled sessions. Check console.');
           }
       };
-      window.displayPlannerItems = displayPlannerItems;
+      window.displayPlannerItems = displayPlannerItems; // Expose for onclick
+
 
       // --- Generic Delete Function ---
-      // ... (handleGenericDeleteItem, handleDeleteQuizItemFiles remain the same) ...
       window.handleGenericDeleteItem = async (collectionName, subject, itemId, itemTypeName, displayFunction) => {
            if (!currentUserId || !itemId || !db) {
                alert(`Cannot delete ${itemTypeName}: Missing user ID or DB connection.`);
@@ -2267,6 +2393,7 @@
                if (subject && ['resources', 'trackerItems', 'quizItems'].includes(collectionName)) {
                    itemRef = getSubjectSpecificDocRef(currentUserId, collectionName, subject, itemId);
                } else if (!subject && ['plannerItems'].includes(collectionName)) {
+                   // Planner items are directly under user/plannerItems/{itemId}
                    itemRef = doc(db, `users/${currentUserId}/${collectionName}/${itemId}`);
                } else {
                    throw new Error(`Invalid collection/subject combination for deletion: ${collectionName}, ${subject}`);
@@ -2274,20 +2401,25 @@
 
                if (!itemRef) throw new Error("Could not construct document reference for deletion.");
 
+               // Special handling for quiz items with files
                if (collectionName === 'quizItems') {
-                   await handleDeleteQuizItemFiles(subject, itemId);
+                   await handleDeleteQuizItemFiles(subject, itemId); // Attempt file deletion first
                }
 
-               await deleteDoc(itemRef);
+               await deleteDoc(itemRef); // Delete the Firestore document
                console.log(`${itemTypeName} deleted successfully from Firestore.`);
 
+                // Refresh the relevant list display
                if (typeof displayFunction === 'function') {
+                   // If subject-specific, only refresh if the current subject matches
                    if (subject && currentActiveSubject === subject) {
                         displayFunction(subject);
+                   // If not subject-specific (like planner), always refresh
                    } else if (!subject) {
                        displayFunction();
                    }
                }
+                // Update quiz start button state if a quiz item was deleted for the current subject
                 if (collectionName === 'quizItems' && currentActiveSubject === subject) {
                     await toggleQuizButtons();
                 }
@@ -2307,34 +2439,39 @@
            if (!itemRef) return;
 
            try {
+                // Get the document data to find file URLs *before* deleting the doc
                 const docSnap = await getDoc(itemRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
 
                     const tryDeleteFile = async (fileUrl, fileType) => {
-                        if (!fileUrl) return;
+                        if (!fileUrl) return; // No URL, nothing to delete
                         try {
+                             // Only attempt delete if it's a Firebase Storage URL
                             if (fileUrl.includes('firebasestorage.googleapis.com')) {
-                                const fileRef = ref(storage, fileUrl);
+                                const fileRef = ref(storage, fileUrl); // Get ref from URL
                                 await deleteObject(fileRef);
                                 console.log(`Deleted quiz ${fileType} file: ${fileUrl}`);
                             } else {
                                 console.log(`Skipping deletion for non-storage URL: ${fileUrl}`);
                             }
                         } catch (e) {
+                            // It's okay if the file is already gone
                             if (e.code === 'storage/object-not-found') {
                                 console.log(`Quiz ${fileType} file already deleted or not found: ${fileUrl}`);
                             } else {
+                                // Log other errors as warnings
                                 console.warn(`Failed to delete quiz ${fileType} file ${fileUrl}:`, e);
                             }
                         }
                     };
 
+                    // Attempt to delete both question and answer files if their URLs exist
                     await tryDeleteFile(data.questionFileUrl, 'question');
                     await tryDeleteFile(data.answerFileUrl, 'answer');
 
                 } else {
-                     console.log(`Quiz item ${itemId} not found in Firestore, cannot delete files.`);
+                     console.log(`Quiz item ${itemId} not found in Firestore, cannot get file URLs for deletion.`);
                 }
            } catch(error) {
                 console.error(`Error retrieving quiz item ${itemId} to delete files:`, error);
@@ -2343,7 +2480,6 @@
 
 
       // --- Quiz ---
-      // ... (loadQuizPage, validateQuizForm, toggleQuizButtons remain the same) ...
         const loadQuizPage = () => {
           populateSubjectDropdown(quizSubjectSelect);
           if(quizContentWrapper) quizContentWrapper.classList.add('hidden');
@@ -2359,31 +2495,38 @@
               if (saveQuizQuestionBtn) saveQuizQuestionBtn.disabled = true;
               return;
           }
+          // Question is valid if either text or file is present
           const hasQuestion = quizQuestionInput.value.trim() !== '' || quizQuestionFileInput.files.length > 0;
+          // Answer is valid if either text or file is present
           const hasAnswer = quizAnswerInput.value.trim() !== '' || quizAnswerFileInput.files.length > 0;
+
           saveQuizQuestionBtn.disabled = !(currentActiveSubject && hasQuestion && hasAnswer);
       };
 
       const toggleQuizButtons = async () => {
-          if (!startQuizButton || !currentActiveSubject || !currentUserId || !db) {
-              if (startQuizButton) startQuizButton.disabled = true;
+          // Disable start button initially
+          if (startQuizButton) startQuizButton.disabled = true;
+
+          // Enable only if subject selected, logged in, and questions exist for that subject
+          if (!currentActiveSubject || !currentUserId || !db || !startQuizButton) {
               return;
           }
-          startQuizButton.disabled = true;
+
           try {
               const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject);
                if (!collRef) throw new Error("Could not get quizItems collection ref.");
+
+              // Check if *any* documents exist in the collection quickly
               const q = query(collRef, limit(1));
               const snapshot = await getDocs(q);
-              startQuizButton.disabled = snapshot.empty;
+              startQuizButton.disabled = snapshot.empty; // Enable if not empty
               console.log(`Quiz start button for ${currentActiveSubject} ${snapshot.empty ? 'disabled' : 'enabled'}.`);
           } catch (error) {
               console.error("Error checking for quiz questions:", error);
-              startQuizButton.disabled = true;
+              startQuizButton.disabled = true; // Keep disabled on error
           }
       };
 
-       // MODIFIED: Added context argument
        const renderFilePreview = (url, altText = "Uploaded file", context = 'list') => {
            if (!url) return '';
            const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i;
@@ -2393,29 +2536,30 @@
                 // Choose class based on context
                 const imgClass = context === 'quiz' ? 'quiz-mode-image-display' : 'quiz-file-preview';
                 displayHtml = `<img src="${escapeHtml(url)}" alt="${escapeHtml(altText)}" class="${imgClass} inline-block border border-slate-300 dark:border-slate-600 rounded" loading="lazy">`;
-           } else {
+           } else { // Non-image file (PDF, DOCX, etc.)
                let filename = 'Attached File';
                 try {
+                     // Try to extract a readable filename from the URL
                     const decodedUrl = decodeURIComponent(url);
-                    const pathPart = decodedUrl.split('?')[0];
-                    const segments = pathPart.split('/');
-                    const lastSegment = segments[segments.length - 1];
-                    filename = lastSegment.replace(/(_\d{13,})(?=\.[^.]+$)/, '');
+                    // Find the part after the last '/' and before the '?'
+                    const pathPart = decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1).split('?')[0];
+                    // Remove potential timestamp added during upload (e.g., _1678886400000)
+                    filename = pathPart.replace(/(_\d{13,})(?=\.[^.]+$)/, '');
                 } catch (e) { console.warn("Could not parse filename from URL:", url, e); }
 
-                // Links are the same size regardless of context for now
-                displayHtml = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-primary dark:text-primary-dark hover:underline">
+                // Always render as a link, regardless of context for non-images
+                displayHtml = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-primary dark:text-primary-dark hover:underline bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
                             <i data-lucide="paperclip" class="h-3 w-3"></i>
                             <span>${escapeHtml(filename)}</span>
                          </a>`;
            }
+            // Use a temporary div to render icons correctly
             const container = document.createElement('div');
             container.innerHTML = displayHtml;
-            safelyCreateIcons(); // Render icons (like paperclip) if needed
+            safelyCreateIcons(); // Ensure icons like 'paperclip' are rendered
             return container.innerHTML;
        };
 
-      // displaySavedQuizQuestions now uses default context for renderFilePreview
       const displaySavedQuizQuestions = async (subject) => {
           if (!currentUserId || !quizItemsList || !db) {
                if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Cannot load questions: Not logged in or DB unavailable.');
@@ -2436,11 +2580,10 @@
                   items.forEach((item, index) => {
                       const div = document.createElement('div');
                       const itemSubject = item.subject || subject;
-// Continuing from the displaySavedQuizQuestions function...
                       div.className = `quiz-item list-item flex justify-between items-start p-3 rounded-lg border bg-white dark:bg-slate-800 shadow-sm space-x-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 ${getSubjectColor(itemSubject).replace('border-l-4', 'border')} list-item-appear`;
                       div.style.animationDelay = `${index * 0.05}s`;
 
-                      // Question Part - Using context 'list' for small previews
+                      // Question Part - Context 'list'
                       let questionHtml = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate" title="${escapeHtml(item.question)}">Q: ${escapeHtml(item.question)}</p>` : '';
                       if (item.questionFileUrl) {
                           questionHtml += `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file', 'list')}</div>`; // Context: list
@@ -2449,7 +2592,7 @@
                           questionHtml = `<p class="font-medium text-text dark:text-text-dark mb-1 italic text-muted dark:text-muted-dark">(No question text/file)</p>`;
                       }
 
-                      // Answer Part - Using context 'list' for small previews
+                      // Answer Part - Context 'list'
                       let answerHtml = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1" title="${escapeHtml(item.answer)}">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : '';
                        if (item.answerFileUrl) {
                            answerHtml += `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file', 'list')}</div>`; // Context: list
@@ -2466,16 +2609,17 @@
                           <button title="Delete Question" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('quizItems', '${escapeHtml(subject)}', '${item.id}', 'quiz question', window.displaySavedQuizQuestions)">
                               <i data-lucide="trash-2" class="h-4 w-4"></i>
                           </button>`;
+// Continuing from the displaySavedQuizQuestions function...
                       quizItemsList.appendChild(div);
                   });
-                  safelyCreateIcons();
+                  safelyCreateIcons(); // Render any icons within the list items
               }
-              // Update button state after displaying
+              // Update the start button state after successfully loading questions
               await toggleQuizButtons();
           } catch (error) {
               console.error(`Error loading quiz items for ${subject}:`, error);
-              quizItemsList.innerHTML = createLoadingMessage(`Error loading questions for ${subject}. Check console.`);
-              toggleQuizButtons(); // Ensure button is disabled on error
+              if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage(`Error loading questions for ${subject}. Check console.`);
+              await toggleQuizButtons(); // Ensure button is disabled on error
           }
       };
       window.displaySavedQuizQuestions = displaySavedQuizQuestions; // Make accessible for onclick/refresh
@@ -2490,10 +2634,12 @@
           }
 
           const timestamp = Date.now();
+          // Sanitize filename and add timestamp to prevent collisions
           const nameParts = file.name.split('.');
           const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : '';
           const baseName = nameParts.join('.');
-          const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_-]+/g, '_');
+          // Replace potentially problematic characters for storage path
+          const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_.\-]/g, '_');
           const safeFileName = `${cleanBaseName}_${timestamp}${extension}`;
 
           const storagePath = `quizFiles/${currentUserId}/${subject}/${safeFileName}`;
@@ -2512,7 +2658,16 @@
               console.error("Error Code:", error.code);
               console.error("Error Message:", error.message);
               console.error(`Failed to upload file: ${file.name} to path: ${storagePath}`);
-              throw new Error(`Upload Failed: ${error.message} (Code: ${error.code})`);
+              // Provide a more user-friendly error message if possible
+              let userMessage = `Upload Failed: ${error.message}`;
+              if (error.code === 'storage/unauthorized') {
+                   userMessage = 'Upload Failed: You do not have permission to upload files.';
+              } else if (error.code === 'storage/canceled') {
+                  userMessage = 'Upload Failed: The upload was cancelled.';
+              } else if (error.code === 'storage/unknown') {
+                  userMessage = 'Upload Failed: An unknown error occurred. Check network connection.';
+              }
+              throw new Error(`${userMessage} (Code: ${error.code})`);
           }
       };
 
@@ -2546,7 +2701,7 @@
         let errorOccurred = false;
 
         try {
-            // Upload Question File
+            // Upload Question File if present
             if (questionFile) {
                 console.log("Attempting to upload question file...");
                 saveQuizQuestionBtn.textContent = 'Uploading Q file...';
@@ -2556,7 +2711,7 @@
                 console.log("No question file to upload.");
             }
 
-            // Upload Answer File
+            // Upload Answer File if present
             if (answerFile) {
                 console.log("Attempting to upload answer file...");
                 saveQuizQuestionBtn.textContent = 'Uploading A file...';
@@ -2566,14 +2721,14 @@
                 console.log("No answer file to upload.");
             }
 
-            // Save to Firestore
+            // Save data (text and URLs) to Firestore
             console.log("Uploads complete (or skipped). Proceeding to Firestore save.");
             saveQuizQuestionBtn.textContent = 'Saving Data...';
             const newItem = {
                 question: questionText,
                 answer: answerText,
                 createdAt: serverTimestamp(),
-                subject: currentActiveSubject
+                subject: currentActiveSubject // Store the subject with the item
             };
             if (questionFileUrl) newItem.questionFileUrl = questionFileUrl;
             if (answerFileUrl) newItem.answerFileUrl = answerFileUrl;
@@ -2589,39 +2744,41 @@
             if (quizAnswerInput) quizAnswerInput.value = '';
             if (quizQuestionFileInput) quizQuestionFileInput.value = '';
             if (quizAnswerFileInput) quizAnswerFileInput.value = '';
-            if (addQuizDetails) addQuizDetails.open = false;
-            displaySavedQuizQuestions(currentActiveSubject);
+            if (addQuizDetails) addQuizDetails.open = false; // Close the details section
+            displaySavedQuizQuestions(currentActiveSubject); // Refresh the list
 
         } catch (error) {
             errorOccurred = true;
             console.error("Error during handleSaveQuizQuestion:", error);
             alert(`Failed to save question. ${error.message}. Check console.`);
 
-            // Cleanup Attempt
+            // Attempt to Clean Up Uploaded Files if Firestore Save Failed
             console.log("Attempting cleanup of potentially uploaded files due to error...");
              const cleanupPromises = [];
+            // If question file was uploaded but DB save failed, try delete it
             if (questionFileUrl) {
-                 cleanupPromises.push(deleteObject(ref(storage, questionFileUrl)).then(() => console.log("Cleaned up orphaned question file:", questionFileUrl)).catch(e => console.warn("Could not clean up orphaned question file:", e)));
+                 cleanupPromises.push(
+                     deleteObject(ref(storage, questionFileUrl))
+                     .then(() => console.log("Cleaned up orphaned question file:", questionFileUrl))
+                     .catch(e => console.warn("Could not clean up orphaned question file:", e))
+                 );
             }
+            // If answer file was uploaded but DB save failed, try delete it
             if (answerFileUrl) {
-                 cleanupPromises.push(deleteObject(ref(storage, answerFileUrl)).then(() => console.log("Cleaned up orphaned answer file:", answerFileUrl)).catch(e => console.warn("Could not clean up orphaned answer file:", e)));
+                 cleanupPromises.push(
+                     deleteObject(ref(storage, answerFileUrl))
+                     .then(() => console.log("Cleaned up orphaned answer file:", answerFileUrl))
+                     .catch(e => console.warn("Could not clean up orphaned answer file:", e))
+                 );
             }
-            await Promise.allSettled(cleanupPromises);
+            await Promise.allSettled(cleanupPromises); // Wait for cleanup attempts
             console.log("Cleanup attempt finished.");
 
         } finally {
-            if (!errorOccurred) {
-                saveQuizQuestionBtn.textContent = 'Add Question';
-                saveQuizQuestionBtn.disabled = false;
-            } else {
-                 saveQuizQuestionBtn.textContent = 'Save Failed';
-                 setTimeout(() => {
-                     saveQuizQuestionBtn.textContent = 'Add Question';
-                     saveQuizQuestionBtn.disabled = false;
-                     validateQuizForm();
-                 }, 2000);
-            }
-            if (!errorOccurred) validateQuizForm(); // Re-validate form state
+             // Reset button state
+             saveQuizQuestionBtn.textContent = 'Add Question';
+             saveQuizQuestionBtn.disabled = false; // Re-enable button regardless of outcome
+             validateQuizForm(); // Re-validate form state
         }
     }; // End of handleSaveQuizQuestion
 
@@ -2644,12 +2801,14 @@
                   return;
               }
               const allQuestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+              // Reset quiz state fully before starting
               quizState = {
                   active: true,
                   currentSubject: currentActiveSubject,
-                  initialQuestions: [...allQuestions],
-                  currentQuizPool: shuffleArray([...allQuestions]),
-                  incorrectlyAnswered: [],
+                  initialQuestions: [...allQuestions], // Store original list
+                  currentQuizPool: shuffleArray([...allQuestions]), // Shuffle for first round
+                  incorrectlyAnswered: [], // Reset incorrect list
                   currentQuestionIndex: 0,
                   round: 1,
                   totalMastered: 0,
@@ -2659,48 +2818,52 @@
               console.log("Quiz state initialized:", quizState);
 
               // Update UI for quiz mode
-              if (addQuizDetails) addQuizDetails.style.display = 'none';
-              if (quizListContainer) quizListContainer.classList.add('hidden');
-              if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden');
-              if (quizModeInterface) quizModeInterface.classList.remove('hidden');
-              if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz";
+              if (addQuizDetails) addQuizDetails.style.display = 'none'; // Hide add form
+              if (quizListContainer) quizListContainer.classList.add('hidden'); // Hide question list
+              if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden'); // Hide completion message
+              if (quizModeInterface) quizModeInterface.classList.remove('hidden'); // Show quiz interface
+              if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz"; // Set stop button text
 
-              displayCurrentQuizQuestion();
+              displayCurrentQuizQuestion(); // Display the first question
           } catch (error) {
               console.error("Error starting quiz:", error);
               alert("Could not start the quiz due to an error. Check console.");
-              stopQuizMode();
+              stopQuizMode(); // Ensure clean state if start fails
           }
       };
 
       const stopQuizMode = () => {
-          if (!quizState.active && !quizModeInterface?.classList.contains('hidden')) {
+          // Only proceed if quiz is active or interface is mistakenly visible
+          if (!quizState.active && quizModeInterface?.classList.contains('hidden')) {
+               return; // Already stopped and hidden
+          }
+          if (!quizState.active) { // If interface somehow visible but state inactive, just hide it
                if (quizModeInterface) quizModeInterface.classList.add('hidden');
                return;
           }
-          if (!quizState.active) return;
 
           console.log("Stopping quiz mode.");
-          quizState.active = false;
+          quizState.active = false; // Mark as inactive
 
           // Update UI back to list/add view
           if (quizModeInterface) quizModeInterface.classList.add('hidden');
-          if (currentActiveSubject) {
+          if (currentActiveSubject) { // Only show add/list if a subject is still selected
               if (addQuizDetails) addQuizDetails.style.display = 'block';
               if (quizListContainer) quizListContainer.classList.remove('hidden');
           }
-          if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
+          if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none'; // Hide answer area
 
+          // Clear any pending timeouts
           if (quizState.buttonTimeout) {
               clearTimeout(quizState.buttonTimeout);
               quizState.buttonTimeout = null;
           }
 
-          toggleQuizButtons();
+          toggleQuizButtons(); // Re-evaluate start button state
 
            // Reset quiz state completely
            quizState = {
-                active: false, currentSubject: quizState.currentSubject,
+                active: false, currentSubject: quizState.currentSubject, // Keep track of the subject
                 initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [],
                 currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null
             };
@@ -2711,31 +2874,34 @@
           if (!quizProgress || !quizState.active) return;
           const remainingInPool = Math.max(0, quizState.currentQuizPool.length - quizState.currentQuestionIndex);
           const totalInitial = quizState.initialQuestions.length;
+          // Display progress
           quizProgress.textContent = `Round ${quizState.round} | Remaining: ${remainingInPool} | Mastered: ${quizState.totalMastered}/${totalInitial}`;
       };
 
       const displayCurrentQuizQuestion = () => {
-           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons || !quizAnswerTextDisplay || !quizAnswerFileDisplay) { // Removed quizQuestionFileDisplay check
-               console.error("Cannot display quiz question: Missing required UI elements.");
-               stopQuizMode();
+           if (!quizState.active || !quizQuestionDisplay || !quizCorrectAnswerDisplay || !quizRevealBtnContainer || !quizJudgmentButtons || !quizAnswerTextDisplay || !quizAnswerFileDisplay) {
+               console.error("Cannot display quiz question: Quiz not active or missing required UI elements.");
+               stopQuizMode(); // Stop quiz if essential elements are missing
                return;
            }
 
-            // Reset UI elements
+            // Reset UI elements for the new question
            quizCorrectAnswerDisplay.style.display = 'none';
-           quizCorrectAnswerDisplay.classList.remove('visible'); // Ensure animation class is removed
-           quizState.isAnswerVisible = false;
-           quizJudgmentButtons.style.display = 'none';
-           quizRevealBtnContainer.style.display = 'block';
+           quizCorrectAnswerDisplay.classList.remove('visible'); // Remove animation class
+           quizState.isAnswerVisible = false; // Answer is hidden initially
+           quizJudgmentButtons.style.display = 'none'; // Hide judgment buttons
+           quizRevealBtnContainer.style.display = 'block'; // Show reveal button
+           // Remove feedback classes from buttons
            quizCorrectBtn?.classList.remove('quiz-feedback-correct');
            quizIncorrectBtn?.classList.remove('quiz-feedback-incorrect');
 
-           // Check round completion
+           // Check if current round is finished
            if (quizState.currentQuestionIndex >= quizState.currentQuizPool.length) {
-               handleQuizRoundEnd();
+               handleQuizRoundEnd(); // Proceed to end-of-round logic
                return;
            }
 
+           // Get the current question data
            const questionData = quizState.currentQuizPool[quizState.currentQuestionIndex];
            if (!questionData) {
                 console.error("Error: Could not get question data at index", quizState.currentQuestionIndex);
@@ -2745,27 +2911,24 @@
            }
            console.log(`Displaying question ID: ${questionData.id}, Index: ${quizState.currentQuestionIndex}, Round: ${quizState.round}`);
 
-           // --- Display Question ---
-           quizQuestionDisplay.innerHTML = ''; // Clear previous content
+           // --- Display Question Content ---
+           quizQuestionDisplay.innerHTML = ''; // Clear previous question content
            let questionContentRendered = false;
-           // Add question text first
+           // Add question text if available
            if (questionData.question) {
                const p = document.createElement('p');
-               // Make text larger in quiz mode
-               p.className = 'text-text dark:text-text-dark text-lg mb-3'; // Added margin-bottom
+               p.className = 'text-text dark:text-text-dark text-lg mb-3 whitespace-pre-wrap'; // Use pre-wrap for newlines
                p.textContent = questionData.question;
                quizQuestionDisplay.appendChild(p);
                questionContentRendered = true;
            }
-            // Add question file PREVIEW after text - using context 'quiz' for larger display
+            // Add question file PREVIEW using 'quiz' context for larger display
            if (questionData.questionFileUrl) {
-               // Pass 'quiz' context here
-               const previewHtml = renderFilePreview(questionData.questionFileUrl, 'Question file', 'quiz');
-               // Append the preview HTML to the display area
+               const previewHtml = renderFilePreview(questionData.questionFileUrl, 'Question file', 'quiz'); // Context: quiz
                quizQuestionDisplay.insertAdjacentHTML('beforeend', previewHtml);
                questionContentRendered = true;
            }
-
+           // Show placeholder if no text or file
            if (!questionContentRendered) {
                const p = document.createElement('p');
                p.className = 'italic text-muted dark:text-muted-dark text-base';
@@ -2774,33 +2937,32 @@
            }
 
 
-           // --- Prepare Answer Display (hidden) ---
+           // --- Prepare Answer Display (kept hidden initially) ---
            let answerContentRendered = false;
             // Prepare answer text
            if (questionData.answer) {
                 quizAnswerTextDisplay.innerHTML = `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="whitespace-pre-wrap">${escapeHtml(questionData.answer)}</span>`;
                 answerContentRendered = true;
            } else {
-                quizAnswerTextDisplay.innerHTML = '';
+                quizAnswerTextDisplay.innerHTML = ''; // Clear previous answer text
            }
-            // Prepare answer file preview - using context 'quiz'
+            // Prepare answer file preview using 'quiz' context
             quizAnswerFileDisplay.innerHTML = questionData.answerFileUrl
-                ? renderFilePreview(questionData.answerFileUrl, 'Answer file', 'quiz')
+                ? renderFilePreview(questionData.answerFileUrl, 'Answer file', 'quiz') // Context: quiz
                 : '';
             if (questionData.answerFileUrl) answerContentRendered = true;
-
+            // Show placeholder if no answer text or file
             if (!answerContentRendered && quizAnswerTextDisplay) {
                  quizAnswerTextDisplay.innerHTML = `<strong class="text-sm font-semibold text-primary dark:text-primary-dark mr-2">Answer:</strong><span class="italic text-muted dark:text-muted-dark">(Answer content missing)</span>`;
             }
 
+           updateQuizProgressDisplay(); // Update the progress counter
 
-           updateQuizProgressDisplay();
-
-           // Disable judgment buttons initially
+           // Ensure judgment buttons are enabled only *after* reveal
            if (quizCorrectBtn) quizCorrectBtn.disabled = true;
            if (quizIncorrectBtn) quizIncorrectBtn.disabled = true;
 
-           safelyCreateIcons();
+           safelyCreateIcons(); // Render any icons in the previews
       };
 
       const revealQuizAnswer = () => {
@@ -2809,17 +2971,21 @@
              return;
           }
           console.log("Revealing answer.");
-          quizCorrectAnswerDisplay.classList.add('visible'); // Use class for animation
-          quizCorrectAnswerDisplay.style.display = 'block'; // Ensure display block
-          quizRevealBtnContainer.style.display = 'none';
-          quizJudgmentButtons.style.display = 'flex';
-          quizState.isAnswerVisible = true;
+          quizCorrectAnswerDisplay.classList.add('visible'); // Add class for potential animation
+          quizCorrectAnswerDisplay.style.display = 'block'; // Ensure it's visible
+          quizRevealBtnContainer.style.display = 'none'; // Hide the reveal button
+          quizJudgmentButtons.style.display = 'flex'; // Show judgment buttons
+          quizState.isAnswerVisible = true; // Mark answer as visible
+
+          // Enable judgment buttons now that answer is visible
           if (quizCorrectBtn) quizCorrectBtn.disabled = false;
           if (quizIncorrectBtn) quizIncorrectBtn.disabled = false;
-           safelyCreateIcons();
+
+           safelyCreateIcons(); // Render icons if any were added dynamically
       };
 
       const handleQuizAnswer = (isCorrect) => {
+           // Prevent action if quiz inactive, answer not visible, or already processing an answer
            if (!quizState.active || !quizState.isAnswerVisible || quizState.buttonTimeout || !quizCorrectBtn || !quizIncorrectBtn) {
                 console.warn("Cannot handle quiz answer: State invalid or buttons blocked.");
                 return;
@@ -2833,62 +2999,70 @@
 
            console.log(`Handling answer for Q ID: ${currentQuestion.id}, Correct: ${isCorrect}`);
 
+           // Disable buttons immediately to prevent double clicks
            quizCorrectBtn.disabled = true;
            quizIncorrectBtn.disabled = true;
 
            if (isCorrect) {
+               // Find the original question ref to check if it was previously marked incorrect
                let originalQuestionRef = quizState.initialQuestions.find(q => q.id === currentQuestion.id);
+               // Only increment mastered count if this question *wasn't* marked wrong in a previous round of this session
                if (!originalQuestionRef?.markedIncorrectInPriorRound) {
                   quizState.totalMastered++;
-                  if(originalQuestionRef) originalQuestionRef.masteredInThisSession = true;
+                  if(originalQuestionRef) originalQuestionRef.masteredInThisSession = true; // Mark as mastered in this session
                }
-               quizCorrectBtn?.classList.add('quiz-feedback-correct');
+               quizCorrectBtn?.classList.add('quiz-feedback-correct'); // Visual feedback
 
            } else { // Incorrect
+                // Add to incorrectlyAnswered list for the *next* round if not already there
                 if (!quizState.incorrectlyAnswered.find(iq => iq.id === currentQuestion.id)) {
                    quizState.incorrectlyAnswered.push(currentQuestion);
+                     // Mark the original question ref so we know not to count it as mastered later
                      let originalQuestionRef = quizState.initialQuestions.find(q => q.id === currentQuestion.id);
                      if (originalQuestionRef) originalQuestionRef.markedIncorrectInPriorRound = true;
                 }
-               quizIncorrectBtn?.classList.add('quiz-feedback-incorrect');
+               quizIncorrectBtn?.classList.add('quiz-feedback-incorrect'); // Visual feedback
            }
 
-            updateQuizProgressDisplay();
+            updateQuizProgressDisplay(); // Update counts
 
+           // Set timeout to automatically move to the next question after feedback
            quizState.buttonTimeout = setTimeout(() => {
-               quizState.buttonTimeout = null;
-               quizState.currentQuestionIndex++;
-               displayCurrentQuizQuestion();
-           }, 800);
+               quizState.buttonTimeout = null; // Clear the timeout flag
+               quizState.currentQuestionIndex++; // Move to next index
+               displayCurrentQuizQuestion(); // Display the next question (or handle round end)
+           }, 800); // Delay for feedback visibility
       };
 
       const handleQuizRoundEnd = () => {
            console.log(`Quiz round ${quizState.round} ended.`);
            if (quizState.incorrectlyAnswered.length === 0) {
-               // Quiz Complete
+               // --- Quiz Complete ---
                console.log("Quiz completed! All questions mastered.");
                if(quizCompletionMessage) {
                    quizCompletionMessage.textContent = `🎉 Well done! You've mastered all ${quizState.initialQuestions.length} questions for ${quizState.currentSubject}!`;
-                   quizCompletionMessage.classList.remove('hidden');
+                   quizCompletionMessage.classList.remove('hidden'); // Show completion message
                }
+               // Clear display areas
                if (quizQuestionDisplay) quizQuestionDisplay.innerHTML = '<p class="italic text-muted dark:text-muted-dark">Quiz complete!</p>';
-               // No need to clear quizQuestionFileDisplay as it's part of quizQuestionDisplay now
-
                if (quizRevealBtnContainer) quizRevealBtnContainer.style.display = 'none';
                if (quizJudgmentButtons) quizJudgmentButtons.style.display = 'none';
                if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none';
+               // Change stop button text to indicate completion
                if (stopQuizButton) stopQuizButton.textContent = "Finish Session";
+
            } else {
-               // Start Next Round
+               // --- Start Next Round ---
                quizState.round++;
                console.log(`Starting round ${quizState.round} with ${quizState.incorrectlyAnswered.length} incorrect questions.`);
+               // Set the pool for the next round to only the incorrectly answered ones, shuffled
                quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]);
-               quizState.incorrectlyAnswered = [];
-               quizState.currentQuestionIndex = 0;
+               quizState.incorrectlyAnswered = []; // Clear the list for the new round
+               quizState.currentQuestionIndex = 0; // Reset index for the new pool
 
                alert(`Round ${quizState.round} starting with ${quizState.currentQuizPool.length} remaining question(s).`);
 
-               displayCurrentQuizQuestion();
+               displayCurrentQuizQuestion(); // Display the first question of the new round
            }
       };
 
@@ -2897,19 +3071,28 @@
 
       const populateSubjectDropdown = (selectElement) => {
           if (!selectElement) return;
-          const currentValue = selectElement.value;
-          const placeholder = selectElement.options[0] ? selectElement.options[0].cloneNode(true) : null;
-          selectElement.innerHTML = '';
-          if (placeholder && placeholder.value === "") selectElement.appendChild(placeholder);
-          else { const opt = document.createElement('option'); opt.value = ""; opt.textContent = "-- Select --"; selectElement.appendChild(opt); }
+          const currentValue = selectElement.value; // Store current selection if any
+          // Preserve the placeholder option if it exists
+          const placeholder = selectElement.options[0]?.value === "" ? selectElement.options[0].cloneNode(true) : null;
+          selectElement.innerHTML = ''; // Clear existing options
 
-          if (!subjects || subjects.length === 0) return;
+          if (placeholder) {
+              selectElement.appendChild(placeholder); // Add placeholder back
+          } else { // Create a default placeholder if none existed
+              const opt = document.createElement('option');
+              opt.value = "";
+              opt.textContent = "-- Select Subject --"; // Consistent placeholder text
+              selectElement.appendChild(opt);
+          }
+
+          if (!subjects || subjects.length === 0) return; // No subjects to add
           subjects.forEach(subject => {
               const option = document.createElement('option');
               option.value = subject;
               option.textContent = subject;
               selectElement.appendChild(option);
           });
+           // Restore previous selection if it's still a valid subject
            if (subjects.includes(currentValue)) {
                selectElement.value = currentValue;
            }
@@ -2937,19 +3120,19 @@
           // Mobile Navigation
           mobileMenuButton?.addEventListener('click', openMobileMenu);
           mobileCloseButton?.addEventListener('click', closeMobileMenu);
-          mobileOverlay?.addEventListener('click', closeMobileMenu);
+          mobileOverlay?.addEventListener('click', closeMobileMenu); // Close on overlay click
 
-          // Page Navigation
+          // Page Navigation (Desktop & Mobile Links)
           document.querySelectorAll('a.nav-link[data-page], a.mobile-nav-link[data-page]').forEach(link => {
               link.addEventListener('click', (e) => {
                    e.preventDefault();
                    if (link instanceof HTMLElement && link.dataset.page) {
-                      window.navigateToPage(link.dataset.page);
+                      window.navigateToPage(link.dataset.page); // Use exposed navigation function
                    }
                 });
           });
 
-          // Dashboard Click Handling
+          // Dashboard Click Handling (Event Delegation)
           getElement('dashboard')?.addEventListener('click', (e) => {
               const pomodoroBtn = e.target.closest('#start-pomodoro-dashboard-btn');
               const quickLink = e.target.closest('#quick-links-list a.quick-link');
@@ -2958,8 +3141,10 @@
               if (pomodoroBtn) { window.navigateToPage('pomodoro'); }
               else if (quickLink && quickLink instanceof HTMLElement && quickLink.dataset.page) {
                    e.preventDefault();
+                   // Pass subject as parameter if available
                    window.navigateToPage(quickLink.dataset.page, quickLink.dataset.subject || null);
               } else if (examItem && examItem instanceof HTMLElement && examItem.dataset.page) {
+                   // Pass subject as parameter
                    window.navigateToPage(examItem.dataset.page, examItem.dataset.subject);
               }
           });
@@ -2980,26 +3165,29 @@
           // Pomodoro Page
           startPauseButton?.addEventListener('click', () => {
                if (pomodoroState.timerState === 'running') pauseTimer();
-               else startTimer();
+               else startTimer(); // Handles both start and resume
            });
           resetButton?.addEventListener('click', () => resetTimer(false));
           modeButtons.forEach(btn => {
               btn?.addEventListener('click', () => {
                    if (btn instanceof HTMLElement && btn.dataset.mode) {
                       const mode = btn.dataset.mode;
+                      // Only switch if mode is different and timer not running
                       if (mode !== pomodoroState.timerMode) {
-                          setTimerMode(mode, true);
+                          setTimerMode(mode, true); // Pass true for user interaction
                         }
                     }
                 });
           });
+          // Update timer immediately if duration changes for the current mode when stopped/paused
           workDurationInput?.addEventListener('change', () => handleDurationChange('work'));
           shortBreakDurationInput?.addEventListener('change', () => handleDurationChange('shortBreak'));
           longBreakDurationInput?.addEventListener('change', () => handleDurationChange('longBreak'));
+          // Save selected subject for work sessions immediately
           pomodoroSubjectSelect?.addEventListener('change', () => {
              if (pomodoroState.timerState === 'stopped' && pomodoroState.timerMode === 'work') {
                  pomodoroState.workSessionSubject = pomodoroSubjectSelect.value;
-                 savePomodoroState();
+                 savePomodoroState(); // Save the selected subject
              }
           });
 
@@ -3008,7 +3196,7 @@
               if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'tracker');
             });
           trackerDescriptionInput?.addEventListener('input', validateTrackerForm);
-          trackerStatusSelect?.addEventListener('change', validateTrackerForm);
+          trackerStatusSelect?.addEventListener('change', validateTrackerForm); // Validate on status change too
           saveTrackerItemBtn?.addEventListener('click', handleSaveTrackerItem);
 
           // Planner Page
@@ -3022,11 +3210,13 @@
           quizSubjectSelect?.addEventListener('change', (e) => {
                if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'quiz');
            });
+          // Validate quiz form on any input/change
           quizQuestionInput?.addEventListener('input', validateQuizForm);
           quizAnswerInput?.addEventListener('input', validateQuizForm);
           quizQuestionFileInput?.addEventListener('change', validateQuizForm);
           quizAnswerFileInput?.addEventListener('change', validateQuizForm);
           saveQuizQuestionBtn?.addEventListener('click', handleSaveQuizQuestion);
+          // Quiz Mode Controls
           startQuizButton?.addEventListener('click', startQuizMode);
           stopQuizButton?.addEventListener('click', stopQuizMode);
           quizRevealAnswerBtn?.addEventListener('click', revealQuizAnswer);
@@ -3041,9 +3231,11 @@
       // Initial setup function run once on script load
       const initializeAppHub = () => {
           console.log("Initializing App Hub...");
+          // Apply theme early
           try {
             applyTheme(localStorage.getItem('theme') || 'light');
           } catch(e){ console.warn("Could not apply theme from localStorage", e);}
+          // Setup listeners that don't depend on Firebase auth state
           setupGlobalEventListeners();
           console.log("App Hub main initialization complete. Waiting for auth state...");
       };
@@ -3053,55 +3245,76 @@
            console.log("Running post-login initialization for user:", user.uid);
           if (!db || !storage) {
               console.error("Database or Storage not ready during post-login initialization!");
+              // Display a user-friendly error, potentially offer refresh
+              alert("Failed to connect to services after login. Please refresh the page.");
+              handleLogout(); // Log out the user to prevent inconsistent state
               return;
           }
 
+          // Set footer year
           if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+
+          // Clear any previous countdown interval
           if (countdownInterval) clearInterval(countdownInterval);
 
           try {
+              // Load static/semi-static data first
               loadTimetable();
 
+              // Populate subject dropdowns used across pages
               populateSubjectDropdown(getElement('pomodoro-subject'));
               populateSubjectDropdown(getElement('tracker-subject-select'));
               populateSubjectDropdown(getElement('planner-subject-select'));
               populateSubjectDropdown(getElement('quiz-subject-select'));
 
+              // Initialize Pomodoro - load saved state or set default
               if (!loadPomodoroState()) {
+                   // If no valid state loaded, set default work mode
                   setTimerMode('work', false);
               }
 
-              loadResources();
-              loadTracker();
-              loadPlanner();
-              loadQuizPage();
+              // Load dynamic content for each page (data fetching)
+              loadResources(); // Sets up tabs, prepares for subject selection
+              loadTracker();   // Sets up dropdown, prepares for subject selection
+              loadPlanner();   // Sets up form, loads existing items
+              loadQuizPage();  // Sets up dropdown, prepares for subject selection
+
+              // Load dashboard data (fetches analytics, recent sessions etc.)
               loadDashboard();
+
+              // Show the dashboard by default after login
               showPage('dashboard');
 
-              countdownInterval = setInterval(updateTimetableCountdowns, 30000);
-              updateTimetableCountdowns();
+              // Start the countdown update interval
+              countdownInterval = setInterval(updateTimetableCountdowns, 30000); // Update every 30 seconds
+              updateTimetableCountdowns(); // Initial update
+
+              // Ensure all icons are rendered after dynamic content loads
               safelyCreateIcons();
 
-              console.log("Post-login initialization complete."); // FIX: Removed extra 's'
+              console.log("Post-login initialization complete.");
 
           } catch (error) {
               console.error("Error during post-login initialization:", error);
               const dashboardPage = getElement('dashboard');
+              // Display a clear error message on the dashboard
               if (dashboardPage) {
-                   // Make the error message more prominent and clear
                    dashboardPage.innerHTML = `
                     <div class="p-4 bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-200 text-center">
                         <h2 class="font-semibold text-lg mb-2">Error Loading Application Data</h2>
                         <p class="text-sm mb-3">Something went wrong during setup. Please try refreshing the page.</p>
-                        <p class="text-xs">If the problem persists, contact support. Check the browser console (F12) for technical details.</p>
+                        <p class="text-xs">If the problem persists, check the browser console (F12) for technical details.</p>
                         <p class="text-xs mt-1">Error details: ${escapeHtml(error.message)}</p>
                     </div>`;
-                   setActiveLink('dashboard');
+                   setActiveLink('dashboard'); // Ensure dashboard link is active despite error
               } else {
+                  // Fallback alert if dashboard element isn't found
                   alert("A critical error occurred while loading the application. Please refresh the page. Check the console for more details.");
               }
+              // Clean up timers on error
               if (countdownInterval) clearInterval(countdownInterval);
-              stopPomodoroTimer(true);
+              stopPomodoroTimer(true); // Stop pomodoro and clear its state
+              // Optionally logout user on critical failure: handleLogout();
           }
       };
 
