@@ -414,7 +414,7 @@
           app = initializeApp(firebaseConfig);
           auth = getAuth(app);
           db = getFirestore(app);
-          storage = getStorage(app);
+          storage = getStorage(app, "gs://studentpage-97bb5.firebasestorage.app");
       } catch (error) {
           console.error("Firebase Init Error:", error);
           const initialLoginError = document.getElementById('login-error');
