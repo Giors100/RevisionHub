@@ -528,7 +528,8 @@
 
       // --- Firebase Configuration ---
       const firebaseConfig = {
-        apiKey: ${{secrets.secret1}}, // Replace with your actual API key
+        const API_KEY = ${{ secrets.API_KEY }};
+        apiKey: API_KEY, // Replace with your actual API key
         authDomain: "studentpage-97bb5.firebaseapp.com",
         projectId: "studentpage-97bb5",
         storageBucket: "studentpage-97bb5.firebasestorage.app",
