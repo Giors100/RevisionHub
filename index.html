@@ -154,12 +154,17 @@
         .list-item { transition: background-color 0.15s ease-out, transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
         .list-item:hover { background-color: #f1f5f9; transform: scale(1.01); box-shadow: 0 3px 6px rgba(0,0,0,0.06); }
         .dark .list-item:hover { background-color: #334155; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
-        .list-delete-btn { color: #94a3b8; transition: color 0.15s ease-out, background-color 0.15s ease-out, transform 0.15s var(--ease-smooth); }
-        .list-delete-btn:hover { color: #ef4444; background-color: #fee2e2; transform: scale(1.15) rotate(5deg); }
-        .dark .list-delete-btn { color: #64748b; }
-        .dark .list-delete-btn:hover { color: #f87171; background-color: #450a0a; }
-        #resource-url-wrapper, #resource-note-wrapper { display: none; }
-        #resource-url-wrapper.visible, #resource-note-wrapper.visible { display: block; animation: contentFadeInShort 0.35s var(--ease-smooth); }
+        .list-action-btn { color: #94a3b8; transition: color 0.15s ease-out, background-color 0.15s ease-out, transform 0.15s var(--ease-smooth); }
+        .list-action-btn:hover { background-color: #eef2ff; transform: scale(1.15); } /* General hover */
+        .list-action-btn.delete:hover { color: #ef4444; background-color: #fee2e2; transform: scale(1.15) rotate(5deg); }
+        .list-action-btn.edit:hover { color: #4f46e5; background-color: #e0e7ff; transform: scale(1.15) rotate(-5deg); }
+        .dark .list-action-btn { color: #64748b; }
+        .dark .list-action-btn.delete:hover { color: #f87171; background-color: #450a0a; }
+        .dark .list-action-btn.edit:hover { color: #818cf8; background-color: #3730a3; }
+
+        #resource-url-wrapper, #resource-note-wrapper, #edit-resource-url-wrapper, #edit-resource-note-wrapper { display: none; }
+        #resource-url-wrapper.visible, #resource-note-wrapper.visible, #edit-resource-url-wrapper.visible, #edit-resource-note-wrapper.visible { display: block; animation: contentFadeInShort 0.35s var(--ease-smooth); }
+
         .subject-tab[aria-selected="true"] { color: var(--color-primary-DEFAULT); border-color: var(--color-primary-DEFAULT); font-weight: 600; background-color: transparent; }
         .dark .subject-tab[aria-selected="true"] { color: var(--color-primary-dark); border-color: var(--color-primary-dark); background-color: transparent; }
          details > summary { list-style: none; cursor: pointer; transition: background-color 0.2s ease-out; position: relative; padding-right: 2.5rem; }
@@ -178,11 +183,16 @@
         .dark .quiz-file-preview { border-color: #475569; }
         .quiz-mode-image-display { display: block; max-width: 90%; max-height: 400px; height: auto; margin: 1rem auto; border-radius: 0.5rem; border: 1px solid #e2e8f0; object-fit: contain; }
         .dark .quiz-mode-image-display { border-color: #475569; }
-        .file-input-button-style { display: block; width: 100%; text-align: left; font-size: theme('fontSize.sm'); color: theme('colors.slate.500'); cursor: pointer; }
-        .file-input-button-style > span { margin-right: theme('spacing.4'); padding: theme('spacing')['1.5'] theme('spacing.3'); border-radius: theme('borderRadius.full'); border-width: 0px; font-size: theme('fontSize.xs'); font-weight: theme('fontWeight.semibold'); background-color: theme('colors.primary.100'); color: theme('colors.primary.700'); transition: background-color 0.15s ease-out; }
+        .file-input-button-style { display: inline-block; text-align: left; font-size: theme('fontSize.sm'); color: theme('colors.slate.500'); cursor: pointer; }
+        .file-input-button-style > span { margin-right: theme('spacing.2'); padding: theme('spacing')['1.5'] theme('spacing.3'); border-radius: theme('borderRadius.full'); border-width: 0px; font-size: theme('fontSize.xs'); font-weight: theme('fontWeight.semibold'); background-color: theme('colors.primary.100'); color: theme('colors.primary.700'); transition: background-color 0.15s ease-out; }
         .file-input-button-style:hover > span { background-color: theme('colors.primary.200'); }
         .dark .file-input-button-style > span { background-color: theme('colors.primary.900 / 40%'); color: theme('colors.primary.300'); }
         .dark .file-input-button-style:hover > span { background-color: theme('colors.primary.900 / 60%'); }
+        #quiz-question-file-wrapper, #quiz-answer-file-wrapper,
+        #edit-quiz-question-file-wrapper, #edit-quiz-answer-file-wrapper { margin-bottom: 0.5rem; }
+        .current-file-display { font-size: theme('fontSize.xs'); color: theme('colors.muted.DEFAULT'); margin-left: theme('spacing.2'); font-style: italic; }
+        .dark .current-file-display { color: theme('colors.muted.dark');}
+
         .timer-ring { stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset 1s linear, stroke 0.3s ease-out; }
         .pomodoro-mode-btn.active { background-color: theme('colors.primary.DEFAULT'); color: white; border-color: theme('colors.primary.DEFAULT'); }
         .dark .pomodoro-mode-btn.active { background-color: theme('colors.primary.dark'); border-color: theme('colors.primary.dark'); color: theme('colors.text.dark'); }
@@ -570,7 +580,7 @@
             </section>
 
              <section id="quiz" class="page">
-                 <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Quiz Yourself</h1><div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300"><h2 class="text-xl font-semibold mb-4">Practice Questions</h2><p class="text-muted dark:text-muted-dark mb-5">Save challenging questions and test yourself. Get 5 right in a row for a bonus break!</p><div class="mb-6"><label for="quiz-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label><select id="quiz-subject-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select></div><div id="quiz-content-wrapper" class="hidden"><details id="add-quiz-details" class="mb-6 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50" style="display: none;"><summary class="p-3 font-medium text-primary dark:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-between focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"><span>Add New Question</span> <span class="summary-chevron"></span></summary><div><div id="add-quiz-question-form" class="space-y-4 p-4"><div> <label for="quiz-question-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Question:</label> <textarea id="quiz-question-input" placeholder="Enter the question text..." rows="3" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div><div> <label for="quiz-question-file" class="file-input-button-style"><span>Choose Q File</span> (Optional)</label> <input type="file" id="quiz-question-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only"> </div><div> <label for="quiz-answer-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Answer / Mark Scheme:</label> <textarea id="quiz-answer-input" placeholder="Enter the correct answer..." rows="4" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div><div> <label for="quiz-answer-file" class="file-input-button-style"><span>Choose A File</span> (Optional)</label> <input type="file" id="quiz-answer-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only"> </div><div><label for="quiz-paper-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Paper (Optional):</label><select id="quiz-paper-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary text-sm"><option value="General">General</option></select></div><button id="save-quiz-question-btn" class="mt-2 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">Add Question</button></div></div></details><div id="quiz-list-container"><h3 class="text-lg font-medium mb-3 text-text dark:text-text-dark">Saved Questions</h3><div id="quiz-items-list" class="mt-4 mb-6 max-h-72 overflow-y-auto space-y-3 pr-2 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/30 min-h-[100px]"></div><button id="start-quiz-button" class="bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2.5 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary"> <i data-lucide="swords" class="h-5 w-5"></i> <span>Challenge Me!</span> </button></div></div><div id="quiz-mode-interface" class="hidden mt-6 pt-6 border-t border-slate-200 dark:border-slate-700"><div class="flex justify-between items-center mb-3"><h3 class="text-xl font-semibold text-primary dark:text-primary-dark">Quiz Challenge</h3><span id="quiz-progress" class="text-sm font-medium text-muted dark:text-muted-dark">Round 1 | Remaining: 0</span></div><div id="quiz-question-display" class="p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg mb-4 min-h-[120px] bg-background dark:bg-slate-800/50 text-text dark:text-text-dark flex flex-col items-center justify-center text-center text-lg space-y-2"><p class="italic text-muted dark:text-muted-dark">Loading question...</p></div><div id="quiz-question-file-display" class="text-center"></div><div id="quiz-reveal-button-container" class="mb-3 text-center"><button id="quiz-reveal-answer-btn" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg text-sm btn-animated flex items-center space-x-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500"><i data-lucide="eye" class="h-4 w-4"></i> <span>Show Answer</span></button></div><div id="quiz-correct-answer-display" class="p-3 bg-slate-100 dark:bg-slate-700 rounded-md text-sm mb-4 space-y-2" style="display: none;"><div id="quiz-answer-text-display"></div><div id="quiz-answer-file-display" class="text-center"></div></div><div id="quiz-judgment-buttons" class="mt-4 flex justify-center gap-4" style="display: none;"><button id="quiz-incorrect-btn" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"><i data-lucide="x" class="h-5 w-5"></i> <span>Got it Wrong</span></button><button id="quiz-correct-btn" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"><i data-lucide="check" class="h-5 w-5"></i> <span>Got it Right!</span></button></div><div class="mt-6 text-center"><button id="stop-quiz-button" class="text-xs text-muted dark:text-muted-dark hover:text-red-600 dark:hover:text-red-400 underline focus-visible:ring-1 focus-visible:ring-red-500 rounded px-1 btn-animated">Stop Quiz</button></div><div id="quiz-completion-message" class="hidden mt-6 p-4 text-center bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 rounded-lg font-medium"></div></div></div>
+                 <h1 class="text-2xl md:text-3xl font-bold mb-6 text-text dark:text-text-dark">Quiz Yourself</h1><div class="bg-card text-text rounded-xl shadow-widget p-4 md:p-6 dark:bg-card-dark dark:text-text-dark dark:shadow-widget-dark transition-all duration-300"><h2 class="text-xl font-semibold mb-4">Practice Questions</h2><p class="text-muted dark:text-muted-dark mb-5">Save challenging questions and test yourself. Get 5 right in a row for a bonus break!</p><div class="mb-6"><label for="quiz-subject-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Select Subject:</label><select id="quiz-subject-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"> <option value="">-- Select Subject --</option> </select></div><div id="quiz-content-wrapper" class="hidden"><details id="add-quiz-details" class="mb-6 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50" style="display: none;"><summary class="p-3 font-medium text-primary dark:text-primary-dark hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-between focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"><span>Add New Question</span> <span class="summary-chevron"></span></summary><div><div id="add-quiz-question-form" class="space-y-4 p-4"><div> <label for="quiz-question-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Question:</label> <textarea id="quiz-question-input" placeholder="Enter the question text..." rows="3" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div><div id="quiz-question-file-wrapper"> <label for="quiz-question-file" class="file-input-button-style"><span>Choose Q File</span> (Optional)</label> <input type="file" id="quiz-question-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only"> <span id="quiz-question-filename" class="text-xs text-muted dark:text-muted-dark ml-2 align-middle"></span> <button type="button" id="clear-quiz-question-file" class="text-xs text-red-500 hover:underline ml-1 align-middle hidden" aria-label="Clear selected question file">&times;</button> </div><div> <label for="quiz-answer-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Answer / Mark Scheme:</label> <textarea id="quiz-answer-input" placeholder="Enter the correct answer..." rows="4" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea> </div><div id="quiz-answer-file-wrapper"> <label for="quiz-answer-file" class="file-input-button-style"><span>Choose A File</span> (Optional)</label> <input type="file" id="quiz-answer-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only"> <span id="quiz-answer-filename" class="text-xs text-muted dark:text-muted-dark ml-2 align-middle"></span> <button type="button" id="clear-quiz-answer-file" class="text-xs text-red-500 hover:underline ml-1 align-middle hidden" aria-label="Clear selected answer file">&times;</button></div><div><label for="quiz-paper-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Paper (Optional):</label><select id="quiz-paper-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary text-sm"><option value="General">General</option></select></div><button id="save-quiz-question-btn" class="mt-2 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-semibold py-2 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">Add Question</button></div></div></details><div id="quiz-list-container"><h3 class="text-lg font-medium mb-3 text-text dark:text-text-dark">Saved Questions</h3><div id="quiz-items-list" class="mt-4 mb-6 max-h-72 overflow-y-auto space-y-3 pr-2 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/30 min-h-[100px]"></div><button id="start-quiz-button" class="bg-secondary hover:bg-secondary/90 dark:bg-secondary-dark dark:hover:bg-secondary-dark/90 text-white font-semibold py-2.5 px-5 rounded-lg btn-animated shadow-sm disabled:opacity-50 flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary"> <i data-lucide="swords" class="h-5 w-5"></i> <span>Challenge Me!</span> </button></div></div><div id="quiz-mode-interface" class="hidden mt-6 pt-6 border-t border-slate-200 dark:border-slate-700"><div class="flex justify-between items-center mb-3"><h3 class="text-xl font-semibold text-primary dark:text-primary-dark">Quiz Challenge</h3><span id="quiz-progress" class="text-sm font-medium text-muted dark:text-muted-dark">Round 1 | Remaining: 0</span></div><div id="quiz-question-display" class="p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg mb-4 min-h-[120px] bg-background dark:bg-slate-800/50 text-text dark:text-text-dark flex flex-col items-center justify-center text-center text-lg space-y-2"><p class="italic text-muted dark:text-muted-dark">Loading question...</p></div><div id="quiz-question-file-display" class="text-center"></div><div id="quiz-reveal-button-container" class="mb-3 text-center"><button id="quiz-reveal-answer-btn" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg text-sm btn-animated flex items-center space-x-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500"><i data-lucide="eye" class="h-4 w-4"></i> <span>Show Answer</span></button></div><div id="quiz-correct-answer-display" class="p-3 bg-slate-100 dark:bg-slate-700 rounded-md text-sm mb-4 space-y-2" style="display: none;"><div id="quiz-answer-text-display"></div><div id="quiz-answer-file-display" class="text-center"></div></div><div id="quiz-judgment-buttons" class="mt-4 flex justify-center gap-4" style="display: none;"><button id="quiz-incorrect-btn" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"><i data-lucide="x" class="h-5 w-5"></i> <span>Got it Wrong</span></button><button id="quiz-correct-btn" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-6 rounded-lg btn-animated shadow-sm flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"><i data-lucide="check" class="h-5 w-5"></i> <span>Got it Right!</span></button></div><div class="mt-6 text-center"><button id="stop-quiz-button" class="text-xs text-muted dark:text-muted-dark hover:text-red-600 dark:hover:text-red-400 underline focus-visible:ring-1 focus-visible:ring-red-500 rounded px-1 btn-animated">Stop Quiz</button></div><div id="quiz-completion-message" class="hidden mt-6 p-4 text-center bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-200 rounded-lg font-medium"></div></div></div>
             </section>
         </main>
 
@@ -604,11 +614,118 @@
 
     <div id="quiz-paper-select-modal" class="simple-modal-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden"><div class="simple-modal-content bg-card dark:bg-card-dark rounded-xl shadow-lg p-6 w-full max-w-sm text-center transform scale-100 opacity-100"><h3 class="text-lg font-semibold mb-4 text-text dark:text-text-dark">Select Quiz Content</h3><p class="text-sm text-muted dark:text-muted-dark mb-5">Which questions do you want to include?</p><div id="quiz-paper-modal-options" class="space-y-3"><button data-paper-choice="All" class="quiz-paper-choice-btn w-full bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 text-white font-medium py-2 px-4 rounded-lg btn-animated focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">All Questions</button><button data-paper-choice="General" class="quiz-paper-choice-btn w-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg btn-animated focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500">General Only</button></div><button id="cancel-paper-select-btn" class="mt-4 text-xs text-muted dark:text-muted-dark hover:text-red-600 dark:hover:text-red-400 underline focus-visible:ring-1 focus-visible:ring-red-500 rounded px-1 btn-animated">Cancel</button></div></div>
 
+    <!-- Edit Resource Modal -->
+    <div id="edit-resource-modal" class="simple-modal-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden">
+        <div class="simple-modal-content bg-card dark:bg-card-dark rounded-xl shadow-lg p-6 w-full max-w-lg transform scale-100 opacity-100">
+            <h3 class="text-lg font-semibold mb-4 text-text dark:text-text-dark">Edit Resource</h3>
+            <input type="hidden" id="edit-resource-id-input">
+            <input type="hidden" id="edit-resource-subject-input">
+            <div class="space-y-4">
+                <div>
+                    <label for="edit-resource-title-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Title:</label>
+                    <input type="text" id="edit-resource-title-input" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="edit-resource-type-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Type:</label>
+                    <select id="edit-resource-type-select" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary">
+                        <option value="link">Link</option>
+                        <option value="note">Note</option>
+                    </select>
+                </div>
+                <div id="edit-resource-url-wrapper">
+                    <label for="edit-resource-url-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">URL:</label>
+                    <input type="url" id="edit-resource-url-input" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary">
+                </div>
+                <div id="edit-resource-note-wrapper">
+                    <label for="edit-resource-note-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Note:</label>
+                    <textarea id="edit-resource-note-input" rows="4" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+            </div>
+            <p id="edit-resource-error-message" class="text-red-500 text-xs mt-3 min-h-[1rem]"></p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-edit-resource-btn" class="px-4 py-2 text-sm font-medium text-muted dark:text-muted-dark bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg btn-animated">Cancel</button>
+                <button id="save-resource-changes-btn" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 rounded-lg btn-animated">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Tracker Item Modal -->
+    <div id="edit-tracker-item-modal" class="simple-modal-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden">
+        <div class="simple-modal-content bg-card dark:bg-card-dark rounded-xl shadow-lg p-6 w-full max-w-lg transform scale-100 opacity-100">
+            <h3 class="text-lg font-semibold mb-4 text-text dark:text-text-dark">Edit Tracker Item</h3>
+            <input type="hidden" id="edit-tracker-id">
+            <input type="hidden" id="edit-tracker-subject">
+            <div class="space-y-4">
+                <div>
+                    <label for="edit-tracker-description" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Description:</label>
+                    <textarea id="edit-tracker-description" rows="3" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <div>
+                    <label for="edit-tracker-status-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Status:</label>
+                    <select id="edit-tracker-status-select" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary">
+                        <option value="To Review">To Review</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Mastered">Mastered</option>
+                    </select>
+                </div>
+            </div>
+            <p id="edit-tracker-error-message" class="text-red-500 text-xs mt-3 min-h-[1rem]"></p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-edit-tracker-btn" class="px-4 py-2 text-sm font-medium text-muted dark:text-muted-dark bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg btn-animated">Cancel</button>
+                <button id="save-tracker-changes-btn" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 rounded-lg btn-animated">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Question Modal -->
+    <div id="edit-quiz-question-modal" class="simple-modal-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm hidden">
+        <div class="simple-modal-content bg-card dark:bg-card-dark rounded-xl shadow-lg p-6 w-full max-w-xl transform scale-100 opacity-100">
+            <h3 class="text-lg font-semibold mb-4 text-text dark:text-text-dark">Edit Quiz Question</h3>
+            <input type="hidden" id="edit-quiz-id">
+            <input type="hidden" id="edit-quiz-subject">
+            <div class="space-y-4">
+                <div>
+                    <label for="edit-quiz-question-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Question:</label>
+                    <textarea id="edit-quiz-question-input" rows="3" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <div id="edit-quiz-question-file-wrapper">
+                    <label for="edit-quiz-question-file" class="file-input-button-style"><span>Choose New Q File</span> (Optional)</label>
+                    <input type="file" id="edit-quiz-question-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only">
+                    <span id="edit-quiz-question-filename" class="text-xs text-muted dark:text-muted-dark ml-2 align-middle"></span>
+                    <button type="button" id="edit-clear-quiz-question-file" class="text-xs text-red-500 hover:underline ml-1 align-middle hidden" aria-label="Clear selected question file">&times;</button>
+                    <div id="current-edit-q-file-display" class="mt-1 current-file-display">Current: None</div>
+                </div>
+                <div>
+                    <label for="edit-quiz-answer-input" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Answer / Mark Scheme:</label>
+                    <textarea id="edit-quiz-answer-input" rows="4" class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <div id="edit-quiz-answer-file-wrapper">
+                    <label for="edit-quiz-answer-file" class="file-input-button-style"><span>Choose New A File</span> (Optional)</label>
+                    <input type="file" id="edit-quiz-answer-file" accept="image/*,application/pdf,.doc,.docx,.txt" class="sr-only">
+                    <span id="edit-quiz-answer-filename" class="text-xs text-muted dark:text-muted-dark ml-2 align-middle"></span>
+                    <button type="button" id="edit-clear-quiz-answer-file" class="text-xs text-red-500 hover:underline ml-1 align-middle hidden" aria-label="Clear selected answer file">&times;</button>
+                    <div id="current-edit-a-file-display" class="mt-1 current-file-display">Current: None</div>
+                </div>
+                <div>
+                    <label for="edit-quiz-paper-select" class="block text-sm font-medium text-muted dark:text-muted-dark mb-1">Paper (Optional):</label>
+                    <select id="edit-quiz-paper-select" class="w-full md:w-1/2 lg:w-1/3 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-background dark:bg-slate-700 focus:ring-primary focus:border-primary text-sm">
+                        <option value="General">General</option>
+                    </select>
+                </div>
+            </div>
+            <p id="edit-quiz-error-message" class="text-red-500 text-xs mt-3 min-h-[1rem]"></p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-edit-quiz-btn" class="px-4 py-2 text-sm font-medium text-muted dark:text-muted-dark bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg btn-animated">Cancel</button>
+                <button id="save-quiz-changes-btn" class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary-dark/90 rounded-lg btn-animated">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
+      // Firebase and other imports remain the same...
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-      import { getFirestore, collection, doc, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy, limit, serverTimestamp, increment, writeBatch, Timestamp, where } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+      import { getFirestore, collection, doc, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, orderBy, limit, serverTimestamp, increment, writeBatch, Timestamp, where, deleteField } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js"; // Added deleteField
       import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
       const firebaseConfig = {
@@ -635,7 +752,11 @@
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       let studyTimeChart = null;
       let openAddSectionFlag = null;
-      const MAX_FILE_UPLOAD_SIZE = 5 * 1024 * 1024;
+      const MAX_FILE_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
+
+      // Store initial data for quiz edit modal to track file changes
+      let initialQuizDataForEdit = { questionFileUrl: null, answerFileUrl: null, questionFileCleared: false, answerFileCleared: false };
+
 
       const examData = [ { subject: "English Literature", paper: "Paper 1", date: "2025-05-12T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computer Systems Written", date: "2025-05-12T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Biology", paper: "Paper 1", date: "2025-05-13T13:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Geography", paper: "Paper 1", date: "2025-05-14T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Mathematics", paper: "Option H: Non-Calculator", date: "2025-05-15T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Chemistry", paper: "Paper 1", date: "2025-05-19T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Literature", paper: "Paper 2", date: "2025-05-20T08:45:00", duration: "2h 15m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Computer Science", paper: "Computational Thinking, Algorithms & Programming", date: "2025-05-20T13:45:00", duration: "1h 30m", board: "OCR", tier: null, location: "Sports Hall 1", seat: "C10" }, { subject: "Physics", paper: "Paper 1", date: "2025-05-22T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "English Language", paper: "Paper 1", date: "2025-05-23T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Mathematics", paper: "Option H: Calculator", date: "2025-06-04T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M2" }, { subject: "English Language", paper: "Paper 2", date: "2025-06-06T08:45:00", duration: "1h 45m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 2", date: "2025-06-06T13:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Biology", paper: "Paper 2", date: "2025-06-09T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Listening", date: "2025-06-10T08:45:00", duration: "0h 45m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Spanish", paper: "Reading", date: "2025-06-10T09:50:00", duration: "1h 00m", board: "AQA", tier: "H", location: "4G3 - History E3", seat: null }, { subject: "Mathematics", paper: "Option H: Calculator P3", date: "2025-06-11T08:45:00", duration: "1h 30m", board: "Edexcel", tier: "H", location: "Sports Hall 1", seat: "M3" }, { subject: "Geography", paper: "Paper 3", date: "2025-06-12T08:45:00", duration: "1h 30m", board: "AQA", tier: null, location: "Sports Hall 1", seat: "F8" }, { subject: "Chemistry", paper: "Paper 2", date: "2025-06-13T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Physics", paper: "Paper 2", date: "2025-06-16T08:45:00", duration: "1h 45m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "N1" }, { subject: "Spanish", paper: "Writing", date: "2025-06-17T08:45:00", duration: "1h 15m", board: "AQA", tier: "H", location: "Sports Hall 1", seat: "J3" } ].sort((a, b) => new Date(a.date) - new Date(b.date));
       const motivationalQuotes = [ "Believe you can and you're halfway there.", "The secret to getting ahead is getting started.", "Don't watch the clock; do what it does. Keep going.", "Success is not final, failure is not fatal: It is the courage to continue that counts.", "The expert in anything was once a beginner.", "Strive for progress, not perfection.", "Your limitation—it's only your imagination.", "Push yourself, because no one else is going to do it for you.", "Great things never come from comfort zones.", "The harder you work for something, the greater you'll feel when you achieve it.", "Focus on the step in front of you, not the whole staircase.", "Small steps every day lead to big results." ];
@@ -754,7 +875,11 @@
       const quizQuestionInput = getElement('quiz-question-input');
       const quizAnswerInput = getElement('quiz-answer-input');
       const quizQuestionFileInput = getElement('quiz-question-file');
+      const quizQuestionFilenameEl = getElement('quiz-question-filename');
+      const clearQuizQuestionFileBtn = getElement('clear-quiz-question-file');
       const quizAnswerFileInput = getElement('quiz-answer-file');
+      const quizAnswerFilenameEl = getElement('quiz-answer-filename');
+      const clearQuizAnswerFileBtn = getElement('clear-quiz-answer-file');
       const quizPaperSelect = getElement('quiz-paper-select');
       const saveQuizQuestionBtn = getElement('save-quiz-question-btn');
       const quizItemsList = getElement('quiz-items-list');
@@ -785,6 +910,50 @@
       const momentumResultValueDisplay = getElement('momentum-result-value');
       const closeSpinnerModalButton = getElement('close-spinner-modal-button');
 
+      // Edit Resource Modal Elements
+      const editResourceModal = getElement('edit-resource-modal');
+      const editResourceIdInput = getElement('edit-resource-id-input');
+      const editResourceSubjectInput = getElement('edit-resource-subject-input');
+      const editResourceTitleInput = getElement('edit-resource-title-input');
+      const editResourceTypeSelect = getElement('edit-resource-type-select');
+      const editResourceUrlWrapper = getElement('edit-resource-url-wrapper');
+      const editResourceUrlInput = getElement('edit-resource-url-input');
+      const editResourceNoteWrapper = getElement('edit-resource-note-wrapper');
+      const editResourceNoteInput = getElement('edit-resource-note-input');
+      const editResourceErrorMessage = getElement('edit-resource-error-message');
+      const saveResourceChangesBtn = getElement('save-resource-changes-btn');
+      const cancelEditResourceBtn = getElement('cancel-edit-resource-btn');
+
+      // Edit Tracker Item Modal Elements
+      const editTrackerItemModal = getElement('edit-tracker-item-modal');
+      const editTrackerIdInput = getElement('edit-tracker-id');
+      const editTrackerSubjectInput = getElement('edit-tracker-subject');
+      const editTrackerDescriptionInput = getElement('edit-tracker-description');
+      const editTrackerStatusSelect = getElement('edit-tracker-status-select');
+      const editTrackerErrorMessage = getElement('edit-tracker-error-message');
+      const saveTrackerChangesBtn = getElement('save-tracker-changes-btn');
+      const cancelEditTrackerBtn = getElement('cancel-edit-tracker-btn');
+
+      // Edit Quiz Question Modal Elements
+      const editQuizQuestionModal = getElement('edit-quiz-question-modal');
+      const editQuizIdInput = getElement('edit-quiz-id');
+      const editQuizSubjectInput = getElement('edit-quiz-subject');
+      const editQuizQuestionInput = getElement('edit-quiz-question-input');
+      const editQuizQuestionFileInput = getElement('edit-quiz-question-file');
+      const editQuizQuestionFilenameEl = getElement('edit-quiz-question-filename');
+      const editClearQuizQuestionFileBtn = getElement('edit-clear-quiz-question-file');
+      const currentEditQFileDisplay = getElement('current-edit-q-file-display');
+      const editQuizAnswerInput = getElement('edit-quiz-answer-input');
+      const editQuizAnswerFileInput = getElement('edit-quiz-answer-file');
+      const editQuizAnswerFilenameEl = getElement('edit-quiz-answer-filename');
+      const editClearQuizAnswerFileBtn = getElement('edit-clear-quiz-answer-file');
+      const currentEditAFileDisplay = getElement('current-edit-a-file-display');
+      const editQuizPaperSelect = getElement('edit-quiz-paper-select');
+      const editQuizErrorMessage = getElement('edit-quiz-error-message');
+      const saveQuizChangesBtn = getElement('save-quiz-changes-btn');
+      const cancelEditQuizBtn = getElement('cancel-edit-quiz-btn');
+
+
       let pomodoroState = { totalSeconds: 0, currentSeconds: 0, timerState: 'stopped', timerMode: 'work', pomodoroCycle: 0, workSessionSubject: '', timerEndTime: null };
       const POMODORO_STORAGE_KEY = 'pomodoroState';
 
@@ -811,6 +980,17 @@
       const getSubjectColorInfo = (subject) => { if (Object.keys(subjectColorMap).length <= 1) { generateSubjectColors(); } return subjectColorMap[subject] || subjectColorMap['default']; };
       const shuffleArray = (a) => { if (!Array.isArray(a)) return []; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
       const escapeHtml = (unsafe) => { return unsafe ? unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : ''; };
+      const getFilenameFromUrl = (url) => {
+          if (!url) return 'N/A';
+          try {
+              const decodedUrl = decodeURIComponent(url);
+              const pathPart = decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1).split('?')[0];
+              return pathPart.replace(/(_\d{13,})(?=\.[^.]+$)/, ''); // Remove timestamp suffix
+          } catch (e) {
+              console.warn("Could not parse filename from URL:", url, e);
+              return 'File';
+          }
+      };
       const applyStaggerAnimation = (elements) => { if (!elements) return; Array.from(elements).forEach((el, index) => { if (el instanceof HTMLElement) { el.style.animationDelay = `${index * 0.06}s`; el.classList.add('list-item-appear'); } }); };
       const getTodayDateString = () => { const now = new Date(); const year = now.getFullYear(); const month = (now.getMonth() + 1).toString().padStart(2, '0'); const day = now.getDate().toString().padStart(2, '0'); return `${year}-${month}-${day}`; };
       const getDayName = (dayIndex) => dayNames[dayIndex] || 'sunday';
@@ -948,7 +1128,7 @@
       const openMobileMenu = () => { mobileMenu?.classList.add('open'); mobileOverlay?.classList.remove('hidden'); requestAnimationFrame(() => { mobileOverlay?.classList.add('visible'); }); };
       const closeMobileMenu = () => { mobileOverlay?.classList.remove('visible'); mobileMenu?.classList.remove('open'); setTimeout(() => mobileOverlay?.classList.add('hidden'), 350); };
       const createLoadingMessage = (text = "Loading...", isTableRow = false, colspan = 1) => { const p = document.createElement('p'); p.className = 'text-muted dark:text-muted-dark italic p-4 text-center text-sm'; p.textContent = text; if (isTableRow) { const td = document.createElement('td'); td.colSpan = colspan; td.className = 'p-4 text-center'; td.appendChild(p); const tr = document.createElement('tr'); tr.appendChild(td); return tr.outerHTML; } return p.outerHTML; };
-      const clearDynamicContentAndIntervals = () => { if (countdownInterval) clearInterval(countdownInterval); if (pomodoroInterval) clearInterval(pomodoroInterval); if (bonusTimerInterval) clearInterval(bonusTimerInterval); countdownInterval = null; pomodoroInterval = null; bonusTimerInterval = null; document.title = DEFAULT_TITLE; if (studyTimeChart) { studyTimeChart.destroy(); studyTimeChart = null; } if (chartLoadingMessage) chartLoadingMessage.style.display = 'flex'; if (upcomingExamsList) upcomingExamsList.innerHTML = createLoadingMessage(); if (pomodoroSummary) pomodoroSummary.innerHTML = createLoadingMessage('No sessions logged.'); if (analyticsTotalTimeEl) analyticsTotalTimeEl.textContent = '--:--'; if (analyticsTotalSessionsEl) analyticsTotalSessionsEl.textContent = '0'; if (motivationalQuoteEl) motivationalQuoteEl.textContent = 'Loading quote...'; if (dailyGoalTargetEl) dailyGoalTargetEl.textContent = 'Loading...'; if (dailyGoalCompletedEl) dailyGoalCompletedEl.textContent = 'Loading...'; if (dailyGoalProgressBarFill) dailyGoalProgressBarFill.style.width = '0%'; if (dailyGoalPercentageEl) dailyGoalPercentageEl.textContent = '0%'; if (saveGoalsMessage) saveGoalsMessage.textContent = ''; Object.values(goalInputs).forEach(input => { if (input) input.value = ''; }); if (setGoalsDetails) setGoalsDetails.removeAttribute('open'); if (timetableBody) timetableBody.innerHTML = createLoadingMessage('Loading timetable...', true, 6); if (subjectTabsContainer) subjectTabsContainer.innerHTML = ''; if (resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject.'); if (addResourceDetails) { addResourceDetails.style.display = 'none'; addResourceDetails.removeAttribute('open'); } if (resourceTitleInput) resourceTitleInput.value = ''; if (resourceUrlInput) resourceUrlInput.value = ''; if (resourceNoteInput) resourceNoteInput.value = ''; if (resourceTypeSelect) resourceTypeSelect.value = 'link'; if (trackerSubjectSelect) trackerSubjectSelect.value = ''; if (trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.'); if (addTrackerDetails) { addTrackerDetails.style.display = 'none'; addTrackerDetails.removeAttribute('open'); } if (trackerDescriptionInput) trackerDescriptionInput.value = ''; if (trackerStatusSelect) trackerStatusSelect.value = 'To Review'; if (plannerSubjectSelect) plannerSubjectSelect.value = ''; if (plannerItemsList) plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled.'); if (plannerDateInput) plannerDateInput.value = ''; if (plannerTimeInput) plannerTimeInput.value = ''; if (plannerTopicInput) plannerTopicInput.value = ''; if (quizSubjectSelect) quizSubjectSelect.value = ''; if (quizContentWrapper) quizContentWrapper.classList.add('hidden'); if (quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.'); if (addQuizDetails) { addQuizDetails.style.display = 'none'; addQuizDetails.removeAttribute('open'); } if (quizModeInterface) quizModeInterface.classList.add('hidden'); if (quizQuestionInput) quizQuestionInput.value = ''; if (quizAnswerInput) quizAnswerInput.value = ''; if (quizQuestionFileInput) quizQuestionFileInput.value = ''; if (quizAnswerFileInput) quizAnswerFileInput.value = ''; if (quizPaperSelect) quizPaperSelect.innerHTML = '<option value="General">General</option>'; if (currentPasswordInput) currentPasswordInput.value = ''; if (newPasswordInput) newPasswordInput.value = ''; if (changePasswordMessage) changePasswordMessage.textContent = ''; resetPomodoroTimer(true); stopBonusTimer(); wonTimeSeconds = 0; isBonusTimerRunning = false; quizState = { active: false, currentSubject: null, currentPaperSelection: 'All', initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null, correctAnswersInSession: 0, isSpinnerModalOpen: false, spinJustFinished: false }; currentActiveSubject = null; targetSubjectParam = null; openAddSectionFlag = null; };
+      const clearDynamicContentAndIntervals = () => { if (countdownInterval) clearInterval(countdownInterval); if (pomodoroInterval) clearInterval(pomodoroInterval); if (bonusTimerInterval) clearInterval(bonusTimerInterval); countdownInterval = null; pomodoroInterval = null; bonusTimerInterval = null; document.title = DEFAULT_TITLE; if (studyTimeChart) { studyTimeChart.destroy(); studyTimeChart = null; } if (chartLoadingMessage) chartLoadingMessage.style.display = 'flex'; if (upcomingExamsList) upcomingExamsList.innerHTML = createLoadingMessage(); if (pomodoroSummary) pomodoroSummary.innerHTML = createLoadingMessage('No sessions logged.'); if (analyticsTotalTimeEl) analyticsTotalTimeEl.textContent = '--:--'; if (analyticsTotalSessionsEl) analyticsTotalSessionsEl.textContent = '0'; if (motivationalQuoteEl) motivationalQuoteEl.textContent = 'Loading quote...'; if (dailyGoalTargetEl) dailyGoalTargetEl.textContent = 'Loading...'; if (dailyGoalCompletedEl) dailyGoalCompletedEl.textContent = 'Loading...'; if (dailyGoalProgressBarFill) dailyGoalProgressBarFill.style.width = '0%'; if (dailyGoalPercentageEl) dailyGoalPercentageEl.textContent = '0%'; if (saveGoalsMessage) saveGoalsMessage.textContent = ''; Object.values(goalInputs).forEach(input => { if (input) input.value = ''; }); if (setGoalsDetails) setGoalsDetails.removeAttribute('open'); if (timetableBody) timetableBody.innerHTML = createLoadingMessage('Loading timetable...', true, 6); if (subjectTabsContainer) subjectTabsContainer.innerHTML = ''; if (resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject.'); if (addResourceDetails) { addResourceDetails.style.display = 'none'; addResourceDetails.removeAttribute('open'); } if (resourceTitleInput) resourceTitleInput.value = ''; if (resourceUrlInput) resourceUrlInput.value = ''; if (resourceNoteInput) resourceNoteInput.value = ''; if (resourceTypeSelect) resourceTypeSelect.value = 'link'; if (trackerSubjectSelect) trackerSubjectSelect.value = ''; if (trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.'); if (addTrackerDetails) { addTrackerDetails.style.display = 'none'; addTrackerDetails.removeAttribute('open'); } if (trackerDescriptionInput) trackerDescriptionInput.value = ''; if (trackerStatusSelect) trackerStatusSelect.value = 'To Review'; if (plannerSubjectSelect) plannerSubjectSelect.value = ''; if (plannerItemsList) plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled.'); if (plannerDateInput) plannerDateInput.value = ''; if (plannerTimeInput) plannerTimeInput.value = ''; if (plannerTopicInput) plannerTopicInput.value = ''; if (quizSubjectSelect) quizSubjectSelect.value = ''; if (quizContentWrapper) quizContentWrapper.classList.add('hidden'); if (quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.'); if (addQuizDetails) { addQuizDetails.style.display = 'none'; addQuizDetails.removeAttribute('open'); } if (quizModeInterface) quizModeInterface.classList.add('hidden'); if (quizQuestionInput) quizQuestionInput.value = ''; if (quizAnswerInput) quizAnswerInput.value = ''; if (quizQuestionFileInput) quizQuestionFileInput.value = ''; if (quizAnswerFileInput) quizAnswerFileInput.value = ''; if (quizQuestionFilenameEl) quizQuestionFilenameEl.textContent = ''; if (clearQuizQuestionFileBtn) clearQuizQuestionFileBtn.classList.add('hidden'); if (quizAnswerFilenameEl) quizAnswerFilenameEl.textContent = ''; if (clearQuizAnswerFileBtn) clearQuizAnswerFileBtn.classList.add('hidden'); if (quizPaperSelect) quizPaperSelect.innerHTML = '<option value="General">General</option>'; if (currentPasswordInput) currentPasswordInput.value = ''; if (newPasswordInput) newPasswordInput.value = ''; if (changePasswordMessage) changePasswordMessage.textContent = ''; resetPomodoroTimer(true); stopBonusTimer(); wonTimeSeconds = 0; isBonusTimerRunning = false; quizState = { active: false, currentSubject: null, currentPaperSelection: 'All', initialQuestions: [], currentQuizPool: [], incorrectlyAnswered: [], currentQuestionIndex: -1, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null, correctAnswersInSession: 0, isSpinnerModalOpen: false, spinJustFinished: false }; currentActiveSubject = null; targetSubjectParam = null; openAddSectionFlag = null; };
 
       const loadDashboard = async () => { if (!currentUserId || !db || !getElement('dashboard')?.classList.contains('active')) { return; } if (upcomingExamsList) { upcomingExamsList.innerHTML = createLoadingMessage('Loading exams...'); try { const now = new Date(); const futureExams = examData.filter(exam => new Date(exam.date) > now).slice(0, 5); upcomingExamsList.innerHTML = ''; if (futureExams.length > 0) { futureExams.forEach((exam, index) => { const div = document.createElement('div'); const colorInfo = getSubjectColorInfo(exam.subject); div.className = `upcoming-exam-item p-3 rounded-lg border-l-4 ${colorInfo.borderClass} bg-background dark:bg-slate-800/50 shadow-sm list-item list-item-appear cursor-pointer hover:shadow-md dark:hover:shadow-widget-hover-dark`; div.style.animationDelay = `${index * 0.07}s`; div.dataset.page = "resources"; div.dataset.subject = exam.subject; div.setAttribute('role', 'button'); div.setAttribute('tabindex', '0'); div.onclick = () => window.navigateToPage('resources', exam.subject); div.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') window.navigateToPage('resources', exam.subject); }; div.innerHTML = `<div class="flex justify-between items-center mb-1 pointer-events-none"><span class="font-semibold text-text dark:text-text-dark">${escapeHtml(exam.subject)}</span><span class="text-xs font-medium ${colorInfo.textClass}" data-date="${exam.date}">${formatCountdown(exam.date)}</span></div><p class="text-xs text-muted dark:text-muted-dark pointer-events-none">${escapeHtml(exam.paper)} (${formatDurationString(exam.duration)})</p><p class="text-xs text-muted dark:text-muted-dark pointer-events-none">${formatExamDate(exam.date)}</p>`; upcomingExamsList.appendChild(div); }); applyStaggerAnimation(upcomingExamsList.children); } else { upcomingExamsList.innerHTML = createLoadingMessage('No upcoming exams found.'); } } catch (e) { console.error("Error rendering upcoming exams:", e); if (upcomingExamsList) upcomingExamsList.innerHTML = createLoadingMessage('Error loading exams.'); } } await updateAnalyticsDisplay(pomodoroSummary); if (motivationalQuoteEl) { motivationalQuoteEl.textContent = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]; } if (dailyGoalTargetEl && dailyGoalCompletedEl && dailyGoalProgressBarFill && dailyGoalPercentageEl) { dailyGoalTargetEl.textContent = 'Loading...'; dailyGoalCompletedEl.textContent = 'Loading...'; dailyGoalProgressBarFill.style.width = '0%'; dailyGoalPercentageEl.textContent = '0%'; try { const goalsRef = getUserDataRef(currentUserId, 'settings/dailyGoals'); const goalsSnap = await getDoc(goalsRef); const dailyGoals = goalsSnap.exists() ? goalsSnap.data() : {}; const todayStr = getTodayDateString(); const progressRef = getUserDataRef(currentUserId, `dailyProgress/${todayStr}`); const progressSnap = await getDoc(progressRef); const todayProgress = progressSnap.exists() ? progressSnap.data() : { totalMinutes: 0 }; const completedMinutes = todayProgress.totalMinutes || 0; const todayDayName = getDayName(new Date().getDay()); const goalMinutes = dailyGoals[todayDayName] || 0; dailyGoalTargetEl.textContent = formatMinutesToHHMM(goalMinutes); dailyGoalCompletedEl.textContent = formatMinutesToHHMM(completedMinutes); let percentage = 0; if (goalMinutes > 0) { percentage = Math.min(100, Math.round((completedMinutes / goalMinutes) * 100)); } else if (completedMinutes > 0) { percentage = 100; } dailyGoalProgressBarFill.style.width = `${percentage}%`; dailyGoalPercentageEl.textContent = `${percentage}%`; loadDailyGoalInputs(dailyGoals); } catch (error) { console.error("Error loading daily goal data:", error); dailyGoalTargetEl.textContent = 'Error'; dailyGoalCompletedEl.textContent = 'Error'; dailyGoalPercentageEl.textContent = 'Error'; } } else { console.warn("Daily goal UI elements not found."); } safelyCreateIcons(); };
       const updateAnalyticsDisplay = async (pomodoroSummaryEl) => { if (!currentUserId || !db) return; if (analyticsTotalTimeEl) analyticsTotalTimeEl.textContent = '--:--'; if (analyticsTotalSessionsEl) analyticsTotalSessionsEl.textContent = '0'; if (pomodoroSummaryEl) pomodoroSummaryEl.innerHTML = createLoadingMessage('Loading sessions...'); if (chartLoadingMessage) chartLoadingMessage.style.display = 'flex'; try { const analyticsRef = getUserDataRef(currentUserId, 'stats/pomodoroAnalytics'); if (!analyticsRef) throw new Error("Could not get analytics ref."); const analyticsDoc = await getDoc(analyticsRef); let analyticsData = { totalMinutes: 0, totalSessions: 0, subjectMinutes: {} }; if (analyticsDoc.exists()) { analyticsData = analyticsDoc.data(); } const totalMins = analyticsData.totalMinutes || 0; const totalSessions = analyticsData.totalSessions || 0; const subjectMins = (analyticsData.subjectMinutes && typeof analyticsData.subjectMinutes === 'object') ? analyticsData.subjectMinutes : {}; if (analyticsTotalTimeEl) analyticsTotalTimeEl.textContent = formatMinutesToHHMM(totalMins); if (analyticsTotalSessionsEl) analyticsTotalSessionsEl.textContent = totalSessions; updateStudyTimeChart(subjectMins); const logColl = getUserCollectionRef(currentUserId, 'pomodoroLogs'); if (!logColl) throw new Error("Could not get pomodoro logs ref."); const logQuery = query(logColl, orderBy("timestamp", "desc"), limit(5)); const logSnapshot = await getDocs(logQuery); if (pomodoroSummaryEl) { pomodoroSummaryEl.innerHTML = ''; if (logSnapshot.empty) { pomodoroSummaryEl.innerHTML = createLoadingMessage('No recent study sessions.'); } else { logSnapshot.docs.forEach((logDoc, index) => { const data = logDoc.data(); const p = document.createElement('p'); p.className = 'text-xs text-muted dark:text-muted-dark list-item-appear border-b border-slate-100 dark:border-slate-700/50 pb-1.5 mb-1.5 last:border-b-0'; p.style.animationDelay = `${index * 0.06}s`; const dateStr = data.timestamp ? formatGeneralDate(data.timestamp) : 'Recent'; const colorInfo = getSubjectColorInfo(data.subject || 'Unknown Subject'); p.innerHTML = `<i data-lucide="check-circle" class="h-3 w-3 ${colorInfo.textClass} mr-1.5 inline-block align-middle"></i> <span class="font-medium text-text dark:text-text-dark">${escapeHtml(data.subject || 'Unknown Subject')}</span> - ${formatMinutesToHHMM(data.durationMinutes || 0)} <span class="text-gray-400 dark:text-gray-500">(${dateStr})</span>`; pomodoroSummaryEl.appendChild(p); }); safelyCreateIcons(); applyStaggerAnimation(pomodoroSummaryEl.children); } } } catch (error) { console.error("Error loading study insights:", error); if (pomodoroSummaryEl) pomodoroSummaryEl.innerHTML = createLoadingMessage('Error loading sessions.'); if (chartLoadingMessage) chartLoadingMessage.textContent = 'Error loading chart.'; if (analyticsTotalTimeEl) analyticsTotalTimeEl.textContent = 'Error'; if (analyticsTotalSessionsEl) analyticsTotalSessionsEl.textContent = 'Error'; } };
@@ -963,15 +1143,183 @@
 
       const animateContentSwitch = async (containerElement, displayFunction, subject) => { if (!containerElement) return; containerElement.classList.add('content-fade-out'); await new Promise(resolve => setTimeout(resolve, 150)); containerElement.innerHTML = ''; containerElement.classList.remove('content-fade-out'); containerElement.innerHTML = createLoadingMessage(`Loading ${subject || ''}...`); try { await displayFunction(subject); } catch (e) { console.error(`Error during display function for ${subject} in animateContentSwitch:`, e); containerElement.innerHTML = createLoadingMessage(`Error loading content for ${subject}.`, false); } if (!containerElement.innerHTML.includes('Error loading')) { containerElement.classList.add('content-fade-in'); setTimeout(() => containerElement.classList.remove('content-fade-in'), 300); } };
 
-      const handleSubjectSelection = (subject, context) => { const isValidSubject = subject && subjects.includes(subject); currentActiveSubject = isValidSubject ? subject : null; const toggleDetailsVisibility = (detailsId) => { const detailsElement = getElement(detailsId); if (detailsElement instanceof HTMLDetailsElement) { detailsElement.style.display = isValidSubject ? 'block' : 'none'; if (!isValidSubject && detailsElement.open) { detailsElement.open = false; } } }; if (context === 'resources') { setActiveSubjectTab(currentActiveSubject); toggleDetailsVisibility('add-resource-details'); if (isValidSubject) { if(resourceTitleInput) resourceTitleInput.value = ''; if(resourceUrlInput) resourceUrlInput.value = ''; if(resourceNoteInput) resourceNoteInput.value = ''; if(resourceTypeSelect) resourceTypeSelect.value = 'link'; toggleResourceTypeFields(); validateResourceForm(); animateContentSwitch(resourceContent, displayResources, currentActiveSubject); } else { if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.'); } } else if (context === 'tracker') { toggleDetailsVisibility('add-tracker-details'); if (isValidSubject) { if(trackerDescriptionInput) trackerDescriptionInput.value = ''; if(trackerStatusSelect) trackerStatusSelect.value = 'To Review'; validateTrackerForm(); animateContentSwitch(trackerItemsList, displayTrackerItems, currentActiveSubject); } else { if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.'); } } else if (context === 'quiz') { stopQuizMode(); toggleDetailsVisibility('add-quiz-details'); if (quizContentWrapper) quizContentWrapper.classList.toggle('hidden', !isValidSubject); if (isValidSubject) { if(quizQuestionInput) quizQuestionInput.value = ''; if(quizAnswerInput) quizAnswerInput.value = ''; if(quizQuestionFileInput) quizQuestionFileInput.value = ''; if(quizAnswerFileInput) quizAnswerFileInput.value = ''; populateQuizPaperOptions(currentActiveSubject); validateQuizForm(); animateContentSwitch(quizItemsList, displaySavedQuizQuestions, currentActiveSubject); } else { if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.'); toggleQuizButtons(); populateQuizPaperOptions(null); } } };
+      const handleSubjectSelection = (subject, context) => { const isValidSubject = subject && subjects.includes(subject); currentActiveSubject = isValidSubject ? subject : null; const toggleDetailsVisibility = (detailsId) => { const detailsElement = getElement(detailsId); if (detailsElement instanceof HTMLDetailsElement) { detailsElement.style.display = isValidSubject ? 'block' : 'none'; if (!isValidSubject && detailsElement.open) { detailsElement.open = false; } } }; if (context === 'resources') { setActiveSubjectTab(currentActiveSubject); toggleDetailsVisibility('add-resource-details'); if (isValidSubject) { if(resourceTitleInput) resourceTitleInput.value = ''; if(resourceUrlInput) resourceUrlInput.value = ''; if(resourceNoteInput) resourceNoteInput.value = ''; if(resourceTypeSelect) resourceTypeSelect.value = 'link'; toggleResourceTypeFields(); validateResourceForm(); animateContentSwitch(resourceContent, displayResources, currentActiveSubject); } else { if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.'); } } else if (context === 'tracker') { toggleDetailsVisibility('add-tracker-details'); if (isValidSubject) { if(trackerDescriptionInput) trackerDescriptionInput.value = ''; if(trackerStatusSelect) trackerStatusSelect.value = 'To Review'; validateTrackerForm(); animateContentSwitch(trackerItemsList, displayTrackerItems, currentActiveSubject); } else { if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject.'); } } else if (context === 'quiz') { stopQuizMode(); toggleDetailsVisibility('add-quiz-details'); if (quizContentWrapper) quizContentWrapper.classList.toggle('hidden', !isValidSubject); if (isValidSubject) { if(quizQuestionInput) quizQuestionInput.value = ''; if(quizAnswerInput) quizAnswerInput.value = ''; if(quizQuestionFileInput) quizQuestionFileInput.value = ''; if(quizAnswerFileInput) quizAnswerFileInput.value = ''; if(quizQuestionFilenameEl) quizQuestionFilenameEl.textContent = ''; if(clearQuizQuestionFileBtn) clearQuizQuestionFileBtn.classList.add('hidden'); if(quizAnswerFilenameEl) quizAnswerFilenameEl.textContent = ''; if(clearQuizAnswerFileBtn) clearQuizAnswerFileBtn.classList.add('hidden'); populateQuizPaperOptions(currentActiveSubject); validateQuizForm(); animateContentSwitch(quizItemsList, displaySavedQuizQuestions, currentActiveSubject); } else { if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Select a subject.'); toggleQuizButtons(); populateQuizPaperOptions(null); } } };
 
       const loadResources = () => { if (!subjectTabsContainer) { return; } subjectTabsContainer.innerHTML = ''; if (!subjects || subjects.length === 0) { subjectTabsContainer.innerHTML = '<p class="text-sm text-muted p-2">No subjects defined.</p>'; return; } subjects.forEach(subject => { const button = document.createElement('button'); button.setAttribute('role', 'tab'); button.setAttribute('aria-selected', 'false'); button.dataset.subject = subject; button.className = `subject-tab whitespace-nowrap py-2 px-3 text-sm font-medium rounded-t-lg border-b-2 border-transparent text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary-dark hover:border-slate-300 dark:hover:border-slate-600 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-1 transition-colors duration-150`; button.textContent = subject; subjectTabsContainer.appendChild(button); }); if (addResourceDetails) addResourceDetails.style.display = 'none'; if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Select a subject tab above.'); validateResourceForm(); };
-      const toggleResourceTypeFields = () => { if (!resourceTypeSelect || !resourceUrlWrapper || !resourceNoteWrapper) return; const isLink = resourceTypeSelect.value === 'link'; resourceUrlWrapper.classList.toggle('visible', isLink); resourceNoteWrapper.classList.toggle('visible', !isLink); if (isLink && resourceNoteInput) resourceNoteInput.value = ''; else if (!isLink && resourceUrlInput) resourceUrlInput.value = ''; validateResourceForm(); };
+      const toggleResourceTypeFields = (isEditModal = false) => {
+            const typeSelect = isEditModal ? editResourceTypeSelect : resourceTypeSelect;
+            const urlWrapper = isEditModal ? editResourceUrlWrapper : resourceUrlWrapper;
+            const noteWrapper = isEditModal ? editResourceNoteWrapper : resourceNoteWrapper;
+            const urlInput = isEditModal ? editResourceUrlInput : resourceUrlInput;
+            const noteInput = isEditModal ? editResourceNoteInput : resourceNoteInput;
+
+            if (!typeSelect || !urlWrapper || !noteWrapper) return;
+            const isLink = typeSelect.value === 'link';
+            urlWrapper.classList.toggle('visible', isLink);
+            noteWrapper.classList.toggle('visible', !isLink);
+            if (isLink && noteInput && noteInput.value && !isEditModal) noteInput.value = ''; // Only clear if not edit modal or value is already there during edit
+            else if (!isLink && urlInput && urlInput.value && !isEditModal) urlInput.value = '';
+
+            if (isEditModal) validateEditResourceForm(); else validateResourceForm();
+      };
       const validateResourceForm = () => { if (!saveResourceBtn || !resourceTitleInput || !resourceTypeSelect) { if(saveResourceBtn) saveResourceBtn.disabled = true; return; } let isValid = !!currentActiveSubject && resourceTitleInput.value.trim() !== ''; if (isValid) { if (resourceTypeSelect.value === 'link') { isValid = resourceUrlInput && resourceUrlInput.value.trim() !== '' && resourceUrlInput.checkValidity(); } else if (resourceTypeSelect.value === 'note') { isValid = resourceNoteInput && resourceNoteInput.value.trim() !== ''; } else { isValid = false; } } saveResourceBtn.disabled = !isValid; };
       const setActiveSubjectTab = (subject) => { document.querySelectorAll('#subject-tabs .subject-tab').forEach(tab => { if (tab instanceof HTMLElement && tab.dataset.subject) { const isSelected = tab.dataset.subject === subject; tab.setAttribute('aria-selected', isSelected.toString()); tab.classList.toggle('border-primary', isSelected); tab.classList.toggle('dark:border-primary-dark', isSelected); tab.classList.toggle('text-primary', isSelected); tab.classList.toggle('dark:text-primary-dark', isSelected); tab.classList.toggle('font-semibold', isSelected); tab.classList.toggle('border-transparent', !isSelected); tab.classList.toggle('text-muted', !isSelected); tab.classList.toggle('dark:text-muted-dark', !isSelected); tab.classList.toggle('font-medium', !isSelected); } }); };
-      const displayResources = async (subject) => { if (!currentUserId || !resourceContent || !db) { if(resourceContent) resourceContent.innerHTML = createLoadingMessage('Cannot load resources: Not logged in or DB unavailable.'); return; } resourceContent.innerHTML = createLoadingMessage(`Loading ${subject} resources...`); try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'resources', subject); if (!collRef) throw new Error("Could not get resources collection ref."); const q = query(collRef, orderBy("createdAt", "desc")); const snapshot = await getDocs(q); const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); resourceContent.innerHTML = ''; if (items.length === 0) { resourceContent.innerHTML = createLoadingMessage(`No resources saved for ${subject} yet.`); } else { const ul = document.createElement('ul'); ul.className = 'space-y-3'; items.forEach((item, index) => { const li = document.createElement('li'); const itemSubject = item.subject || subject; const colorInfo = getSubjectColorInfo(itemSubject); li.className = `resource-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 list-item-appear`; li.style.animationDelay = `${index * 0.06}s`; let contentHtml = ''; if (item.type === 'link' && item.url) { contentHtml = `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 group focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary rounded -m-1 p-1"><i data-lucide="link" class="h-4 w-4 text-primary dark:text-primary-dark flex-shrink-0"></i><span class="font-medium text-sm text-text dark:text-text-dark group-hover:underline">${escapeHtml(item.title)}</span><i data-lucide="external-link" class="h-3 w-3 text-muted dark:text-muted-dark opacity-0 group-hover:opacity-100 transition-opacity"></i></a>`; } else if (item.type === 'note') { contentHtml = `<div class="flex items-start space-x-2"><i data-lucide="notebook-pen" class="h-4 w-4 text-secondary dark:text-secondary-dark flex-shrink-0 mt-0.5"></i><div><p class="font-medium text-sm text-text dark:text-text-dark">${escapeHtml(item.title)}</p><p class="text-xs text-muted dark:text-muted-dark mt-1 whitespace-pre-wrap">${escapeHtml(item.noteContent || '')}</p></div></div>`; } else { contentHtml = `<p class="font-medium text-sm text-text dark:text-text-dark">${escapeHtml(item.title)}</p>`; } li.innerHTML = `<div class="flex-grow mr-2 overflow-hidden">${contentHtml}</div><button title="Delete Resource" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('resources', '${escapeHtml(subject)}', '${item.id}', 'resource', window.displayResources)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`; ul.appendChild(li); }); resourceContent.appendChild(ul); safelyCreateIcons(); } } catch (error) { console.error(`Error loading resources for ${subject}:`, error); resourceContent.innerHTML = createLoadingMessage(`Error loading resources for ${subject}. Check console.`); } };
+      const displayResources = async (subject) => {
+          if (!currentUserId || !resourceContent || !db) {
+              if (resourceContent) resourceContent.innerHTML = createLoadingMessage('Cannot load resources: Not logged in or DB unavailable.');
+              return;
+          }
+          resourceContent.innerHTML = createLoadingMessage(`Loading ${subject} resources...`);
+          try {
+              const collRef = getSubjectSpecificCollectionRef(currentUserId, 'resources', subject);
+              if (!collRef) throw new Error("Could not get resources collection ref.");
+              const q = query(collRef, orderBy("createdAt", "desc"));
+              const snapshot = await getDocs(q);
+              const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              resourceContent.innerHTML = '';
+
+              if (items.length === 0) {
+                  resourceContent.innerHTML = createLoadingMessage(`No resources saved for ${subject} yet.`);
+              } else {
+                  const ul = document.createElement('ul');
+                  ul.className = 'space-y-3';
+                  items.forEach((item, index) => {
+                      const li = document.createElement('li');
+                      const itemSubject = item.subject || subject;
+                      const colorInfo = getSubjectColorInfo(itemSubject);
+                      li.className = `resource-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 list-item-appear`;
+                      li.style.animationDelay = `${index * 0.06}s`;
+
+                      let contentHtml = '';
+                      if (item.type === 'link' && item.url) {
+                          contentHtml = `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 group focus-visible:outline focus-visible:outline-1 focus-visible:outline-primary rounded -m-1 p-1"><i data-lucide="link" class="h-4 w-4 text-primary dark:text-primary-dark flex-shrink-0"></i><span class="font-medium text-sm text-text dark:text-text-dark group-hover:underline">${escapeHtml(item.title)}</span><i data-lucide="external-link" class="h-3 w-3 text-muted dark:text-muted-dark opacity-0 group-hover:opacity-100 transition-opacity"></i></a>`;
+                      } else if (item.type === 'note') {
+                          contentHtml = `<div class="flex items-start space-x-2"><i data-lucide="notebook-pen" class="h-4 w-4 text-secondary dark:text-secondary-dark flex-shrink-0 mt-0.5"></i><div><p class="font-medium text-sm text-text dark:text-text-dark">${escapeHtml(item.title)}</p><p class="text-xs text-muted dark:text-muted-dark mt-1 whitespace-pre-wrap">${escapeHtml(item.noteContent || '')}</p></div></div>`;
+                      } else {
+                          contentHtml = `<p class="font-medium text-sm text-text dark:text-text-dark">${escapeHtml(item.title)}</p>`;
+                      }
+
+                      const actionsHtml = `
+                          <div class="flex-shrink-0 flex items-center space-x-1">
+                              <button title="Edit Resource" class="list-action-btn edit p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-primary" data-resource-id="${item.id}"><i data-lucide="edit-3" class="h-4 w-4"></i></button>
+                              <button title="Delete Resource" class="list-action-btn delete p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('resources', '${escapeHtml(subject)}', '${item.id}', 'resource', window.displayResources)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                          </div>`;
+
+                      li.innerHTML = `<div class="flex-grow mr-2 overflow-hidden">${contentHtml}</div>${actionsHtml}`;
+                      ul.appendChild(li);
+
+                      const editBtn = li.querySelector('.list-action-btn.edit');
+                      editBtn?.addEventListener('click', () => {
+                          openEditResourceModal(item.id, subject, item);
+                      });
+                  });
+                  resourceContent.appendChild(ul);
+                  safelyCreateIcons();
+              }
+          } catch (error) {
+              console.error(`Error loading resources for ${subject}:`, error);
+              resourceContent.innerHTML = createLoadingMessage(`Error loading resources for ${subject}. Check console.`);
+          }
+      };
       window.displayResources = displayResources;
       const handleSaveResource = async () => { if (!currentUserId || !currentActiveSubject || !saveResourceBtn || !db) { alert("Cannot save resource: Missing user, subject, or database connection."); return; } validateResourceForm(); if (saveResourceBtn.disabled) return; const type = resourceTypeSelect?.value; const title = resourceTitleInput?.value.trim(); const url = resourceUrlInput?.value.trim(); const noteContent = resourceNoteInput?.value.trim(); if (!type || !title || (type === 'link' && !url) || (type === 'note' && !noteContent)) { validateResourceForm(); return; } const newResource = { title, type, createdAt: serverTimestamp(), subject: currentActiveSubject }; if (type === 'link') newResource.url = url; else if (type === 'note') newResource.noteContent = noteContent; saveResourceBtn.disabled = true; saveResourceBtn.textContent = 'Saving...'; try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'resources', currentActiveSubject); if (!collRef) throw new Error("Could not get resources collection ref."); await addDoc(collRef, newResource); if (resourceTitleInput) resourceTitleInput.value = ''; if (resourceUrlInput) resourceUrlInput.value = ''; if (resourceNoteInput) resourceNoteInput.value = ''; if (resourceTypeSelect) resourceTypeSelect.value = 'link'; toggleResourceTypeFields(); if (addResourceDetails) addResourceDetails.open = false; displayResources(currentActiveSubject); } catch (error) { console.error("Error saving resource:", error); alert("Failed to save resource. Please try again."); } finally { saveResourceBtn.disabled = false; saveResourceBtn.textContent = 'Add Resource'; validateResourceForm(); } };
+
+      // Edit Resource Modal Functions
+      const openEditResourceModal = (resourceId, subject, resourceData) => {
+          if (!editResourceModal || !editResourceIdInput || !editResourceSubjectInput ||
+              !editResourceTitleInput || !editResourceTypeSelect || !editResourceUrlInput ||
+              !editResourceNoteInput || !editResourceErrorMessage) return;
+
+          editResourceIdInput.value = resourceId;
+          editResourceSubjectInput.value = subject;
+          editResourceTitleInput.value = resourceData.title || '';
+          editResourceTypeSelect.value = resourceData.type || 'link';
+          editResourceUrlInput.value = resourceData.url || '';
+          editResourceNoteInput.value = resourceData.noteContent || '';
+          editResourceErrorMessage.textContent = '';
+
+          toggleResourceTypeFields(true);
+          validateEditResourceForm();
+
+          editResourceModal.classList.remove('hidden');
+          safelyCreateIcons();
+      };
+
+      const closeEditResourceModal = () => {
+          if (editResourceModal) editResourceModal.classList.add('hidden');
+          if (editResourceErrorMessage) editResourceErrorMessage.textContent = '';
+      };
+
+      const validateEditResourceForm = () => {
+          if (!saveResourceChangesBtn || !editResourceTitleInput || !editResourceTypeSelect) {
+              if (saveResourceChangesBtn) saveResourceChangesBtn.disabled = true;
+              return;
+          }
+          let isValid = editResourceTitleInput.value.trim() !== '';
+          if (isValid) {
+              if (editResourceTypeSelect.value === 'link') {
+                  isValid = editResourceUrlInput && editResourceUrlInput.value.trim() !== '' && editResourceUrlInput.checkValidity();
+              } else if (editResourceTypeSelect.value === 'note') {
+                  isValid = editResourceNoteInput && editResourceNoteInput.value.trim() !== '';
+              } else {
+                  isValid = false;
+              }
+          }
+          saveResourceChangesBtn.disabled = !isValid;
+      };
+
+      const handleSaveResourceChanges = async () => {
+          if (!currentUserId || !db || !editResourceIdInput || !editResourceSubjectInput ||
+              !editResourceTitleInput || !editResourceTypeSelect || !editResourceUrlInput ||
+              !editResourceNoteInput || !saveResourceChangesBtn || !editResourceErrorMessage) {
+              if(editResourceErrorMessage) editResourceErrorMessage.textContent = 'Error: Modal elements missing.';
+              return;
+          }
+
+          validateEditResourceForm();
+          if (saveResourceChangesBtn.disabled) {
+             if(editResourceErrorMessage) editResourceErrorMessage.textContent = 'Please fill required fields correctly.';
+             return;
+          }
+          editResourceErrorMessage.textContent = '';
+
+          const resourceId = editResourceIdInput.value;
+          const subject = editResourceSubjectInput.value;
+          const type = editResourceTypeSelect.value;
+          const title = editResourceTitleInput.value.trim();
+          const url = editResourceUrlInput.value.trim();
+          const noteContent = editResourceNoteInput.value.trim();
+
+          const updatedResourceData = { title, type, updatedAt: serverTimestamp() };
+          if (type === 'link') {
+              updatedResourceData.url = url;
+              updatedResourceData.noteContent = deleteField();
+          } else if (type === 'note') {
+              updatedResourceData.noteContent = noteContent;
+              updatedResourceData.url = deleteField();
+          }
+
+          saveResourceChangesBtn.disabled = true;
+          saveResourceChangesBtn.textContent = 'Saving...';
+
+          try {
+              const docRef = getSubjectSpecificDocRef(currentUserId, 'resources', subject, resourceId);
+              if (!docRef) throw new Error("Could not get document reference for update.");
+              await updateDoc(docRef, updatedResourceData);
+              closeEditResourceModal();
+              if (currentActiveSubject === subject) {
+                  displayResources(subject);
+              }
+          } catch (error) {
+              console.error("Error updating resource:", error);
+              if(editResourceErrorMessage) editResourceErrorMessage.textContent = 'Failed to save changes. Please try again.';
+              alert("Failed to update resource. Please try again.");
+          } finally {
+              saveResourceChangesBtn.disabled = false;
+              saveResourceChangesBtn.textContent = 'Save Changes';
+          }
+      };
+
 
       const loadWonTime = async () => {
           if (!currentUserId || !db) { wonTimeSeconds = 0; updateWonTimeDisplayOnPomodoro(); return; }
@@ -1014,30 +1362,318 @@
 
       const loadTracker = () => { populateSubjectDropdown(trackerSubjectSelect); if(addTrackerDetails) addTrackerDetails.style.display = 'none'; if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Select a subject to view items.'); validateTrackerForm(); };
       const validateTrackerForm = () => { if (saveTrackerItemBtn && trackerDescriptionInput) { saveTrackerItemBtn.disabled = !currentActiveSubject || trackerDescriptionInput.value.trim() === ''; } else if (saveTrackerItemBtn) { saveTrackerItemBtn.disabled = true; } };
-      const displayTrackerItems = async (subject) => { if (!currentUserId || !trackerItemsList || !db) { if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Cannot load items: Not logged in or DB unavailable.'); return; } trackerItemsList.innerHTML = createLoadingMessage(`Loading ${subject} tracker items...`); try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'trackerItems', subject); if (!collRef) throw new Error("Could not get trackerItems collection ref."); const q = query(collRef, orderBy("createdAt", "desc")); const snapshot = await getDocs(q); const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); trackerItemsList.innerHTML = ''; if (items.length === 0) { trackerItemsList.innerHTML = createLoadingMessage(`No items tracked for ${subject} yet.`); } else { const getStatusClass = (status) => { const statusKey = status?.toLowerCase().replace(/\s+/g,'') || 'review'; const statusClasses = tailwind?.config?.theme?.extend?.colors?.status; return statusClasses?.[statusKey] || 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 font-medium'; }; items.forEach((item, index) => { const div = document.createElement('div'); const itemSubject = item.subject || subject; const colorInfo = getSubjectColorInfo(itemSubject); div.className = `tracker-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 list-item-appear`; div.style.animationDelay = `${index * 0.05}s`; div.innerHTML = `<div class="flex-grow"><p class="text-sm text-text dark:text-text-dark whitespace-pre-wrap">${escapeHtml(item.description)}</p><span class="text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${getStatusClass(item.status)}">${escapeHtml(item.status || 'To Review')}</span>${item.createdAt ? `<span class="text-xs text-muted dark:text-muted-dark ml-2">${formatGeneralDate(item.createdAt)}</span>` : ''}</div><div class="flex-shrink-0 flex flex-col items-end space-y-1"><button title="Delete Item" class="list-delete-btn p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('trackerItems', '${escapeHtml(subject)}', '${item.id}', 'tracker item', window.displayTrackerItems)"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div>`; trackerItemsList.appendChild(div); }); safelyCreateIcons(); } } catch (error) { console.error(`Error loading tracker items for ${subject}:`, error); trackerItemsList.innerHTML = createLoadingMessage(`Error loading items for ${subject}. Check console.`); } };
+      const displayTrackerItems = async (subject) => {
+          if (!currentUserId || !trackerItemsList || !db) {
+              if(trackerItemsList) trackerItemsList.innerHTML = createLoadingMessage('Cannot load items: Not logged in or DB unavailable.');
+              return;
+          }
+          trackerItemsList.innerHTML = createLoadingMessage(`Loading ${subject} tracker items...`);
+          try {
+              const collRef = getSubjectSpecificCollectionRef(currentUserId, 'trackerItems', subject);
+              if (!collRef) throw new Error("Could not get trackerItems collection ref.");
+              const q = query(collRef, orderBy("createdAt", "desc"));
+              const snapshot = await getDocs(q);
+              const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              trackerItemsList.innerHTML = '';
+
+              if (items.length === 0) {
+                  trackerItemsList.innerHTML = createLoadingMessage(`No items tracked for ${subject} yet.`);
+              } else {
+                  const getStatusClass = (status) => {
+                      const statusKey = status?.toLowerCase().replace(/\s+/g,'') || 'review';
+                      const statusClasses = tailwind?.config?.theme?.extend?.colors?.status;
+                      return statusClasses?.[statusKey] || 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 font-medium';
+                  };
+                  items.forEach((item, index) => {
+                      const div = document.createElement('div');
+                      const itemSubject = item.subject || subject;
+                      const colorInfo = getSubjectColorInfo(itemSubject);
+                      div.className = `tracker-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-background dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 space-x-3 list-item-appear`;
+                      div.style.animationDelay = `${index * 0.05}s`;
+
+                      const actionsHtml = `
+                          <div class="flex-shrink-0 flex items-center space-x-1">
+                              <button title="Edit Item" class="list-action-btn edit p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-primary" data-tracker-id="${item.id}"><i data-lucide="edit-3" class="h-4 w-4"></i></button>
+                              <button title="Delete Item" class="list-action-btn delete p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('trackerItems', '${escapeHtml(subject)}', '${item.id}', 'tracker item', window.displayTrackerItems)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                          </div>`;
+
+                      div.innerHTML = `<div class="flex-grow"><p class="text-sm text-text dark:text-text-dark whitespace-pre-wrap">${escapeHtml(item.description)}</p><span class="text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${getStatusClass(item.status)}">${escapeHtml(item.status || 'To Review')}</span>${item.createdAt ? `<span class="text-xs text-muted dark:text-muted-dark ml-2">${formatGeneralDate(item.createdAt)}</span>` : ''}</div>${actionsHtml}`;
+                      trackerItemsList.appendChild(div);
+
+                      const editBtn = div.querySelector('.list-action-btn.edit');
+                      editBtn?.addEventListener('click', () => openEditTrackerItemModal(item.id, subject, item));
+                  });
+                  safelyCreateIcons();
+              }
+          } catch (error) {
+              console.error(`Error loading tracker items for ${subject}:`, error);
+              trackerItemsList.innerHTML = createLoadingMessage(`Error loading items for ${subject}. Check console.`);
+          }
+      };
       window.displayTrackerItems = displayTrackerItems;
       const handleSaveTrackerItem = async () => { if (!currentUserId || !currentActiveSubject || !saveTrackerItemBtn || !db || !trackerDescriptionInput || !trackerStatusSelect) { alert("Cannot save item: Missing user, subject, or form elements."); return; } validateTrackerForm(); if (saveTrackerItemBtn.disabled) return; const description = trackerDescriptionInput.value.trim(); const status = trackerStatusSelect.value; const newItem = { description, status, createdAt: serverTimestamp(), subject: currentActiveSubject }; saveTrackerItemBtn.disabled = true; saveTrackerItemBtn.textContent = 'Adding...'; try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'trackerItems', currentActiveSubject); if (!collRef) throw new Error("Could not get trackerItems collection ref."); await addDoc(collRef, newItem); trackerDescriptionInput.value = ''; trackerStatusSelect.value = 'To Review'; if (addTrackerDetails) addTrackerDetails.open = false; displayTrackerItems(currentActiveSubject); } catch (error) { console.error("Error saving tracker item:", error); alert("Failed to save tracker item."); } finally { saveTrackerItemBtn.disabled = false; saveTrackerItemBtn.textContent = 'Add Item'; validateTrackerForm(); } };
+
+      // Edit Tracker Item Modal Functions
+      const openEditTrackerItemModal = (trackerId, subject, trackerData) => {
+          if (!editTrackerItemModal || !editTrackerIdInput || !editTrackerSubjectInput || !editTrackerDescriptionInput || !editTrackerStatusSelect || !editTrackerErrorMessage) return;
+
+          editTrackerIdInput.value = trackerId;
+          editTrackerSubjectInput.value = subject;
+          editTrackerDescriptionInput.value = trackerData.description || '';
+          editTrackerStatusSelect.value = trackerData.status || 'To Review';
+          editTrackerErrorMessage.textContent = '';
+          validateEditTrackerForm();
+          editTrackerItemModal.classList.remove('hidden');
+          safelyCreateIcons();
+      };
+
+      const closeEditTrackerItemModal = () => {
+          if (editTrackerItemModal) editTrackerItemModal.classList.add('hidden');
+          if (editTrackerErrorMessage) editTrackerErrorMessage.textContent = '';
+      };
+
+      const validateEditTrackerForm = () => {
+          if (saveTrackerChangesBtn && editTrackerDescriptionInput) {
+              saveTrackerChangesBtn.disabled = !editTrackerDescriptionInput.value.trim();
+          } else if (saveTrackerChangesBtn) {
+              saveTrackerChangesBtn.disabled = true;
+          }
+      };
+
+      const handleSaveTrackerItemChanges = async () => {
+          if (!currentUserId || !db || !editTrackerIdInput || !editTrackerSubjectInput || !editTrackerDescriptionInput || !editTrackerStatusSelect || !saveTrackerChangesBtn || !editTrackerErrorMessage) {
+              if(editTrackerErrorMessage) editTrackerErrorMessage.textContent = 'Error: Modal elements missing.';
+              return;
+          }
+          validateEditTrackerForm();
+          if (saveTrackerChangesBtn.disabled) {
+              if(editTrackerErrorMessage) editTrackerErrorMessage.textContent = 'Description cannot be empty.';
+              return;
+          }
+          editTrackerErrorMessage.textContent = '';
+
+          const trackerId = editTrackerIdInput.value;
+          const subject = editTrackerSubjectInput.value;
+          const description = editTrackerDescriptionInput.value.trim();
+          const status = editTrackerStatusSelect.value;
+
+          const updatedTrackerData = { description, status, updatedAt: serverTimestamp() };
+          saveTrackerChangesBtn.disabled = true;
+          saveTrackerChangesBtn.textContent = 'Saving...';
+
+          try {
+              const docRef = getSubjectSpecificDocRef(currentUserId, 'trackerItems', subject, trackerId);
+              if (!docRef) throw new Error("Could not get document reference for update.");
+              await updateDoc(docRef, updatedTrackerData);
+              closeEditTrackerItemModal();
+              if (currentActiveSubject === subject) {
+                  displayTrackerItems(subject);
+              }
+          } catch (error) {
+              console.error("Error updating tracker item:", error);
+              if(editTrackerErrorMessage) editTrackerErrorMessage.textContent = 'Failed to save changes. Please try again.';
+              alert("Failed to update tracker item. Please try again.");
+          } finally {
+              saveTrackerChangesBtn.disabled = false;
+              saveTrackerChangesBtn.textContent = 'Save Changes';
+          }
+      };
+
 
       const loadPlanner = () => { if (!plannerDateInput || !plannerTimeInput || !plannerSubjectSelect || !plannerTopicInput || !savePlannerItemBtn || !plannerItemsList) { return; } populateSubjectDropdown(plannerSubjectSelect); displayPlannerItems(); try { const now = new Date(); const localISODate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; const localISOTime = now.toTimeString().substring(0, 5); plannerDateInput.value = localISODate; plannerTimeInput.value = localISOTime; } catch (e) { console.warn("Could not set default date/time for planner:", e); } validatePlannerForm(); };
       const validatePlannerForm = () => { if (savePlannerItemBtn && plannerDateInput && plannerTimeInput && plannerSubjectSelect && plannerTopicInput) { const isValid = plannerDateInput.value && plannerTimeInput.value && plannerSubjectSelect.value && plannerTopicInput.value.trim(); savePlannerItemBtn.disabled = !isValid; } else if (savePlannerItemBtn) { savePlannerItemBtn.disabled = true; } };
       const handleSavePlannerItem = async () => { if (!currentUserId || !db || !savePlannerItemBtn || !plannerDateInput || !plannerTimeInput || !plannerSubjectSelect || !plannerTopicInput ) { alert("Cannot schedule: Missing user, DB connection, or form elements."); return; } validatePlannerForm(); if (savePlannerItemBtn.disabled) return; const date = plannerDateInput.value; const time = plannerTimeInput.value; const subject = plannerSubjectSelect.value; const topic = plannerTopicInput.value.trim(); let dateTimeString; try { if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) { throw new Error("Invalid date or time format entered."); } const combined = new Date(`${date}T${time}:00`); if (isNaN(combined.getTime())) throw new Error("Invalid date/time combination"); dateTimeString = combined.toISOString(); } catch (e) { console.error("Invalid date/time format:", e); alert("Please enter a valid date and time."); return; } const newItem = { dateTime: dateTimeString, subject, topic, createdAt: serverTimestamp() }; savePlannerItemBtn.disabled = true; savePlannerItemBtn.textContent = 'Scheduling...'; try { const collRef = getUserCollectionRef(currentUserId, 'plannerItems'); if (!collRef) throw new Error("Could not get plannerItems collection ref."); await addDoc(collRef, newItem); await displayPlannerItems(); if(plannerSubjectSelect) plannerSubjectSelect.value = ''; if(plannerTopicInput) plannerTopicInput.value = ''; validatePlannerForm(); } catch (e) { console.error("Error saving planner item:", e); alert("Failed to schedule session."); } finally { savePlannerItemBtn.disabled = false; savePlannerItemBtn.textContent = 'Schedule Session'; } };
-      const displayPlannerItems = async () => { if (!currentUserId || !plannerItemsList || !db) { if (plannerItemsList) plannerItemsList.innerHTML = createLoadingMessage('Cannot load sessions: Not logged in or DB unavailable.'); return; } plannerItemsList.innerHTML = createLoadingMessage('Loading scheduled sessions...'); try { const collRef = getUserCollectionRef(currentUserId, 'plannerItems'); if (!collRef) throw new Error("Could not get plannerItems collection ref."); const q = query(collRef, orderBy("dateTime", "asc")); const snapshot = await getDocs(q); const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); plannerItemsList.innerHTML = ''; if (items.length === 0) { plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled yet.'); } else { const groupedByDate = items.reduce((acc, item) => { try { if (!item.dateTime) throw new Error("Missing dateTime field"); const d = new Date(item.dateTime); if (isNaN(d.getTime())) throw new Error("Invalid stored date string"); const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); if (!acc[dateStr]) acc[dateStr] = []; acc[dateStr].push(item); } catch (e) { console.warn("Skipping planner item with invalid date:", item.id, item.dateTime, e); } return acc; }, {}); const sortedDates = Object.keys(groupedByDate).sort((a, b) => { try { const parseDisplayDate = (str) => { const parts = str.split(', ')[1]?.split(' '); if (!parts || parts.length !== 3) return new Date(NaN); const day = parseInt(parts[0]); const year = parseInt(parts[2]); const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase()); if (isNaN(day) || isNaN(year) || monthIndex === -1) return new Date(NaN); return new Date(Date.UTC(year, monthIndex, day)); }; const dateA = parseDisplayDate(a); const dateB = parseDisplayDate(b); if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return 0; return dateA - dateB; } catch { return 0; } }); sortedDates.forEach(dateStr => { const dateHeader = document.createElement('h4'); dateHeader.className = 'text-lg font-semibold mt-5 mb-2 text-text dark:text-text-dark border-b pb-1 dark:border-slate-600'; dateHeader.textContent = dateStr; plannerItemsList.appendChild(dateHeader); const list = document.createElement('ul'); list.className = 'space-y-3'; const sortedItems = groupedByDate[dateStr].sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime)); sortedItems.forEach((item, index) => { const li = document.createElement('li'); const itemSubject = item.subject || 'Unspecified'; const colorInfo = getSubjectColorInfo(itemSubject); li.className = `planner-item list-item flex justify-between items-center p-3 rounded-lg border-l-4 ${colorInfo.borderClass} bg-card dark:bg-card-dark shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 list-item-appear`; li.style.animationDelay = `${index * 0.05}s`; const formattedDateTime = item.dateTime ? formatPlannerDateTime(item.dateTime) : 'Invalid time'; const isPast = item.dateTime ? new Date(item.dateTime) < new Date() : false; li.innerHTML = `<div class="flex-grow mr-3 ${isPast ? 'opacity-60' : ''}"><p class="font-semibold text-sm text-text dark:text-text-dark">${escapeHtml(item.subject)}</p><p class="text-xs text-muted dark:text-muted-dark mt-0.5">${escapeHtml(item.topic)}</p><p class="text-xs text-primary dark:text-primary-dark font-medium mt-1.5">${formattedDateTime}</p>${isPast ? '<span class="text-xs text-red-500 dark:text-red-400 ml-2">(Past)</span>' : ''}</div><button title="Delete Session" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('plannerItems', null, '${item.id}', 'scheduled session', window.displayPlannerItems)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`; list.appendChild(li); }); plannerItemsList.appendChild(list); }); safelyCreateIcons(); } } catch (error) { console.error("Error loading planner items:", error); plannerItemsList.innerHTML = createLoadingMessage('Error loading scheduled sessions. Check console.'); } };
+      const displayPlannerItems = async () => { if (!currentUserId || !plannerItemsList || !db) { if (plannerItemsList) plannerItemsList.innerHTML = createLoadingMessage('Cannot load sessions: Not logged in or DB unavailable.'); return; } plannerItemsList.innerHTML = createLoadingMessage('Loading scheduled sessions...'); try { const collRef = getUserCollectionRef(currentUserId, 'plannerItems'); if (!collRef) throw new Error("Could not get plannerItems collection ref."); const q = query(collRef, orderBy("dateTime", "asc")); const snapshot = await getDocs(q); const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); plannerItemsList.innerHTML = ''; if (items.length === 0) { plannerItemsList.innerHTML = createLoadingMessage('No sessions scheduled yet.'); } else { const groupedByDate = items.reduce((acc, item) => { try { if (!item.dateTime) throw new Error("Missing dateTime field"); const d = new Date(item.dateTime); if (isNaN(d.getTime())) throw new Error("Invalid stored date string"); const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); if (!acc[dateStr]) acc[dateStr] = []; acc[dateStr].push(item); } catch (e) { console.warn("Skipping planner item with invalid date:", item.id, item.dateTime, e); } return acc; }, {}); const sortedDates = Object.keys(groupedByDate).sort((a, b) => { try { const parseDisplayDate = (str) => { const parts = str.split(', ')[1]?.split(' '); if (!parts || parts.length !== 3) return new Date(NaN); const day = parseInt(parts[0]); const year = parseInt(parts[2]); const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase()); if (isNaN(day) || isNaN(year) || monthIndex === -1) return new Date(NaN); return new Date(Date.UTC(year, monthIndex, day)); }; const dateA = parseDisplayDate(a); const dateB = parseDisplayDate(b); if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return 0; return dateA - dateB; } catch { return 0; } }); sortedDates.forEach(dateStr => { const dateHeader = document.createElement('h4'); dateHeader.className = 'text-lg font-semibold mt-5 mb-2 text-text dark:text-text-dark border-b pb-1 dark:border-slate-600'; dateHeader.textContent = dateStr; plannerItemsList.appendChild(dateHeader); const list = document.createElement('ul'); list.className = 'space-y-3'; const sortedItems = groupedByDate[dateStr].sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime)); sortedItems.forEach((item, index) => { const li = document.createElement('li'); const itemSubject = item.subject || 'Unspecified'; const colorInfo = getSubjectColorInfo(itemSubject); li.className = `planner-item list-item flex justify-between items-center p-3 rounded-lg border-l-4 ${colorInfo.borderClass} bg-card dark:bg-card-dark shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 list-item-appear`; li.style.animationDelay = `${index * 0.05}s`; const formattedDateTime = item.dateTime ? formatPlannerDateTime(item.dateTime) : 'Invalid time'; const isPast = item.dateTime ? new Date(item.dateTime) < new Date() : false; li.innerHTML = `<div class="flex-grow mr-3 ${isPast ? 'opacity-60' : ''}"><p class="font-semibold text-sm text-text dark:text-text-dark">${escapeHtml(item.subject)}</p><p class="text-xs text-muted dark:text-muted-dark mt-0.5">${escapeHtml(item.topic)}</p><p class="text-xs text-primary dark:text-primary-dark font-medium mt-1.5">${formattedDateTime}</p>${isPast ? '<span class="text-xs text-red-500 dark:text-red-400 ml-2">(Past)</span>' : ''}</div><button title="Delete Session" class="list-action-btn delete p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('plannerItems', null, '${item.id}', 'scheduled session', window.displayPlannerItems)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`; list.appendChild(li); }); plannerItemsList.appendChild(list); }); safelyCreateIcons(); } } catch (error) { console.error("Error loading planner items:", error); plannerItemsList.innerHTML = createLoadingMessage('Error loading scheduled sessions. Check console.'); } };
       window.displayPlannerItems = displayPlannerItems;
 
       window.handleGenericDeleteItem = async (collectionName, subject, itemId, itemTypeName, displayFunction) => { if (!currentUserId || !itemId || !db) { alert(`Cannot delete ${itemTypeName}: Missing user ID or DB connection.`); return; } if (!confirm(`Are you sure you want to delete this ${itemTypeName}? This cannot be undone.`)) { return; } try { let itemRef; if (subject && ['resources', 'trackerItems', 'quizItems'].includes(collectionName)) { itemRef = getSubjectSpecificDocRef(currentUserId, collectionName, subject, itemId); } else if (!subject && ['plannerItems'].includes(collectionName)) { itemRef = doc(db, `users/${currentUserId}/${collectionName}/${itemId}`); } else { throw new Error(`Invalid collection/subject combination for deletion: ${collectionName}, ${subject}`); } if (!itemRef) throw new Error("Could not construct document reference for deletion."); if (collectionName === 'quizItems' && subject) { await handleDeleteQuizItemFiles(subject, itemId); } await deleteDoc(itemRef); if (typeof displayFunction === 'function') { if (subject && currentActiveSubject === subject) { displayFunction(subject); } else if (!subject) { displayFunction(); } } if (collectionName === 'quizItems' && currentActiveSubject === subject) { await toggleQuizButtons(); } } catch (error) { console.error(`Error deleting ${itemTypeName} (ID: ${itemId}):`, error); alert(`Failed to delete ${itemTypeName}. Check console for details.`); } };
-      const handleDeleteQuizItemFiles = async (subject, itemId) => { if (!currentUserId || !subject || !itemId || !db || !storage) { return; } const itemRef = getSubjectSpecificDocRef(currentUserId, 'quizItems', subject, itemId); if (!itemRef) return; try { const docSnap = await getDoc(itemRef); if (docSnap.exists()) { const data = docSnap.data(); const tryDeleteFile = async (fileUrl, fileType) => { if (!fileUrl) return; try { if (fileUrl.includes('firebasestorage.googleapis.com')) { const fileRef = ref(storage, fileUrl); await deleteObject(fileRef); } } catch (e) { if (e.code === 'storage/object-not-found') { } else { console.warn(`Failed to delete quiz ${fileType} file ${fileUrl}:`, e); } } }; await tryDeleteFile(data.questionFileUrl, 'question'); await tryDeleteFile(data.answerFileUrl, 'answer'); } } catch(error) { console.error(`Error retrieving quiz item ${itemId} to delete files:`, error); } };
+      const handleDeleteQuizItemFiles = async (subject, itemId, specificFiles = { qFile: null, aFile: null }) => {
+          if (!currentUserId || !subject || !db || !storage) return;
+
+          const deleteFile = async (fileUrl, fileType) => {
+              if (!fileUrl) return;
+              try {
+                  if (fileUrl.includes('firebasestorage.googleapis.com')) {
+                      const fileRef = ref(storage, fileUrl);
+                      await deleteObject(fileRef);
+                      console.log(`Successfully deleted ${fileType} file: ${fileUrl}`);
+                  }
+              } catch (e) {
+                  if (e.code === 'storage/object-not-found') {
+                      // console.log(`${fileType} file not found, already deleted or never existed: ${fileUrl}`);
+                  } else {
+                      console.warn(`Failed to delete quiz ${fileType} file ${fileUrl}:`, e);
+                  }
+              }
+          };
+
+          if (specificFiles.qFile) await deleteFile(specificFiles.qFile, 'question');
+          if (specificFiles.aFile) await deleteFile(specificFiles.aFile, 'answer');
+
+          // If not deleting specific files, assume deleting all files for the item
+          if (!specificFiles.qFile && !specificFiles.aFile && itemId) {
+              const itemRef = getSubjectSpecificDocRef(currentUserId, 'quizItems', subject, itemId);
+              if (!itemRef) return;
+              try {
+                  const docSnap = await getDoc(itemRef);
+                  if (docSnap.exists()) {
+                      const data = docSnap.data();
+                      if (data.questionFileUrl) await deleteFile(data.questionFileUrl, 'question');
+                      if (data.answerFileUrl) await deleteFile(data.answerFileUrl, 'answer');
+                  }
+              } catch(error) {
+                  console.error(`Error retrieving quiz item ${itemId} to delete files:`, error);
+              }
+          }
+      };
+
 
       const getPapersForSubject = (subject) => { if (!subject) return ['General']; const papers = examData.filter(exam => exam.subject === subject && exam.paper).map(exam => exam.paper); const uniquePapers = [...new Set(papers)]; if (uniquePapers.length === 0) { return ['General']; } if (!uniquePapers.includes('General')) { uniquePapers.push('General'); } return uniquePapers.sort(); };
-      const populateQuizPaperOptions = (subject) => { const papers = getPapersForSubject(subject); if (quizPaperSelect instanceof HTMLSelectElement) { quizPaperSelect.innerHTML = ''; papers.forEach(paper => { const option = document.createElement('option'); option.value = paper; option.textContent = paper; quizPaperSelect.appendChild(option); }); if (papers.includes('General')) { quizPaperSelect.value = 'General'; } } if (quizPaperModalOptions) { quizPaperModalOptions.querySelectorAll('.specific-paper-btn').forEach(btn => btn.remove()); const generalBtn = quizPaperModalOptions.querySelector('button[data-paper-choice="General"]'); papers.filter(p => p !== 'General' && p !== 'All').forEach(paper => { const button = document.createElement('button'); button.dataset.paperChoice = paper; button.className = 'quiz-paper-choice-btn specific-paper-btn w-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg btn-animated focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500'; button.textContent = `${paper} Only`; if (generalBtn) { quizPaperModalOptions.insertBefore(button, generalBtn); } else { quizPaperModalOptions.appendChild(button); } button.addEventListener('click', (e) => { const choice = e.target.dataset.paperChoice; if (choice && e.target instanceof HTMLButtonElement) { hidePaperSelectionModal(); startQuizMode(choice); } }); }); } };
+      const populateQuizPaperOptions = (subject, selectElement = quizPaperSelect) => { // Added selectElement param
+            const papers = getPapersForSubject(subject);
+            if (selectElement instanceof HTMLSelectElement) {
+                selectElement.innerHTML = '';
+                papers.forEach(paper => {
+                    const option = document.createElement('option');
+                    option.value = paper;
+                    option.textContent = paper;
+                    selectElement.appendChild(option);
+                });
+                if (papers.includes('General')) {
+                    selectElement.value = 'General';
+                }
+            }
+            if (quizPaperModalOptions && selectElement === quizPaperSelect) { // Only update modal options if it's the main select
+                quizPaperModalOptions.querySelectorAll('.specific-paper-btn').forEach(btn => btn.remove());
+                const generalBtn = quizPaperModalOptions.querySelector('button[data-paper-choice="General"]');
+                papers.filter(p => p !== 'General' && p !== 'All').forEach(paper => {
+                    const button = document.createElement('button');
+                    button.dataset.paperChoice = paper;
+                    button.className = 'quiz-paper-choice-btn specific-paper-btn w-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-text dark:text-text-dark font-medium py-2 px-4 rounded-lg btn-animated focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-slate-500';
+                    button.textContent = `${paper} Only`;
+                    if (generalBtn) {
+                        quizPaperModalOptions.insertBefore(button, generalBtn);
+                    } else {
+                        quizPaperModalOptions.appendChild(button);
+                    }
+                    button.addEventListener('click', (e) => {
+                        const choice = e.target.dataset.paperChoice;
+                        if (choice && e.target instanceof HTMLButtonElement) {
+                            hidePaperSelectionModal();
+                            startQuizMode(choice);
+                        }
+                    });
+                });
+            }
+      };
       const loadQuizPage = () => { populateSubjectDropdown(quizSubjectSelect); if(quizContentWrapper) quizContentWrapper.classList.add('hidden'); if(quizModeInterface) quizModeInterface.classList.add('hidden'); if (addQuizDetails) addQuizDetails.style.display = 'none'; validateQuizForm(); toggleQuizButtons(); };
-      const validateQuizForm = () => { if (!saveQuizQuestionBtn || !quizQuestionInput || !quizAnswerInput || !quizQuestionFileInput || !quizAnswerFileInput || !quizPaperSelect) { if (saveQuizQuestionBtn) saveQuizQuestionBtn.disabled = true; return; } const hasQuestion = quizQuestionInput.value.trim() !== '' || quizQuestionFileInput.files.length > 0; const hasAnswer = quizAnswerInput.value.trim() !== '' || quizAnswerFileInput.files.length > 0; saveQuizQuestionBtn.disabled = !(currentActiveSubject && hasQuestion && hasAnswer); };
+      const validateQuizForm = (isEdit = false) => {
+            const qInput = isEdit ? editQuizQuestionInput : quizQuestionInput;
+            const aInput = isEdit ? editQuizAnswerInput : quizAnswerInput;
+            const qFileInput = isEdit ? editQuizQuestionFileInput : quizQuestionFileInput;
+            const aFileInput = isEdit ? editQuizAnswerFileInput : quizAnswerFileInput;
+            const saveBtn = isEdit ? saveQuizChangesBtn : saveQuizQuestionBtn;
+
+            if (!saveBtn || !qInput || !aInput || !qFileInput || !aFileInput) {
+                if (saveBtn) saveBtn.disabled = true;
+                return;
+            }
+
+            let hasQuestion = qInput.value.trim() !== '' || qFileInput.files.length > 0;
+            let hasAnswer = aInput.value.trim() !== '' || aFileInput.files.length > 0;
+
+            // For edit mode, existing files also count towards validity if not cleared
+            if (isEdit) {
+                if (!hasQuestion && initialQuizDataForEdit.questionFileUrl && !initialQuizDataForEdit.questionFileCleared) {
+                    hasQuestion = true;
+                }
+                if (!hasAnswer && initialQuizDataForEdit.answerFileUrl && !initialQuizDataForEdit.answerFileCleared) {
+                    hasAnswer = true;
+                }
+            }
+            saveBtn.disabled = !(currentActiveSubject && hasQuestion && hasAnswer);
+      };
       const toggleQuizButtons = async () => { if (startQuizButton) startQuizButton.disabled = true; if (!currentActiveSubject || !currentUserId || !db || !startQuizButton) return; try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject); if (!collRef) throw new Error("Could not get quizItems collection ref."); const q = query(collRef, limit(1)); const snapshot = await getDocs(q); startQuizButton.disabled = snapshot.empty; } catch (error) { console.error("Error checking for quiz questions:", error); if (startQuizButton) startQuizButton.disabled = true; } };
       const renderFilePreview = (url, altText = "Uploaded file", context = 'list') => { if (!url) return ''; const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i; let displayHtml = ''; if (imageExtensions.test(url)) { const imgClass = context === 'quiz' ? 'quiz-mode-image-display' : 'quiz-file-preview'; displayHtml = `<img src="${escapeHtml(url)}" alt="${escapeHtml(altText)}" class="${imgClass} inline-block border border-slate-300 dark:border-slate-600 rounded" loading="lazy">`; } else { let filename = 'Attached File'; try { const decodedUrl = decodeURIComponent(url); const pathPart = decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1).split('?')[0]; filename = pathPart.replace(/(_\d{13,})(?=\.[^.]+$)/, ''); } catch (e) { console.warn("Could not parse filename from URL:", url, e); } displayHtml = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-primary dark:text-primary-dark hover:underline bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"><i data-lucide="paperclip" class="h-3 w-3"></i><span>${escapeHtml(filename)}</span></a>`; } const container = document.createElement('div'); container.innerHTML = displayHtml; safelyCreateIcons(); return container.innerHTML; };
-      const displaySavedQuizQuestions = async (subject) => { if (!currentUserId || !quizItemsList || !db) { if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Cannot load questions: Not logged in or DB unavailable.'); return; } quizItemsList.innerHTML = createLoadingMessage(`Loading ${subject} questions...`); try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', subject); if (!collRef) throw new Error("Could not get quizItems collection ref."); const q = query(collRef, orderBy("createdAt", "desc")); const snapshot = await getDocs(q); const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); quizItemsList.innerHTML = ''; if (items.length === 0) { quizItemsList.innerHTML = createLoadingMessage(`No questions saved for ${subject} yet.`); } else { items.forEach((item, index) => { const div = document.createElement('div'); const itemSubject = item.subject || subject; const colorInfo = getSubjectColorInfo(itemSubject); const paper = item.paper || 'General'; div.className = `quiz-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-white dark:bg-slate-800 shadow-sm space-x-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 list-item-appear`; div.style.animationDelay = `${index * 0.05}s`; let questionHtml = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate" title="${escapeHtml(item.question)}">Q: ${escapeHtml(item.question)}</p>` : ''; if (item.questionFileUrl) { questionHtml += `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file', 'list')}</div>`; } if (!questionHtml) { questionHtml = `<p class="font-medium text-text dark:text-text-dark mb-1 italic text-muted dark:text-muted-dark">(No question text/file)</p>`; } let answerHtml = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1" title="${escapeHtml(item.answer)}">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : ''; if (item.answerFileUrl) { answerHtml += `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file', 'list')}</div>`; } if (!answerHtml) { answerHtml = `<p class="text-xs text-muted dark:text-muted-dark mt-1 italic">(No answer text/file)</p>`; } const paperTag = `<span class="text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 font-medium ml-2">${escapeHtml(paper)}</span>`; div.innerHTML = `<div class="flex-grow text-sm overflow-hidden"><div class="flex justify-between items-start mb-1">${questionHtml}${paperTag}</div>${answerHtml}</div><button title="Delete Question" class="list-delete-btn flex-shrink-0 p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('quizItems', '${escapeHtml(subject)}', '${item.id}', 'quiz question', window.displaySavedQuizQuestions)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`; quizItemsList.appendChild(div); }); safelyCreateIcons(); } await toggleQuizButtons(); } catch (error) { console.error(`Error loading quiz items for ${subject}:`, error); if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage(`Error loading questions for ${subject}. Check console.`); await toggleQuizButtons(); } };
-      window.displaySavedQuizQuestions = displaySavedQuizQuestions;
-      const uploadFile = async (file, subject) => { if (!file || !currentUserId || !subject || !storage) { throw new Error("Cannot upload file: Missing required information or storage service."); } if (file.size > MAX_FILE_UPLOAD_SIZE) { throw new Error(`File size exceeds limit (${(MAX_FILE_UPLOAD_SIZE / 1024 / 1024)} MB).`); } const timestamp = Date.now(); const nameParts = file.name.split('.'); const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : ''; const baseName = nameParts.join('.'); const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_.\-]/g, '_'); const safeFileName = `${cleanBaseName}_${timestamp}${extension}`; const storagePath = `quizFiles/${currentUserId}/${subject}/${safeFileName}`; const storageRef = ref(storage, storagePath); try { const snapshot = await uploadBytes(storageRef, file); const downloadURL = await getDownloadURL(snapshot.ref); return downloadURL; } catch (error) { console.error("Firebase Storage Upload Error:", error); let userMessage = `Upload Failed: ${error.message}`; if (error.code === 'storage/unauthorized') { userMessage = 'Upload Failed: You do not have permission to upload files. Check Storage Rules.'; } else if (error.code === 'storage/canceled') { userMessage = 'Upload Failed: The upload was cancelled.'; } else if (error.code === 'storage/unknown') { userMessage = 'Upload Failed: An unknown error occurred. Check network connection.'; } else if (error.code === 'storage/quota-exceeded') { userMessage = 'Upload Failed: Storage quota exceeded.';} throw new Error(`${userMessage} (Code: ${error.code})`); } };
-      const handleSaveQuizQuestion = async () => { if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db || !storage || !quizQuestionInput || !quizAnswerInput || !quizQuestionFileInput || !quizAnswerFileInput || !quizPaperSelect) { alert("Cannot save question: Missing required context or elements."); return; } validateQuizForm(); if (saveQuizQuestionBtn.disabled) { return; } const questionText = quizQuestionInput.value.trim(); const answerText = quizAnswerInput.value.trim(); const questionFile = quizQuestionFileInput.files[0]; const answerFile = quizAnswerFileInput.files[0]; const paper = quizPaperSelect.value || 'General'; saveQuizQuestionBtn.disabled = true; saveQuizQuestionBtn.textContent = 'Saving...'; let questionFileUrl = null; let answerFileUrl = null; let errorOccurred = false; try { if (questionFile) { saveQuizQuestionBtn.textContent = 'Uploading Q file...'; questionFileUrl = await uploadFile(questionFile, currentActiveSubject); } if (answerFile) { saveQuizQuestionBtn.textContent = 'Uploading A file...'; answerFileUrl = await uploadFile(answerFile, currentActiveSubject); } saveQuizQuestionBtn.textContent = 'Saving Data...'; const newItem = { question: questionText, answer: answerText, paper: paper, createdAt: serverTimestamp(), subject: currentActiveSubject }; if (questionFileUrl) newItem.questionFileUrl = questionFileUrl; if (answerFileUrl) newItem.answerFileUrl = answerFileUrl; const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject); if (!collRef) throw new Error("Could not get quizItems collection ref for saving."); const docRef = await addDoc(collRef, newItem); if (quizQuestionInput) quizQuestionInput.value = ''; if (quizAnswerInput) quizAnswerInput.value = ''; if (quizQuestionFileInput) quizQuestionFileInput.value = ''; if (quizAnswerFileInput) quizAnswerFileInput.value = ''; if(quizPaperSelect) quizPaperSelect.value = 'General'; if (addQuizDetails) addQuizDetails.open = false; displaySavedQuizQuestions(currentActiveSubject); } catch (error) { errorOccurred = true; console.error("Error during handleSaveQuizQuestion:", error); alert(`Failed to save question. ${error.message}. Check console.`); const cleanupPromises = []; if (questionFileUrl) { cleanupPromises.push( deleteObject(ref(storage, questionFileUrl)).then(() => {}).catch(e => console.warn("Could not clean up orphaned question file:", e)) ); } if (answerFileUrl) { cleanupPromises.push( deleteObject(ref(storage, answerFileUrl)).then(() => {}).catch(e => console.warn("Could not clean up orphaned answer file:", e)) ); } await Promise.allSettled(cleanupPromises); } finally { saveQuizQuestionBtn.textContent = 'Add Question'; validateQuizForm(); } };
+      const displaySavedQuizQuestions = async (subject) => {
+          if (!currentUserId || !quizItemsList || !db) {
+              if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage('Cannot load questions: Not logged in or DB unavailable.');
+              return;
+          }
+          quizItemsList.innerHTML = createLoadingMessage(`Loading ${subject} questions...`);
+          try {
+              const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', subject);
+              if (!collRef) throw new Error("Could not get quizItems collection ref.");
+              const q = query(collRef, orderBy("createdAt", "desc"));
+              const snapshot = await getDocs(q);
+              const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              quizItemsList.innerHTML = '';
 
+              if (items.length === 0) {
+                  quizItemsList.innerHTML = createLoadingMessage(`No questions saved for ${subject} yet.`);
+              } else {
+                  items.forEach((item, index) => {
+                      const div = document.createElement('div');
+                      const itemSubject = item.subject || subject;
+                      const colorInfo = getSubjectColorInfo(itemSubject);
+                      const paper = item.paper || 'General';
+                      div.className = `quiz-item list-item flex justify-between items-start p-3 rounded-lg border ${colorInfo.borderClass.replace('border-l-4', 'border')} bg-white dark:bg-slate-800 shadow-sm space-x-3 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all duration-150 list-item-appear`;
+                      div.style.animationDelay = `${index * 0.05}s`;
+
+                      let questionHtml = item.question ? `<p class="font-medium text-text dark:text-text-dark mb-1 truncate" title="${escapeHtml(item.question)}">Q: ${escapeHtml(item.question)}</p>` : '';
+                      if (item.questionFileUrl) {
+                          questionHtml += `<div class="mt-1">${renderFilePreview(item.questionFileUrl, 'Question file', 'list')}</div>`;
+                      }
+                      if (!questionHtml) {
+                          questionHtml = `<p class="font-medium text-text dark:text-text-dark mb-1 italic text-muted dark:text-muted-dark">(No question text/file)</p>`;
+                      }
+
+                      let answerHtml = item.answer ? `<p class="text-xs text-muted dark:text-muted-dark whitespace-pre-wrap break-words mt-1" title="${escapeHtml(item.answer)}">A: ${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</p>` : '';
+                      if (item.answerFileUrl) {
+                          answerHtml += `<div class="mt-1">${renderFilePreview(item.answerFileUrl, 'Answer file', 'list')}</div>`;
+                      }
+                      if (!answerHtml) {
+                          answerHtml = `<p class="text-xs text-muted dark:text-muted-dark mt-1 italic">(No answer text/file)</p>`;
+                      }
+                      const paperTag = `<span class="text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 font-medium ml-2">${escapeHtml(paper)}</span>`;
+
+                      const actionsHtml = `
+                          <div class="flex-shrink-0 flex items-center space-x-1">
+                              <button title="Edit Question" class="list-action-btn edit p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-primary" data-quiz-id="${item.id}"><i data-lucide="edit-3" class="h-4 w-4"></i></button>
+                              <button title="Delete Question" class="list-action-btn delete p-1 -m-1 rounded-full btn-animated focus-visible:ring-1 focus-visible:ring-red-500" onclick="window.handleGenericDeleteItem('quizItems', '${escapeHtml(subject)}', '${item.id}', 'quiz question', window.displaySavedQuizQuestions)"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                          </div>`;
+
+                      div.innerHTML = `<div class="flex-grow text-sm overflow-hidden"><div class="flex justify-between items-start mb-1">${questionHtml}${paperTag}</div>${answerHtml}</div>${actionsHtml}`;
+                                            quizItemsList.appendChild(div);
+
+                      // Attach event listener for the new edit button
+                      const editBtn = div.querySelector('.list-action-btn.edit');
+                      editBtn?.addEventListener('click', () => openEditQuizQuestionModal(item.id, subject, item));
+                  });
+                  safelyCreateIcons();
+              }
+              await toggleQuizButtons();
+          } catch (error) {
+              console.error(`Error loading quiz items for ${subject}:`, error);
+              if(quizItemsList) quizItemsList.innerHTML = createLoadingMessage(`Error loading questions for ${subject}. Check console.`);
+              await toggleQuizButtons();
+          }
+      };
+      window.displaySavedQuizQuestions = displaySavedQuizQuestions; // Make globally accessible
+
+      const uploadFile = async (file, subject) => { if (!file || !currentUserId || !subject || !storage) { throw new Error("Cannot upload file: Missing required information or storage service."); } if (file.size > MAX_FILE_UPLOAD_SIZE) { throw new Error(`File size exceeds limit (${(MAX_FILE_UPLOAD_SIZE / 1024 / 1024).toFixed(1)} MB).`); } const timestamp = Date.now(); const nameParts = file.name.split('.'); const extension = nameParts.length > 1 ? `.${nameParts.pop()}` : ''; const baseName = nameParts.join('.'); const cleanBaseName = baseName.replace(/[^a-zA-Z0-9_.\-]/g, '_'); const safeFileName = `${cleanBaseName}_${timestamp}${extension}`; const storagePath = `quizFiles/${currentUserId}/${subject}/${safeFileName}`; const storageRef = ref(storage, storagePath); try { const snapshot = await uploadBytes(storageRef, file); const downloadURL = await getDownloadURL(snapshot.ref); return downloadURL; } catch (error) { console.error("Firebase Storage Upload Error:", error); let userMessage = `Upload Failed: ${error.message}`; if (error.code === 'storage/unauthorized') { userMessage = 'Upload Failed: You do not have permission to upload files. Check Storage Rules.'; } else if (error.code === 'storage/canceled') { userMessage = 'Upload Failed: The upload was cancelled.'; } else if (error.code === 'storage/unknown') { userMessage = 'Upload Failed: An unknown error occurred. Check network connection.'; } else if (error.code === 'storage/quota-exceeded') { userMessage = 'Upload Failed: Storage quota exceeded.';} throw new Error(`${userMessage} (Code: ${error.code})`); } };
+      const handleSaveQuizQuestion = async () => { if (!currentUserId || !currentActiveSubject || !saveQuizQuestionBtn || !db || !storage || !quizQuestionInput || !quizAnswerInput || !quizQuestionFileInput || !quizAnswerFileInput || !quizPaperSelect) { alert("Cannot save question: Missing required context or elements."); return; } validateQuizForm(); if (saveQuizQuestionBtn.disabled) { return; } const questionText = quizQuestionInput.value.trim(); const answerText = quizAnswerInput.value.trim(); const questionFile = quizQuestionFileInput.files[0]; const answerFile = quizAnswerFileInput.files[0]; const paper = quizPaperSelect.value || 'General'; saveQuizQuestionBtn.disabled = true; saveQuizQuestionBtn.textContent = 'Saving...'; let questionFileUrl = null; let answerFileUrl = null; let errorOccurred = false; try { if (questionFile) { saveQuizQuestionBtn.textContent = 'Uploading Q file...'; questionFileUrl = await uploadFile(questionFile, currentActiveSubject); } if (answerFile) { saveQuizQuestionBtn.textContent = 'Uploading A file...'; answerFileUrl = await uploadFile(answerFile, currentActiveSubject); } saveQuizQuestionBtn.textContent = 'Saving Data...'; const newItem = { question: questionText, answer: answerText, paper: paper, createdAt: serverTimestamp(), subject: currentActiveSubject }; if (questionFileUrl) newItem.questionFileUrl = questionFileUrl; if (answerFileUrl) newItem.answerFileUrl = answerFileUrl; const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject); if (!collRef) throw new Error("Could not get quizItems collection ref for saving."); const docRef = await addDoc(collRef, newItem); if (quizQuestionInput) quizQuestionInput.value = ''; if (quizAnswerInput) quizAnswerInput.value = ''; if (quizQuestionFileInput) quizQuestionFileInput.value = '';
+            if (quizAnswerFileInput) quizAnswerFileInput.value = '';
+            if (quizQuestionFilenameEl) quizQuestionFilenameEl.textContent = '';
+            if (clearQuizQuestionFileBtn) clearQuizQuestionFileBtn.classList.add('hidden');
+            if (quizAnswerFilenameEl) quizAnswerFilenameEl.textContent = '';
+            if (clearQuizAnswerFileBtn) clearQuizAnswerFileBtn.classList.add('hidden');
+            if(quizPaperSelect) quizPaperSelect.value = 'General';
+            if (addQuizDetails) addQuizDetails.open = false;
+            displaySavedQuizQuestions(currentActiveSubject);
+      } catch (error) { errorOccurred = true; console.error("Error during handleSaveQuizQuestion:", error); alert(`Failed to save question. ${error.message}. Check console.`); const cleanupPromises = []; if (questionFileUrl) { cleanupPromises.push( deleteObject(ref(storage, questionFileUrl)).then(() => {}).catch(e => console.warn("Could not clean up orphaned question file:", e)) ); } if (answerFileUrl) { cleanupPromises.push( deleteObject(ref(storage, answerFileUrl)).then(() => {}).catch(e => console.warn("Could not clean up orphaned answer file:", e)) ); } await Promise.allSettled(cleanupPromises); } finally { saveQuizQuestionBtn.textContent = 'Add Question'; validateQuizForm(); } };
+
+      // --- Quiz Mode Logic ---
       const showPaperSelectionModal = () => { if (!quizPaperSelectModal) return; populateQuizPaperOptions(currentActiveSubject); quizPaperSelectModal.classList.remove('hidden'); quizPaperSelectModal.querySelectorAll('.quiz-paper-choice-btn').forEach(btn => { if(btn instanceof HTMLButtonElement) btn.disabled = false; }); if (cancelPaperSelectBtn) cancelPaperSelectBtn.disabled = false; };
       const hidePaperSelectionModal = () => { if (!quizPaperSelectModal) return; quizPaperSelectModal.classList.add('hidden'); };
       const startQuizMode = async (paperSelection) => { if (!currentUserId || !currentActiveSubject || !db) { alert("Cannot start quiz: Missing user, subject, or DB connection."); return; } if (!paperSelection) { alert("Internal error: Paper selection was not provided."); return; } try { const collRef = getSubjectSpecificCollectionRef(currentUserId, 'quizItems', currentActiveSubject); if (!collRef) throw new Error("Could not get quizItems collection ref."); const snapshot = await getDocs(collRef); const allQuestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); let filteredQuestions = []; if (paperSelection === 'All') { filteredQuestions = allQuestions; } else { filteredQuestions = allQuestions.filter(q => (q.paper || 'General') === paperSelection); } if (filteredQuestions.length === 0) { alert(`No questions found for ${currentActiveSubject} matching criteria: ${paperSelection}. Add some questions first!`); return; } quizState = { active: true, currentSubject: currentActiveSubject, currentPaperSelection: paperSelection, initialQuestions: filteredQuestions.map(q => ({ ...q, markedIncorrectInPriorRound: false, masteredInThisSession: false })), currentQuizPool: shuffleArray([...filteredQuestions]), incorrectlyAnswered: [], currentQuestionIndex: 0, round: 1, totalMastered: 0, isAnswerVisible: false, buttonTimeout: null, correctAnswersInSession: 0, isSpinnerModalOpen: false, spinJustFinished: false }; if (addQuizDetails) addQuizDetails.style.display = 'none'; if (quizListContainer) quizListContainer.classList.add('hidden'); if (quizCompletionMessage) quizCompletionMessage.classList.add('hidden'); if (quizModeInterface) quizModeInterface.classList.remove('hidden'); if (stopQuizButton) stopQuizButton.textContent = "Stop Quiz"; displayCurrentQuizQuestion(); } catch (error) { console.error("Error starting quiz:", error); alert("Could not start the quiz due to an error. Check console."); stopQuizMode(); } };
@@ -1079,7 +1715,7 @@
               if (quizState.correctAnswersInSession >= CORRECT_ANSWERS_FOR_SPINNER) {
                   if (quizJudgmentButtons) quizJudgmentButtons.style.display = 'none';
                   setTimeout(showSpinnerModal, 400);
-                  return;
+                  return; // Don't proceed to next question immediately
               }
           } else {
               quizState.correctAnswersInSession = 0;
@@ -1106,20 +1742,21 @@
       };
       const handleQuizRoundEnd = () => { const trulyMasteredCount = quizState.initialQuestions.filter(q => q.masteredInThisSession).length; quizState.totalMastered = trulyMasteredCount; updateQuizProgressDisplay(); if (quizState.incorrectlyAnswered.length === 0) { if(quizCompletionMessage) { quizCompletionMessage.textContent = `🎉 Well done! You've mastered all ${quizState.initialQuestions.length} questions for ${quizState.currentSubject} (${quizState.currentPaperSelection})!`; quizCompletionMessage.classList.remove('hidden'); } if (quizQuestionDisplay) quizQuestionDisplay.innerHTML = '<p class="italic text-muted dark:text-muted-dark">Quiz complete!</p>'; if (quizRevealBtnContainer) quizRevealBtnContainer.style.display = 'none'; if (quizJudgmentButtons) quizJudgmentButtons.style.display = 'none'; if (quizCorrectAnswerDisplay) quizCorrectAnswerDisplay.style.display = 'none'; if (stopQuizButton) stopQuizButton.textContent = "Finish Session"; } else { quizState.round++; quizState.currentQuizPool = shuffleArray([...quizState.incorrectlyAnswered]); quizState.incorrectlyAnswered = []; quizState.currentQuestionIndex = 0; alert(`Round ${quizState.round} starting with ${quizState.currentQuizPool.length} remaining question(s).`); displayCurrentQuizQuestion(); } };
 
+      // --- Momentum Spinner Logic ---
       const populateMomentumSpinner = () => {
             if (!momentumSpinner || !momentumSpinnerViewport) return;
             momentumSpinner.innerHTML = '';
             momentumSpinnerState.fullSequence = [];
-            const shuffledItems = shuffleArray([...MOMENTUM_ITEMS]); // Shuffle numbers for visual variety
+            const shuffledItems = shuffleArray([...MOMENTUM_ITEMS]);
 
             for (let r = 0; r < MOMENTUM_REPETITIONS; r++) {
-                shuffledItems.forEach(itemValue => { // Use shuffled array
+                shuffledItems.forEach(itemValue => {
                     const itemElement = document.createElement('div');
                     itemElement.classList.add('momentum-spinner-item');
                     itemElement.innerHTML = `${itemValue}<span>min</span>`;
                     itemElement.dataset.value = itemValue;
                     momentumSpinner.appendChild(itemElement);
-                    momentumSpinnerState.fullSequence.push(itemValue); // Store the shuffled sequence
+                    momentumSpinnerState.fullSequence.push(itemValue);
                 });
             }
 
@@ -1195,10 +1832,6 @@
             if (momentumSpinnerState.isSpinning || !momentumSpinner || !momentumSpinnerViewport) {
                 return;
             }
-
-            // Placeholder for spin start sound
-            // try { new Audio('/sounds/spin-start.wav').play(); } catch(e) {}
-
             momentumSpinnerState.isSpinning = true;
             if (modalSpinButton) {
                 modalSpinButton.disabled = true;
@@ -1208,87 +1841,43 @@
             if (momentumResultDisplay) momentumResultDisplay.classList.remove('show');
 
             const winningValue = getWeightedRandomMomentumItem();
-
             const bufferItemCountApprox = Array.from(momentumSpinner.children).findIndex(el => el.classList.contains('momentum-spinner-item') && parseInt(el.dataset.value) === momentumSpinnerState.fullSequence[0]);
-
             const minSearchIndex = Math.floor(momentumSpinnerState.fullSequence.length * 0.3);
             const maxSearchIndex = Math.floor(momentumSpinnerState.fullSequence.length * 0.8);
             let possibleIndices = [];
-
             momentumSpinnerState.fullSequence.forEach((val, idx) => {
                  if (val === winningValue && idx >= minSearchIndex && idx < maxSearchIndex) {
                     possibleIndices.push(idx);
                  }
             });
-
             let targetSequenceIndex;
-            if (possibleIndices.length > 0) {
-                targetSequenceIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
-            } else {
-                 targetSequenceIndex = momentumSpinnerState.fullSequence.findIndex((val, idx) => val === winningValue && idx >= MOMENTUM_ITEMS.length);
-                 if (targetSequenceIndex === -1) {
-                     targetSequenceIndex = momentumSpinnerState.fullSequence.findIndex(val => val === winningValue);
-                     if (targetSequenceIndex === -1) targetSequenceIndex = 0;
-                 }
-            }
-
+            if (possibleIndices.length > 0) { targetSequenceIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)]; } else { targetSequenceIndex = momentumSpinnerState.fullSequence.findIndex((val, idx) => val === winningValue && idx >= MOMENTUM_ITEMS.length); if (targetSequenceIndex === -1) { targetSequenceIndex = momentumSpinnerState.fullSequence.findIndex(val => val === winningValue); if (targetSequenceIndex === -1) targetSequenceIndex = 0; } }
             const viewportWidth = momentumSpinnerViewport.offsetWidth;
             const markerPosition = viewportWidth / 2;
-
             const adjustedTargetIndex = targetSequenceIndex + bufferItemCountApprox;
             const targetCenterPosition = (adjustedTargetIndex * MOMENTUM_ITEM_WIDTH) + (MOMENTUM_ITEM_WIDTH / 2);
-
-            // Near miss calculation - land slightly off-center
-            const maxOffset = MOMENTUM_ITEM_WIDTH * 0.40; // +/- 40% max offset
-            let nearMissOffset = (Math.random() * maxOffset * 2) - maxOffset; // Random value between -maxOffset and +maxOffset
-            // Ensure nearMiss isn't *exactly* zero often
-            if (Math.abs(nearMissOffset) < 5) {
-                nearMissOffset = (nearMissOffset >= 0 ? 1 : -1) * (5 + Math.random() * (maxOffset - 5));
-            }
-
+            const maxOffset = MOMENTUM_ITEM_WIDTH * 0.40;
+            let nearMissOffset = (Math.random() * maxOffset * 2) - maxOffset;
+            if (Math.abs(nearMissOffset) < 5) { nearMissOffset = (nearMissOffset >= 0 ? 1 : -1) * (5 + Math.random() * (maxOffset - 5)); }
             const finalPosition = -(targetCenterPosition - markerPosition) + nearMissOffset;
-
-            // Placeholder for spinning sound (looping)
-            // let spinSound;
-            // try { spinSound = new Audio('/sounds/spinning.wav'); spinSound.loop = true; spinSound.play(); } catch(e) {}
 
             momentumSpinner.style.transition = `transform ${MOMENTUM_SPIN_DURATION_SECONDS}s ${tailwind.config.theme.extend.transitionTimingFunction['momentum-spin']}`;
             momentumSpinner.style.transform = `translateX(${finalPosition}px)`;
 
-            if (momentumSpinnerState.spinTimeout) {
-                clearTimeout(momentumSpinnerState.spinTimeout);
-            }
+            if (momentumSpinnerState.spinTimeout) { clearTimeout(momentumSpinnerState.spinTimeout); }
             momentumSpinnerState.spinTimeout = setTimeout(async () => {
-                // if (spinSound) spinSound.pause(); // Stop spinning sound
-                // Placeholder for landing sound
-                // try { new Audio('/sounds/spin-land.wav').play(); } catch(e) {}
-
                 momentumSpinnerState.isSpinning = false;
                 quizState.spinJustFinished = true;
-
-                if (modalSpinButton) {
-                    modalSpinButton.disabled = true;
-                    modalSpinButton.textContent = 'Result!'; // Changed text
-                }
+                if (modalSpinButton) { modalSpinButton.disabled = true; modalSpinButton.textContent = 'Result!'; }
                 if (closeSpinnerModalButton) closeSpinnerModalButton.style.display = 'block';
-
                 triggerValueUpdateAnimation(momentumResultValueDisplay, winningValue);
-                // Add a small icon next to the result
                 momentumResultDisplay.innerHTML = `You got <span id="momentum-result-value">${winningValue}</span> minutes! <i data-lucide="award" class="inline-block h-5 w-5 text-yellow-500 ml-1"></i>`;
-                safelyCreateIcons(); // Create the new icon
+                safelyCreateIcons();
                 if (momentumResultDisplay) momentumResultDisplay.classList.add('show');
-
                 await addWonTime(winningValue * 60);
-
-                 setTimeout(() => {
-                     if (spinnerModalOverlay?.classList.contains('visible') && quizState.spinJustFinished) {
-                         closeSpinnerModal(true);
-                     }
-                 }, 2500); // Reduced auto-close delay slightly
-
+                 setTimeout(() => { if (spinnerModalOverlay?.classList.contains('visible') && quizState.spinJustFinished) { closeSpinnerModal(true); } }, 2500);
             }, MOMENTUM_SPIN_DURATION_MS + 100);
         };
-
 
         const closeSpinnerModal = (proceedWithQuiz = false) => {
             if (!spinnerModalOverlay || !spinnerModalOverlay.classList.contains('visible')) {
@@ -1298,33 +1887,19 @@
                 if (momentumSpinnerState.spinTimeout) clearTimeout(momentumSpinnerState.spinTimeout);
                 return;
             }
-
             const spinHadJustFinished = quizState.spinJustFinished;
-
             spinnerModalOverlay.classList.remove('visible');
             setTimeout(() => {
                 spinnerModalOverlay?.classList.add('hidden');
-                if (momentumSpinner) {
-                    momentumSpinner.style.transition = 'none';
-                }
-                 if (momentumResultDisplay) {
-                    momentumResultDisplay.classList.remove('show');
-                    momentumResultDisplay.innerHTML = `You got <span id="momentum-result-value">?</span> minutes!`; // Reset text
-                 }
+                if (momentumSpinner) { momentumSpinner.style.transition = 'none'; }
+                 if (momentumResultDisplay) { momentumResultDisplay.classList.remove('show'); momentumResultDisplay.innerHTML = `You got <span id="momentum-result-value">?</span> minutes!`; }
                  if (momentumResultValueDisplay) momentumResultValueDisplay.textContent = '?';
                  if (closeSpinnerModalButton) closeSpinnerModalButton.style.display = 'none';
-
             }, 300);
-
-             if (momentumSpinnerState.spinTimeout) {
-                 clearTimeout(momentumSpinnerState.spinTimeout);
-                 momentumSpinnerState.spinTimeout = null;
-            }
-
+             if (momentumSpinnerState.spinTimeout) { clearTimeout(momentumSpinnerState.spinTimeout); momentumSpinnerState.spinTimeout = null; }
             momentumSpinnerState.isSpinning = false;
             quizState.isSpinnerModalOpen = false;
             quizState.spinJustFinished = false;
-
             if (spinHadJustFinished && proceedWithQuiz && quizState.active) {
                 quizState.correctAnswersInSession = 0;
                 quizState.currentQuestionIndex++;
@@ -1341,12 +1916,171 @@
             }
         };
 
+      // --- Edit Quiz Question Modal Logic ---
+      const openEditQuizQuestionModal = (quizId, subject, quizData) => {
+          if (!editQuizQuestionModal || !editQuizIdInput || !editQuizSubjectInput || !editQuizQuestionInput || !editQuizAnswerInput || !editQuizPaperSelect || !editQuizErrorMessage || !editQuizQuestionFileInput || !editQuizAnswerFileInput || !currentEditQFileDisplay || !currentEditAFileDisplay) return;
+
+          initialQuizDataForEdit = { // Reset initial data
+              questionFileUrl: quizData.questionFileUrl || null,
+              answerFileUrl: quizData.answerFileUrl || null,
+              questionFileCleared: false,
+              answerFileCleared: false
+          };
+
+          editQuizIdInput.value = quizId;
+          editQuizSubjectInput.value = subject;
+          editQuizQuestionInput.value = quizData.question || '';
+          editQuizAnswerInput.value = quizData.answer || '';
+          populateQuizPaperOptions(subject, editQuizPaperSelect); // Populate and set value
+          editQuizPaperSelect.value = quizData.paper || 'General';
+          editQuizErrorMessage.textContent = '';
+
+          // Reset file inputs and displays
+          editQuizQuestionFileInput.value = '';
+          editQuizAnswerFileInput.value = '';
+          editQuizQuestionFilenameEl.textContent = '';
+          editClearQuizQuestionFileBtn.classList.add('hidden');
+          editQuizAnswerFilenameEl.textContent = '';
+          editClearQuizAnswerFileBtn.classList.add('hidden');
+
+          // Show current files
+          currentEditQFileDisplay.innerHTML = `Current: ${quizData.questionFileUrl ? renderFilePreview(quizData.questionFileUrl, 'Current Question File', 'list') : 'None'}`;
+          currentEditAFileDisplay.innerHTML = `Current: ${quizData.answerFileUrl ? renderFilePreview(quizData.answerFileUrl, 'Current Answer File', 'list') : 'None'}`;
+          safelyCreateIcons(); // For icons in renderFilePreview
+
+          validateEditQuizForm();
+          editQuizQuestionModal.classList.remove('hidden');
+      };
+
+      const closeEditQuizQuestionModal = () => {
+          if (editQuizQuestionModal) editQuizQuestionModal.classList.add('hidden');
+          if (editQuizErrorMessage) editQuizErrorMessage.textContent = '';
+          // Reset initial data tracking
+          initialQuizDataForEdit = { questionFileUrl: null, answerFileUrl: null, questionFileCleared: false, answerFileCleared: false };
+      };
+
+      const validateEditQuizForm = () => validateQuizForm(true); // Use shared validation logic
+
+      const handleSaveQuizQuestionChanges = async () => {
+          if (!currentUserId || !db || !storage || !editQuizIdInput || !editQuizSubjectInput || !editQuizQuestionInput || !editQuizAnswerInput || !editQuizPaperSelect || !editQuizErrorMessage || !saveQuizChangesBtn || !editQuizQuestionFileInput || !editQuizAnswerFileInput) {
+              if(editQuizErrorMessage) editQuizErrorMessage.textContent = 'Error: Modal elements missing.';
+              return;
+          }
+
+          validateEditQuizForm();
+          if (saveQuizChangesBtn.disabled) {
+              if(editQuizErrorMessage) editQuizErrorMessage.textContent = 'Please ensure question and answer (text or file) are provided.';
+              return;
+          }
+          editQuizErrorMessage.textContent = '';
+
+          const quizId = editQuizIdInput.value;
+          const subject = editQuizSubjectInput.value;
+          const questionText = editQuizQuestionInput.value.trim();
+          const answerText = editQuizAnswerInput.value.trim();
+          const paper = editQuizPaperSelect.value || 'General';
+          const newQuestionFile = editQuizQuestionFileInput.files[0];
+          const newAnswerFile = editQuizAnswerFileInput.files[0];
+
+          saveQuizChangesBtn.disabled = true;
+          saveQuizChangesBtn.textContent = 'Saving...';
+
+          const updatedQuizData = { question: questionText, answer: answerText, paper: paper, updatedAt: serverTimestamp() };
+          let newQuestionFileUrl = null;
+          let newAnswerFileUrl = null;
+          let errorOccurred = false;
+          const filesToDelete = { qFile: null, aFile: null };
+
+          try {
+              // Handle Question File
+              if (newQuestionFile) {
+                  saveQuizChangesBtn.textContent = 'Uploading Q file...';
+                  newQuestionFileUrl = await uploadFile(newQuestionFile, subject);
+                  updatedQuizData.questionFileUrl = newQuestionFileUrl;
+                  if (initialQuizDataForEdit.questionFileUrl) { filesToDelete.qFile = initialQuizDataForEdit.questionFileUrl; } // Mark old file for deletion
+              } else if (initialQuizDataForEdit.questionFileCleared) {
+                  updatedQuizData.questionFileUrl = deleteField(); // Remove field
+                  if (initialQuizDataForEdit.questionFileUrl) { filesToDelete.qFile = initialQuizDataForEdit.questionFileUrl; } // Mark old file for deletion
+              } // Else: Keep existing file (no change needed in updatedQuizData)
+
+              // Handle Answer File
+              if (newAnswerFile) {
+                  saveQuizChangesBtn.textContent = 'Uploading A file...';
+                  newAnswerFileUrl = await uploadFile(newAnswerFile, subject);
+                  updatedQuizData.answerFileUrl = newAnswerFileUrl;
+                  if (initialQuizDataForEdit.answerFileUrl) { filesToDelete.aFile = initialQuizDataForEdit.answerFileUrl; } // Mark old file for deletion
+              } else if (initialQuizDataForEdit.answerFileCleared) {
+                  updatedQuizData.answerFileUrl = deleteField(); // Remove field
+                  if (initialQuizDataForEdit.answerFileUrl) { filesToDelete.aFile = initialQuizDataForEdit.answerFileUrl; } // Mark old file for deletion
+              } // Else: Keep existing file
+
+              saveQuizChangesBtn.textContent = 'Updating Data...';
+              const docRef = getSubjectSpecificDocRef(currentUserId, 'quizItems', subject, quizId);
+              if (!docRef) throw new Error("Could not get document reference for update.");
+              await updateDoc(docRef, updatedQuizData);
+
+              // Delete old files AFTER successful database update
+              if (filesToDelete.qFile || filesToDelete.aFile) {
+                  await handleDeleteQuizItemFiles(subject, null, filesToDelete);
+              }
+
+              closeEditQuizQuestionModal();
+              if (currentActiveSubject === subject) {
+                  displaySavedQuizQuestions(subject);
+              }
+
+          } catch (error) {
+              errorOccurred = true;
+              console.error("Error updating quiz question:", error);
+              if(editQuizErrorMessage) editQuizErrorMessage.textContent = `Failed to save changes. ${error.message}.`;
+              alert("Failed to update quiz question. Please try again.");
+
+              // Attempt to delete newly uploaded files if DB update failed
+              const cleanupPromises = [];
+              if (newQuestionFileUrl) { cleanupPromises.push( deleteObject(ref(storage, newQuestionFileUrl)).catch(e => console.warn("Could not clean up failed Q upload:", e)) ); }
+              if (newAnswerFileUrl) { cleanupPromises.push( deleteObject(ref(storage, newAnswerFileUrl)).catch(e => console.warn("Could not clean up failed A upload:", e)) ); }
+              await Promise.allSettled(cleanupPromises);
+
+          } finally {
+              saveQuizChangesBtn.disabled = false;
+              saveQuizChangesBtn.textContent = 'Save Changes';
+          }
+      };
+
+
+
+      // --- General Setup and Initialization ---
       const populateSubjectDropdown = (selectElement) => { if (!(selectElement instanceof HTMLSelectElement)) return; const currentValue = selectElement.value; const placeholder = selectElement.options[0]?.value === "" ? selectElement.options[0].cloneNode(true) : null; selectElement.innerHTML = ''; if (placeholder) { selectElement.appendChild(placeholder); } else { const opt = document.createElement('option'); opt.value = ""; opt.textContent = "-- Select Subject --"; selectElement.appendChild(opt); } if (!subjects || subjects.length === 0) return; subjects.forEach(subject => { const option = document.createElement('option'); option.value = subject; option.textContent = subject; selectElement.appendChild(option); }); if (subjects.includes(currentValue)) { selectElement.value = currentValue; } };
+
+      const updateFileInputDisplay = (fileInput, filenameEl, clearBtn, isEdit = false, fileType = '') => { // Added isEdit and fileType
+          if (!fileInput || !filenameEl || !clearBtn) return;
+
+          if (fileInput.files && fileInput.files.length > 0) {
+              filenameEl.textContent = fileInput.files[0].name;
+              clearBtn.classList.remove('hidden');
+              // If editing, mark that this file type is *not* cleared if a new one is selected
+              if (isEdit) {
+                  if (fileType === 'question') initialQuizDataForEdit.questionFileCleared = false;
+                  if (fileType === 'answer') initialQuizDataForEdit.answerFileCleared = false;
+              }
+          } else {
+              filenameEl.textContent = '';
+              clearBtn.classList.add('hidden');
+              // If editing and the input is cleared, mark that the file *should* be cleared
+              if (isEdit) {
+                  if (fileType === 'question') initialQuizDataForEdit.questionFileCleared = true;
+                  if (fileType === 'answer') initialQuizDataForEdit.answerFileCleared = true;
+              }
+          }
+          if(isEdit) validateEditQuizForm(); else validateQuizForm();
+      };
+
 
       const setupGlobalEventListeners = () => {
           if (eventListenersAttached) {
               return;
           }
+          // Login/Logout/Theme/Navigation... (Existing listeners)
           themeToggle?.addEventListener('click', toggleTheme);
           themeToggleMobile?.addEventListener('click', toggleTheme);
           loginButton?.addEventListener('click', handleLogin);
@@ -1359,12 +2093,22 @@
           mobileOverlay?.addEventListener('click', closeMobileMenu);
           document.querySelectorAll('a.nav-link[data-page], a.mobile-nav-link[data-page]').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); if (link instanceof HTMLElement && link.dataset.page) { window.navigateToPage(link.dataset.page); } }); });
           getElement('dashboard')?.addEventListener('click', (e) => { const pomodoroBtn = e.target.closest('#start-pomodoro-dashboard-btn'); const examItem = e.target.closest('#upcoming-exams-list .upcoming-exam-item'); const quickAddResource = e.target.closest('#quick-add-resource'); const quickAddTracker = e.target.closest('#quick-add-tracker'); const quickAddPlanner = e.target.closest('#quick-add-planner'); if (pomodoroBtn) { window.navigateToPage('pomodoro'); } else if (examItem instanceof HTMLElement && examItem.dataset.page && examItem.dataset.subject) { window.navigateToPage(examItem.dataset.page, examItem.dataset.subject); } else if (quickAddResource) { window.navigateToPage('resources', null, 'add-resource-details'); } else if (quickAddTracker) { window.navigateToPage('tracker', null, 'add-tracker-details'); } else if (quickAddPlanner) { window.navigateToPage('planner'); } });
+
+          // Resources
           subjectTabsContainer?.addEventListener('click', (e) => { const tab = e.target.closest('.subject-tab'); if (tab instanceof HTMLElement && tab.dataset.subject) { handleSubjectSelection(tab.dataset.subject, 'resources'); } });
-          resourceTypeSelect?.addEventListener('change', toggleResourceTypeFields);
+          resourceTypeSelect?.addEventListener('change', () => toggleResourceTypeFields(false));
           resourceTitleInput?.addEventListener('input', validateResourceForm);
           resourceUrlInput?.addEventListener('input', validateResourceForm);
           resourceNoteInput?.addEventListener('input', validateResourceForm);
           saveResourceBtn?.addEventListener('click', handleSaveResource);
+          editResourceTypeSelect?.addEventListener('change', () => toggleResourceTypeFields(true));
+          editResourceTitleInput?.addEventListener('input', validateEditResourceForm);
+          editResourceUrlInput?.addEventListener('input', validateEditResourceForm);
+          editResourceNoteInput?.addEventListener('input', validateEditResourceForm);
+          saveResourceChangesBtn?.addEventListener('click', handleSaveResourceChanges);
+          cancelEditResourceBtn?.addEventListener('click', closeEditResourceModal);
+
+          // Pomodoro
           startPauseButton?.addEventListener('click', () => { if (pomodoroState.timerState === 'running') pauseTimer(); else startTimer(); });
           resetButton?.addEventListener('click', () => resetTimer(false));
           modeButtons.forEach(btn => { btn?.addEventListener('click', () => { if (btn instanceof HTMLElement && btn.dataset.mode) { const mode = btn.dataset.mode; if (mode !== pomodoroState.timerMode) { setTimerMode(mode, true); } } }); });
@@ -1373,22 +2117,36 @@
           longBreakDurationInput?.addEventListener('change', () => handleDurationChange('longBreak'));
           pomodoroSubjectSelect?.addEventListener('change', () => { if (pomodoroState.timerState === 'stopped' && pomodoroState.timerMode === 'work') { pomodoroState.workSessionSubject = pomodoroSubjectSelect.value; savePomodoroState(); } });
           useWonTimeButton?.addEventListener('click', startBonusTimer);
+
+          // Tracker
           trackerSubjectSelect?.addEventListener('change', (e) => { if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'tracker'); });
           trackerDescriptionInput?.addEventListener('input', validateTrackerForm);
           trackerStatusSelect?.addEventListener('change', validateTrackerForm);
           saveTrackerItemBtn?.addEventListener('click', handleSaveTrackerItem);
+          editTrackerDescriptionInput?.addEventListener('input', validateEditTrackerForm);
+          editTrackerStatusSelect?.addEventListener('change', validateEditTrackerForm);
+          saveTrackerChangesBtn?.addEventListener('click', handleSaveTrackerItemChanges);
+          cancelEditTrackerBtn?.addEventListener('click', closeEditTrackerItemModal);
+
+          // Planner
           plannerDateInput?.addEventListener('input', validatePlannerForm);
           plannerTimeInput?.addEventListener('input', validatePlannerForm);
           plannerSubjectSelect?.addEventListener('change', validatePlannerForm);
           plannerTopicInput?.addEventListener('input', validatePlannerForm);
           savePlannerItemBtn?.addEventListener('click', handleSavePlannerItem);
+
+          // Quiz (Add)
           quizSubjectSelect?.addEventListener('change', (e) => { if (e.target instanceof HTMLSelectElement) handleSubjectSelection(e.target.value, 'quiz'); });
           quizQuestionInput?.addEventListener('input', validateQuizForm);
           quizAnswerInput?.addEventListener('input', validateQuizForm);
-          quizQuestionFileInput?.addEventListener('change', validateQuizForm);
-          quizAnswerFileInput?.addEventListener('change', validateQuizForm);
+          quizQuestionFileInput?.addEventListener('change', () => updateFileInputDisplay(quizQuestionFileInput, quizQuestionFilenameEl, clearQuizQuestionFileBtn, false, 'question'));
+          clearQuizQuestionFileBtn?.addEventListener('click', () => { if (quizQuestionFileInput) quizQuestionFileInput.value = ''; updateFileInputDisplay(quizQuestionFileInput, quizQuestionFilenameEl, clearQuizQuestionFileBtn, false, 'question'); });
+          quizAnswerFileInput?.addEventListener('change', () => updateFileInputDisplay(quizAnswerFileInput, quizAnswerFilenameEl, clearQuizAnswerFileBtn, false, 'answer'));
+          clearQuizAnswerFileBtn?.addEventListener('click', () => { if (quizAnswerFileInput) quizAnswerFileInput.value = ''; updateFileInputDisplay(quizAnswerFileInput, quizAnswerFilenameEl, clearQuizAnswerFileBtn, false, 'answer'); });
           quizPaperSelect?.addEventListener('change', validateQuizForm);
           saveQuizQuestionBtn?.addEventListener('click', handleSaveQuizQuestion);
+
+          // Quiz (Mode)
           startQuizButton?.addEventListener('click', showPaperSelectionModal);
           stopQuizButton?.addEventListener('click', stopQuizMode);
           quizRevealAnswerBtn?.addEventListener('click', revealQuizAnswer);
@@ -1396,6 +2154,25 @@
           quizIncorrectBtn?.addEventListener('click', () => handleQuizAnswer(false));
           quizPaperModalOptions?.addEventListener('click', (e) => { const choiceBtn = e.target.closest('.quiz-paper-choice-btn'); if (choiceBtn instanceof HTMLButtonElement && choiceBtn.dataset.paperChoice) { hidePaperSelectionModal(); startQuizMode(choiceBtn.dataset.paperChoice); } });
           cancelPaperSelectBtn?.addEventListener('click', hidePaperSelectionModal);
+
+          // Quiz (Edit Modal)
+          editQuizQuestionInput?.addEventListener('input', validateEditQuizForm);
+          editQuizAnswerInput?.addEventListener('input', validateEditQuizForm);
+          editQuizQuestionFileInput?.addEventListener('change', () => updateFileInputDisplay(editQuizQuestionFileInput, editQuizQuestionFilenameEl, editClearQuizQuestionFileBtn, true, 'question'));
+          editClearQuizQuestionFileBtn?.addEventListener('click', () => {
+                if (editQuizQuestionFileInput) editQuizQuestionFileInput.value = '';
+                updateFileInputDisplay(editQuizQuestionFileInput, editQuizQuestionFilenameEl, editClearQuizQuestionFileBtn, true, 'question');
+          });
+          editQuizAnswerFileInput?.addEventListener('change', () => updateFileInputDisplay(editQuizAnswerFileInput, editQuizAnswerFilenameEl, editClearQuizAnswerFileBtn, true, 'answer'));
+          editClearQuizAnswerFileBtn?.addEventListener('click', () => {
+                if (editQuizAnswerFileInput) editQuizAnswerFileInput.value = '';
+                updateFileInputDisplay(editQuizAnswerFileInput, editQuizAnswerFilenameEl, editClearQuizAnswerFileBtn, true, 'answer');
+          });
+          editQuizPaperSelect?.addEventListener('change', validateEditQuizForm);
+          saveQuizChangesBtn?.addEventListener('click', handleSaveQuizQuestionChanges);
+          cancelEditQuizBtn?.addEventListener('click', closeEditQuizQuestionModal);
+
+          // Goals & Spinner
           saveDailyGoalsBtn?.addEventListener('click', saveDailyGoals);
           modalSpinButton?.addEventListener('click', performMomentumSpin);
           closeSpinnerModalButton?.addEventListener('click', () => closeSpinnerModal(false));
@@ -1412,6 +2189,9 @@
           setupGlobalEventListeners();
           if(spinnerModalOverlay) spinnerModalOverlay.classList.add('hidden');
           if(quizPaperSelectModal) quizPaperSelectModal.classList.add('hidden');
+          if(editResourceModal) editResourceModal.classList.add('hidden');
+          if(editTrackerItemModal) editTrackerItemModal.classList.add('hidden');
+          if(editQuizQuestionModal) editQuizQuestionModal.classList.add('hidden');
       };
 
       initializeAppHub();
